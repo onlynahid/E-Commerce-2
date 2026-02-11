@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AYYUAZ.APP.Application.Dtos;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IBasketService
+    {
+        // Basic CRUD operations
+        Task<BasketDto> GetBasketByIdAsync(int basketId);
+        Task<BasketDto> CreateBasketAsync(CreateBasketDto createBasketDto);
+        Task<BasketDto> UpdateBasketAsync(UpdateBasketDto updateBasketDto);
+        Task<bool> DeleteBasketAsync(int basketId);
+
+        // Basket management
+        Task<BasketDto> GetOrCreateBasketAsync();
+        Task<bool> ClearBasketAsync(int basketId);
+        Task<BasketDto> GetBasketWithItemsAsync(int basketId);
+        
+        // Basket item operations
+        Task<BasketDto> AddItemToBasketAsync(int basketId, CreateBasketItemDto basketItem);
+        Task<BasketDto> UpdateBasketItemAsync(int basketId, UpdateBasketItemDto basketItem);
+        Task<BasketDto> RemoveItemFromBasketAsync(int basketId, int basketItemId);
+        Task<BasketDto> UpdateItemQuantityAsync(int basketId, int basketItemId, int quantity);
+        
+        // Basket calculations
+        Task<decimal> GetBasketTotalAsync(int basketId);
+        Task<int> GetBasketItemsCountAsync(int basketId);
+        
+        // Basket validation
+        Task<bool> IsBasketValidAsync(int basketId);
+        Task<bool> IsBasketEmptyAsync(int basketId);
+        
+        // Convert basket to order
+        Task<OrderDto> ConvertBasketToOrderAsync(int basketId, CreateOrderDto orderDetails);
+    }
+}

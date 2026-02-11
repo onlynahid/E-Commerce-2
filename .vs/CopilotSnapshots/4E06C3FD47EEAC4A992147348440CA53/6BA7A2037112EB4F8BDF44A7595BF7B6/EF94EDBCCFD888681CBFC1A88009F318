@@ -1,0 +1,27 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FileStorageController : ControllerBase
+    {
+        private readonly IFileStorageService _fileStorageService;
+
+        public FileStorageController(IFileStorageService fileStorageService)
+        {
+            _fileStorageService = fileStorageService;
+        }
+
+        /// <summary>
+        /// Upload a single image file
+        /// </summary>
+        /// <param name="request">File upload request</param>
+        /// <returns>Upload result with image URL</returns>
+        [HttpPost("upload")]
+        [Authorize]
+       

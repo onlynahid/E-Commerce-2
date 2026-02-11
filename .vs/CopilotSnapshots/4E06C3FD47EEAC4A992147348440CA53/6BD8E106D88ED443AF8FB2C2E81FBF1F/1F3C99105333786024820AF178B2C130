@@ -1,0 +1,137 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+namespace AYYUAZ.APP.Application.Service 
+{
+    public class ProductService  : IProductService 
+    {
+        private readonly IProductRepository _productRepository;
+        private readonly IFileStorageService  _fileStorageService ;
+        public ProductService (IProductRepository productRepository, IFileStorageService  fileStorageService )
+        {
+            _productRepository = productRepository;
+            _fileStorageService  = fileStorageService ;
+        }
+
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto)
+        {
+            string imageUrl = "default-product.jpg"; 
+            
+            if (createProductDto.Image != null && createProductDto.Image.Length > 0)
+            {
+                try
+                {
+                    imageUrl = await _fileStorageService .UploadImageAsync(createProductDto.Image, "products");
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new ArgumentException($"Image upload failed: {ex.Message}");
+                }
+            }
+
+            var product = new Product
+            {
+                Name = createProductDto.Name,
+                Description = createProductDto.Description,
+                Price = createProductDto.Price,
+                StockQuantity = createProductDto.Stock,
+                CategoryId = createProductDto.CategoryId,
+                ImageUrl = imageUrl,
+                CreatedAt = DateTime.UtcNow,
+                AgeGroup = createProductDto.AgeGroups != null ? string.Join(",", createProductDto.AgeGroups) : null,
+                Material = createProductDto.Materials != null ? string.Join(",", createProductDto.Materials) : null,
+                Size = createProductDto.Size != null ? string.Join(",", createProductDto.Size) : null,
+                Colors = createProductDto.Colors != null ? string.Join(",", createProductDto.Colors) : null,
+            };
+
+            // Create discount if provided
+            if (createProductDto.DiscountPercentage.HasValue && createProductDto.DiscountPercentage.Value > 0)
+            {
+                var discount = new Discount
+                {
+                    Percentage = createProductDto.DiscountPercentage.Value
+                };
+                await _productRepository.AddProductWithDiscountAsync(product, discount);
+            }
+            else
+            {
+                await _productRepository.AddProductAsync(product);
+            }
+
+            return await GetProductByIdAsync(product.Id);
+        }
+        
+        public async Task<bool> DeleteProductAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            if (product == null)
+                return false;
+
+            if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "default-product.jpg")
+            {
+                await _fileStorageService .DeleteImageAsync(product.ImageUrl);
+            }
+
+            await _productRepository.DeleteProductAsync(productId);
+            return true;
+        }
+        
+        public async Task<List<Product>> FilterProductsAsync(ProductFilterDto filter)
+        {
+            return await _productRepository.FilterProductsAsync
+                (
+                filter.AgeGroups,
+                filter.Size,
+                filter.Materials,
+                filter.Colors,
+                filter.MinPrice,
+                filter.MaxPrice
+             );
+        }
+        
+        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Select(p => MapToDto(p));
+        }
+        
+        public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => p.StockQuantity > 0)
+                .Select(p => MapToDto(p));
+        }
+        
+        public async Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .Select(p => MapToDto(p));
+        }
+        
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            return product == null ? throw new KeyNotFoundException("Product Not Found") : MapToDto(product);
+        }
+        
+        public  async Task<int> GetProductCountAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count();
+        }
+        
+        public async Task<int> GetProductCountByCategoryAsync(int categoryId)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count(p => p.CategoryId == category

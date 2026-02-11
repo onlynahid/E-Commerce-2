@@ -1,0 +1,17 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IAuthService
+    {
+        Task<LoginResponseDto> LoginAsync(LoginDto loginDto);
+        Task<string> GenerateJwtTokenAsync(UserDto user);
+        Task<UserDto> GetUserByIdAsync(int userId);
+        Task<bool> ValidatePasswordAsync(string password, string hashedPassword);
+    }
+}

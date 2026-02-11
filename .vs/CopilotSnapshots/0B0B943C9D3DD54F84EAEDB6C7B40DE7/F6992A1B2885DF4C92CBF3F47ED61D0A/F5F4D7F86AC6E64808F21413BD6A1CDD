@@ -1,0 +1,77 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Infrastructure.Data
+{
+    public class AppDbContext : IdentityDbContext<AppUser>
+    {
+        public AppDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        public DbSet<Basket> Baskets { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Settings> Settings { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<About> About { get; set; }
+        public DbSet<AppUser> AppUser { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // Basket relationships
+            builder.Entity<Basket>()
+                .HasMany(b => b.BasketItems)
+                .WithOne(b => b.Basket)
+                .HasForeignKey(b => b.BasketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Basket>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Order relationships
+            builder.Entity<Order>()
+                .HasMany(o => o.OrderItems)
+                .WithOne(oi => oi.Order)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Price column types
+            builder.Entity<BasketItem>()
+                .Property(b => b.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderItem>()
+                .Property(o => o.UnitPrice)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Order>()
+                .Property(o => o.TotalAmount)
+                .HasColumnType("decimal(18,2)");
+
+            // Category relationships
+            builder.Entity<Category>()
+                .HasMany(c => c.Products)
+                .WithOne(p => p.Category)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}

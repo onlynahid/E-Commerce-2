@@ -1,0 +1,213 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductController : ControllerBase
+    {
+        private readonly IProductService _productService;
+
+        public ProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            return Ok(products);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound($"Product with ID {id} not found.");
+            }
+            return Ok(product);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] CreateProductDto createProductDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var product = await _productService.CreateProductAsync(createProductDto);
+                return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromForm] UpdateProductDto updateProductDto)
+        {
+            if (id != updateProductDto.Id)
+            {
+                return BadRequest("Product ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var product = await _productService.UpdateProductAsync(updateProductDto);
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {id} not found.");
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteProduct(int id)
+        {
+            var result = await _productService.DeleteProductAsync(id);
+            if (!result)
+            {
+                return NotFound($"Product with ID {id} not found.");
+            }
+            return NoContent();
+        }
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            return Ok(products);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+
+            var products = await _productService.GetProductsByNameAsync(searchTerm);
+            return Ok(products);
+        }
+
+        [HttpGet("price-range")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByPriceRange([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
+        {
+            if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+            {
+                return BadRequest("Invalid price range.");
+            }
+
+            var products = await _productService.GetProductsByPriceRangeAsync(minPrice, maxPrice);
+            return Ok(products);
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<object>> GetProductsWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and page size must be greater than 0.");
+            }
+
+            var products = await _productService.GetProductsWithPaginationAsync(page, pageSize);
+            var totalCount = await _productService.GetProductCountAsync();
+            
+            return Ok(new
+            {
+                products,
+                totalCount,
+                currentPage = page,
+                pageSize,
+                totalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+            });
+        }
+
+        [HttpGet("available")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAvailableProducts()
+        {
+            var products = await _productService.GetAvailableProductsAsync();
+            return Ok(products);
+        }
+
+        [HttpGet("latest")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetLatestProducts([FromQuery] int count = 10)
+        {
+            var products = await _productService.GetLatestProductsAsync(count);
+            return Ok(products);
+        }
+
+        [HttpGet("featured")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetFeaturedProducts()
+        {
+            var products = await _productService.GetFeaturedProductsAsync();
+            return Ok(products);
+        }
+
+        [HttpGet("sorted-by-price")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsSortedByPrice([FromQuery] bool ascending = true)
+        {
+            var products = await _productService.GetProductsSortedByPriceAsync(ascending);
+            return Ok(products);
+        }
+
+        [HttpGet("sorted-by-name")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsSortedByName([FromQuery] bool ascending = true)
+        {
+            var products = await _productService.GetProductsSortedByNameAsync(ascending);
+            return Ok(products);
+        }
+
+        [HttpGet("sorted-by-date")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsSortedByDate([FromQuery] bool ascending = false)
+        {
+            var products = await _productService.GetProductsSortedByDateAsync(ascending);
+            return Ok(products);
+        }
+
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<bool>> CheckProductAvailability(int id)
+        {
+            var isAvailable = await _productService.IsProductAvailableAsync(id);
+            return Ok(new { productId = id, isAvailable });
+        }
+
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetProductCount()
+        {
+            var count = await _productService.GetProductCountAsync();
+            return Ok(count);
+        }
+
+        [HttpGet("category/{categoryId}/count")]
+        public async Task<ActionResult<int>> GetProductCountByCategory(int categoryId)
+        {
+            var count = await _productService.GetProductCountByCategoryAsync(categoryId);
+            return Ok(count);
+        }
+    }
+}

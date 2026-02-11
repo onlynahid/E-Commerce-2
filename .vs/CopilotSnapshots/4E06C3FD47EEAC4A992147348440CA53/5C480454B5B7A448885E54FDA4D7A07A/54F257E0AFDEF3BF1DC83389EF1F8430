@@ -1,0 +1,81 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
+    {
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
+        {
+            _authService = authService;
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.LoginAsync(loginDto);
+            
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return Unauthorized(result);
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.RegisterAsync(registerDto);
+            
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+
+        [HttpPost("validate-token")]
+        [Authorize]
+        public async Task<ActionResult> ValidateToken()
+        {
+            return Ok(new { message = "Token is valid", user = User.Identity?.Name });
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+            return Ok(new
+            {
+                userId = userId,
+                username = username,
+                email = email,
+                role = role,
+                isAuthenticated = User.Identity?.IsAuthenticated ?? false
+            });
+        }
+    }
+}

@@ -1,0 +1,103 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class ProductService : IProductService
+    {
+        public Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteProductAsync(int productId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductDto> GetProductByIdAsync(int productId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetProductCountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetProductCountByCategoryAsync(int categoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string searchTerm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsSortedByDateAsync(bool ascending = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsSortedByNameAsync(bool ascending = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsSortedByPriceAsync(bool ascending = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProductDto>> GetProductsWithPaginationAsync(int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsProductAvailableAsync(int productId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductDto> UpdateProductAsync(UpdateProductDto updateProductDto)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

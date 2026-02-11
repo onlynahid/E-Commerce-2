@@ -1,0 +1,64 @@
+﻿
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Application.Services;
+using AYYUAZ.APP.Domain.Interfaces;
+using AYYUAZ.APP.Infrastructure.Data;
+using AYYUAZ.APP.Infrastructure.Repositories;
+using AYYUAZ.APP.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+namespace AYYUAZ.APP
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+            var configuration = builder.Configuration;
+            // Add services to the container.
+
+            builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                options.UseSqlServer(connectionString);
+            });
+
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAboutRepository, AboutRepository>();
+
+
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAboutService, AboutService>();
+           
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+             throw new InvalidOperationException("DefaultConnection string is not configured");
+          
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+            app.UseHttpsRedirection();
+            app.UseAuthorization();
+            app.UseStaticFiles();
+
+            app.MapControllers();
+            app.Run();
+        }
+    }
+}

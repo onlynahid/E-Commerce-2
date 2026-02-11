@@ -1,0 +1,117 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class ProductService : IProductService
+    {
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public ProductService(
+            IProductRepository productRepository,
+            ICategoryRepository categoryRepository,
+            IWebHostEnvironment webHostEnvironment)
+        {
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto)
+        {
+            // Handle image upload
+            var imageUrl = await SaveImageAsync(createProductDto.Image);
+
+            var product = new Product
+            {
+                Name = createProductDto.Name,
+                Description = createProductDto.Description,
+                Price = createProductDto.Price,
+                StockQuantity = createProductDto.Stock.ToString(),
+                CategoryId = createProductDto.CategoryId,
+                ImageUrl = imageUrl,
+                CreatedAt = DateTime.Now
+            };
+
+            await _productRepository.AddProductAsync(product);
+
+            return await GetProductByIdAsync(product.Id);
+        }
+
+        public async Task<bool> DeleteProductAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            if (product == null)
+                return false;
+
+            // Delete image file if exists
+            if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                DeleteImage(product.ImageUrl);
+            }
+
+            await _productRepository.DeleteProductAsync(productId);
+            return true;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => !string.IsNullOrEmpty(p.StockQuantity) && 
+                           int.TryParse(p.StockQuantity, out int stock) && stock > 0)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync()
+        {
+            // Return latest 8 products as featured for now
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(8)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .Select(MapToDto);
+        }
+
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            return product == null ? null : MapToDto(product);
+        }
+
+        public async Task<int> GetProductCountAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count();
+        }
+
+        public async Task<int> GetProductCountByCategoryAsync(int categoryId)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count(p => p.CategoryId == category

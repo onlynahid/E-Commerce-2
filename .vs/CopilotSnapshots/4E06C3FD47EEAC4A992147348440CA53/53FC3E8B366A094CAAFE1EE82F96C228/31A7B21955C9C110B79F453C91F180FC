@@ -1,0 +1,145 @@
+﻿# AYYUAZ.APP Controllers Summary
+
+This document provides an overview of all controllers created for the AYYUAZ.APP API.
+
+## Controllers Overview
+
+### 1. AuthController (`/api/auth`)
+**Purpose**: User authentication and authorization
+**Endpoints**:
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration  
+- `POST /api/auth/validate-token` - Validate JWT token
+- `GET /api/auth/me` - Get current user information
+
+### 2. ProductController (`/api/product`)
+**Purpose**: Product management and operations
+**Endpoints**:
+- `GET /api/product` - Get all products
+- `GET /api/product/{id}` - Get product by ID
+- `POST /api/product` - Create new product (Admin only)
+- `PUT /api/product/{id}` - Update product (Admin only)
+- `DELETE /api/product/{id}` - Delete product (Admin only)
+- `GET /api/product/category/{categoryId}` - Get products by category
+- `GET /api/product/search?searchTerm={term}` - Search products
+- `GET /api/product/price-range?minPrice={min}&maxPrice={max}` - Filter by price
+- `GET /api/product/paged?page={page}&pageSize={size}` - Paginated products
+- `GET /api/product/available` - Get available products
+- `GET /api/product/latest?count={count}` - Get latest products
+- `GET /api/product/featured` - Get featured products
+- `GET /api/product/sorted-by-price?ascending={bool}` - Sort by price
+- `GET /api/product/sorted-by-name?ascending={bool}` - Sort by name
+- `GET /api/product/sorted-by-date?ascending={bool}` - Sort by date
+- `GET /api/product/{id}/availability` - Check product availability
+- `GET /api/product/count` - Get total product count
+- `GET /api/product/category/{categoryId}/count` - Get category product count
+
+### 3. CategoryController (`/api/category`)
+**Purpose**: Category management
+**Endpoints**:
+- `GET /api/category` - Get all categories
+- `GET /api/category/{id}` - Get category by ID
+- `POST /api/category` - Create new category (Admin only)
+- `PUT /api/category/{id}` - Update category (Admin only)
+- `DELETE /api/category/{id}` - Delete category (Admin only)
+- `GET /api/category/with-products` - Get categories with products
+- `GET /api/category/{id}/with-products` - Get category with products
+- `GET /api/category/search?searchTerm={term}` - Search categories
+- `GET /api/category/paged?page={page}&pageSize={size}` - Paginated categories
+- `GET /api/category/count` - Get category count
+- `GET /api/category/check-name?name={name}&excludeId={id}` - Check name uniqueness
+
+### 4. OrderController (`/api/order`)
+**Purpose**: Order management and processing
+**Endpoints**:
+- `GET /api/order` - Get all orders (Admin only)
+- `GET /api/order/{id}` - Get order by ID (Authenticated)
+- `POST /api/order` - Create new order (Public)
+- `PUT /api/order/{id}` - Update order (Admin only)
+- `DELETE /api/order/{id}` - Delete order (Admin only)
+- `GET /api/order/customer/{customerName}` - Get orders by customer (Admin only)
+- `GET /api/order/search?searchTerm={term}` - Search orders (Admin only)
+- `GET /api/order/paged?page={page}&pageSize={size}` - Paginated orders (Admin only)
+- `GET /api/order/recent?count={count}` - Get recent orders (Admin only)
+- `GET /api/order/statistics/average-order-value` - Get average order value (Admin only)
+- `GET /api/order/count` - Get order count (Admin only)
+- `GET /api/order/{id}/with-items` - Get order with items (Authenticated)
+- `GET /api/order/with-items` - Get orders with items (Admin only)
+
+### 5. AboutController (`/api/about`)
+**Purpose**: About page content management
+**Endpoints**:
+- `GET /api/about` - Get all about entries
+- `GET /api/about/{id}` - Get about by ID
+- `POST /api/about` - Create new about entry (Admin only)
+- `PUT /api/about/{id}` - Update about entry (Admin only)
+- `DELETE /api/about/{id}` - Delete about entry (Admin only)
+- `GET /api/about/latest` - Get latest about entry
+- `GET /api/about/by-title/{title}` - Get about by title
+- `GET /api/about/search?searchTerm={term}` - Search about entries
+- `GET /api/about/paged?page={page}&pageSize={size}` - Paginated about entries
+- `GET /api/about/count` - Get about count
+- `GET /api/about/check-title?title={title}&excludeId={id}` - Check title uniqueness
+
+### 6. SettingsController (`/api/settings`)
+**Purpose**: Application settings management
+**Endpoints**:
+- `GET /api/settings` - Get all settings
+- `GET /api/settings/{id}` - Get settings by ID
+- `POST /api/settings` - Create new settings (Admin only)
+- `PUT /api/settings/{id}` - Update settings (Admin only)
+- `DELETE /api/settings/{id}` - Delete settings (Admin only)
+- `GET /api/settings/current` - Get current settings
+- `GET /api/settings/default` - Get default settings
+- `PUT /api/settings/current` - Update current settings (Admin only)
+- `GET /api/settings/contact/phone` - Get contact phone
+- `GET /api/settings/contact/email` - Get contact email
+- `GET /api/settings/contact/address` - Get contact address
+- `GET /api/settings/social-media` - Get social media links
+- `PUT /api/settings/social-media` - Update social media links (Admin only)
+- `POST /api/settings/validate` - Validate settings (Admin only)
+- `GET /api/settings/check-email?email={email}&excludeId={id}` - Check email uniqueness
+- `POST /api/settings/reset-to-default` - Reset to default settings (Admin only)
+- `POST /api/settings/backup` - Backup current settings (Admin only)
+- `POST /api/settings/restore-from-backup` - Restore from backup (Admin only)
+
+### 7. FileStorageController (`/api/filestorage`)
+**Purpose**: File upload and management
+**Endpoints**:
+- `POST /api/filestorage/upload` - Upload single file (Admin only)
+- `POST /api/filestorage/upload-multiple` - Upload multiple files (Admin only)
+- `DELETE /api/filestorage?imageUrl={url}` - Delete file (Admin only)
+- `POST /api/filestorage/validate` - Validate file format
+
+### 8. HealthController (`/api/health`)
+**Purpose**: API health monitoring
+**Endpoints**:
+- `GET /api/health` - Basic health check
+- `GET /api/health/detailed` - Detailed system information
+
+## Authentication & Authorization
+
+- **JWT Bearer Token**: Required for authenticated endpoints
+- **Admin Role**: Required for administrative operations
+- **Public Access**: Available for product browsing, order creation, and health checks
+
+## File Upload Support
+
+- **Supported Formats**: Image files (JPG, PNG, GIF, etc.)
+- **Multipart Form Data**: Used for file upload endpoints
+- **Swagger Integration**: Properly configured for file upload documentation
+
+## Error Handling
+
+All controllers include:
+- Model validation
+- Exception handling
+- Proper HTTP status codes
+- Consistent error response format
+
+## Pagination
+
+Most listing endpoints support pagination with:
+- `page` parameter (default: 1)
+- `pageSize` parameter (default: 10)
+- Response includes total count and page information

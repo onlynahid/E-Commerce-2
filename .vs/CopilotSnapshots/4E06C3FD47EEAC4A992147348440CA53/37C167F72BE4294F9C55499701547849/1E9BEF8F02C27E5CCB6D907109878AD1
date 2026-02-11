@@ -1,0 +1,177 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.AdminController
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AdminProductController : ControllerBase
+    {
+        private readonly IProductService _productService;
+        
+        public AdminProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] CreateProductDto createProductDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var product = await _productService.CreateProductAsync(createProductDto);
+            return Ok(product);
+        }
+        
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromForm] UpdateProductDto updateProductDto)
+        {
+            var result = await _productService.UpdateProductAsync(id, updateProductDto);
+            return Ok(result);
+        }
+        
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteProduct(int id)
+        {
+            var result = await _productService.DeleteProductAsync(id);
+            if (!result)
+            {
+                return NotFound($"Product with ID {id} not found.");
+            }
+            return NoContent();
+        }
+
+        // Discount Management Endpoints
+        [HttpPost("{productId}/discount")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddDiscountToProduct(int productId, [FromBody] decimal discountPercentage)
+        {
+            try
+            {
+                var result = await _productService.AddDiscountToProductAsync(productId, discountPercentage);
+                if (result)
+                {
+                    return Ok(new { message = "Discount added successfully", productId, discountPercentage });
+                }
+                return BadRequest(new { message = "Failed to add discount" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{productId}/discount")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveDiscountFromProduct(int productId)
+        {
+            try
+            {
+                var result = await _productService.RemoveDiscountFromProductAsync(productId);
+                if (result)
+                {
+                    return Ok(new { message = "Discount removed successfully", productId });
+                }
+                return BadRequest(new { message = "Failed to remove discount" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{productId}/discount")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateProductDiscount(int productId, [FromBody] decimal newDiscountPercentage)
+        {
+            try
+            {
+                var result = await _productService.UpdateProductDiscountAsync(productId, newDiscountPercentage);
+                if (result)
+                {
+                    return Ok(new { message = "Discount updated successfully", productId, newDiscountPercentage });
+                }
+                return BadRequest(new { message = "Failed to update discount" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+            return Ok(product);
+        }
+        
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            return Ok(products);
+        }
+        
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            return Ok(products);
+        }
+        
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+
+            var products = await _productService.GetProductsByNameAsync(searchTerm);
+            return Ok(products);
+        }
+        
+        [HttpGet("price-range")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByPriceRange([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
+        {
+            if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+            {
+                return BadRequest("Invalid price range.");
+            }
+
+            var products = await _productService.GetProductsByPriceRangeAsync(minPrice, maxPrice);
+            return Ok(products);
+        }
+        
+        [HttpGet("paged")]
+        public async Task<ActionResult<object>> GetProductsWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and page size must be greater than 0.");
+            }
+
+            var products = await _productService.GetProductsWithPaginationAsync(page, pageSize);
+            var totalcount = await _productService.GetProductCountAsync();
+
+            return Ok(new
+            {
+                products,
+                totalcount,
+                currentPage = page,
+                pageSize,
+                totalPages = (int)Math.Ceiling((double)totalcount / pageSize)
+            });
+        }
+        
+        [HttpGet("category/{categoryId}/count")]

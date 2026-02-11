@@ -1,0 +1,77 @@
+### JWT Roles Debug Tests
+
+@host = https://localhost:7038
+@baseUrl = {{host}}/api
+
+### 1. Admin Login (should get Admin and User roles)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### 2. Regular User Login (should get only User role)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "test123"
+}
+
+### 3. Decode Admin Token (replace with actual token from step 1)
+POST {{baseUrl}}/auth/debug/decode-token
+Content-Type: application/json
+
+{
+    "token": "YOUR_ADMIN_TOKEN_HERE"
+}
+
+### 4. Decode User Token (replace with actual token from step 2)
+POST {{baseUrl}}/auth/debug/decode-token
+Content-Type: application/json
+
+{
+    "token": "YOUR_USER_TOKEN_HERE"
+}
+
+### 5. Get Current User Info with Admin Token
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 6. Get Current User Info with User Token
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_USER_TOKEN_HERE
+
+### 7. Test Admin Endpoint with Admin Token (should work)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Admin Test",
+    "description": "Testing admin access with roles"
+}
+
+### 8. Test Admin Endpoint with User Token (should fail)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_USER_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "User Test",
+    "description": "This should fail"
+}
+
+### 9. Debug Auth Without Token
+GET {{baseUrl}}/about/debug/auth
+
+### 10. Debug Auth With Admin Token
+GET {{baseUrl}}/about/debug/auth
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 11. Debug Auth With User Token
+GET {{baseUrl}}/about/debug/auth
+Authorization: Bearer YOUR_USER_TOKEN_HERE

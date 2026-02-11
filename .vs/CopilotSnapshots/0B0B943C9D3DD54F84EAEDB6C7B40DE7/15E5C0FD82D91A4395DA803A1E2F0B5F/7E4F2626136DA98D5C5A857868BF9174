@@ -1,0 +1,208 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class ProductService : IProductService
+    {
+        private readonly IProductRepository _productRepository;
+
+        public ProductService(IProductRepository productRepository)
+        {
+            _productRepository = productRepository;
+        }
+
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto)
+        {
+            var product = new Product
+            {
+                Name = createProductDto.Name,
+                Description = createProductDto.Description,
+                Price = createProductDto.Price,
+                StockQuantity = createProductDto.Stock,
+                CategoryId = createProductDto.CategoryId,
+                ImageUrl = "default-product.jpg", // Handle image upload separately if needed
+                CreatedAt = DateTime.Now
+            };
+
+            await _productRepository.AddProductAsync(product);
+            return await GetProductByIdAsync(product.Id);
+        }
+
+        public async Task<bool> DeleteProductAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            if (product == null)
+                return false;
+
+            await _productRepository.DeleteProductAsync(productId);
+            return true;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => p.StockQuantity > 0)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(8)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .Select(MapToDto);
+        }
+
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            return product == null ? null : MapToDto(product);
+        }
+
+        public async Task<int> GetProductCountAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count();
+        }
+
+        public async Task<int> GetProductCountByCategoryAsync(int categoryId)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products.Count(p => p.CategoryId == categoryId);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => p.CategoryId == categoryId)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string searchTerm)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsSortedByDateAsync(bool ascending = false)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return ascending
+                ? products.OrderBy(p => p.CreatedAt).Select(MapToDto)
+                : products.OrderByDescending(p => p.CreatedAt).Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsSortedByNameAsync(bool ascending = true)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return ascending
+                ? products.OrderBy(p => p.Name).Select(MapToDto)
+                : products.OrderByDescending(p => p.Name).Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsSortedByPriceAsync(bool ascending = true)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return ascending
+                ? products.OrderBy(p => p.Price).Select(MapToDto)
+                : products.OrderByDescending(p => p.Price).Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsWithPaginationAsync(int page, int pageSize)
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            return products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(MapToDto);
+        }
+
+        public async Task<bool> IsProductAvailableAsync(int productId)
+        {
+            var product = await _productRepository.GetProductByIdAsync(productId);
+            if (product == null)
+                return false;
+
+            return product.StockQuantity > 0;
+        }
+
+        public async Task<ProductDto> UpdateProductAsync(UpdateProductDto updateProductDto)
+        {
+            var product = await _productRepository.GetProductByIdAsync(updateProductDto.Id);
+            if (product == null)
+                throw new Exception("Product not found");
+
+            product.Name = updateProductDto.Name;
+            product.Description = updateProductDto.Description;
+            product.Price = updateProductDto.Price;
+            product.CategoryId = updateProductDto.CategoryId;
+
+            if (updateProductDto.Stock.HasValue)
+            {
+                product.StockQuantity = updateProductDto.Stock.Value;
+            }
+
+            if (updateProductDto.Image != null)
+            {
+                // TODO: Implement image upload logic
+                // product.ImageUrl = await SaveImageAsync(updateProductDto.Image);
+            }
+
+            await _productRepository.UpdateProductAsync(product);
+            return MapToDto(product);
+        }
+
+        private ProductDto MapToDto(Product product)
+        {
+            return new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Stock = int.TryParse(product.StockQuantity, out int stock) ? stock : 0,
+                CategoryId = product.CategoryId,
+                CategoryName = product.Category?.Name ?? "",
+                ImageUrl = product.ImageUrl,
+                CreatedAt = product.CreatedAt
+            };
+        }
+    }
+}

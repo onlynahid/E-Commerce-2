@@ -1,0 +1,773 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\aboutservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\aboutservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\heroservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\heroservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\orderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\orderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\categorydto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\categorydto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\admincontroller\\adminproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\admincontroller\\adminproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\admincontroller\\admincategorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\admincontroller\\admincategorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\categoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\categoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|solutionrelative:ayyuaz.app.infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\settingsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\settingsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\ayyuaz.app.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\ayyuaz.app.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\ibasketservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\ibasketservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.infrastructure\\repositories\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|solutionrelative:ayyuaz.app.infrastructure\\repositories\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\services\\basketservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\services\\basketservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\iorderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\iorderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\iproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\iproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\interfaces\\icategoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\interfaces\\icategoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\settingsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\settingsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\tokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\tokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\orderitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\orderitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\orderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\orderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\herodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\herodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\checkoutdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\checkoutdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\basketitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\basketitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\authresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\authresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.application\\dtos\\aboutdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0DB0B52B-75DC-40EC-8459-AC5347DA13F0}|AYYUAZ.APP.Application\\AYYUAZ.APP.Application.csproj|solutionrelative:ayyuaz.app.application\\dtos\\aboutdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.domain\\entities\\about.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|solutionrelative:ayyuaz.app.domain\\entities\\about.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.domain\\entities\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|solutionrelative:ayyuaz.app.domain\\entities\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.domain\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|solutionrelative:ayyuaz.app.domain\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\admincontroller\\adminherocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\admincontroller\\adminherocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app\\admincontroller\\adminordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30BEC4CF-11C3-4D46-B1B6-2104B60DC9FA}|AYYUAZ.APP\\AYYUAZ.APP.csproj|solutionrelative:ayyuaz.app\\admincontroller\\adminordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.domain\\entities\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|solutionrelative:ayyuaz.app.domain\\entities\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.infrastructure\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|solutionrelative:ayyuaz.app.infrastructure\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.domain\\entities\\discount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E4B8732-9971-4D82-B7E6-6B272D00C336}|AYYUAZ.APP.Domain\\AYYUAZ.APP.Domain.csproj|solutionrelative:ayyuaz.app.domain\\entities\\discount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|c:\\users\\azsoft\\desktop\\ayyuaz.app\\ayyuaz.app.infrastructure\\migrations\\20260207214254_mig_017.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04D75657-D407-4FD0-855B-9F454AAED5A7}|AYYUAZ.APP.Infrastructure\\AYYUAZ.APP.Infrastructure.csproj|solutionrelative:ayyuaz.app.infrastructure\\migrations\\20260207214254_mig_017.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 45,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "README.md",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\README.md",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\README.md",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\README.md",
+              "RelativeToolTip": "AYYUAZ.APP\\README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-02-10T09:06:40.414Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AdminCategoryController.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminCategoryController.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\AdminController\\AdminCategoryController.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminCategoryController.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\AdminController\\AdminCategoryController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T22:09:41.045Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Infrastructure\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Infrastructure\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAMwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T20:45:29.658Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "AYYUAZ.APP.http",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AYYUAZ.APP.http",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\AYYUAZ.APP.http",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AYYUAZ.APP.http",
+              "RelativeToolTip": "AYYUAZ.APP\\AYYUAZ.APP.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-02-09T15:18:24.457Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\appsettings.Development.json",
+              "RelativeToolTip": "AYYUAZ.APP\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-09T15:18:21.426Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\appsettings.json",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\appsettings.json",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\appsettings.json",
+              "RelativeToolTip": "AYYUAZ.APP\\appsettings.json",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAvwBYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-09T14:34:17.063Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\Program.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\Program.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\Program.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\Program.cs",
+              "ViewState": "AgIAANgAAAAAAAAAAAAUwGQAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T14:33:39.044Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "SettingsService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\SettingsService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\SettingsService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\SettingsService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\SettingsService.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAAAMIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:52:13.431Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "OrderService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\OrderService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\OrderService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\OrderService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\OrderService.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAABABAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:49:06.795Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "HeroService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\HeroService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\HeroService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\HeroService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\HeroService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:49:02.519Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AboutService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\AboutService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\AboutService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\AboutService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\AboutService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:49.612Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IOrderService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IOrderService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\IOrderService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IOrderService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\IOrderService.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:40.712Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "IJwtService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IJwtService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\IJwtService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IJwtService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\IJwtService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:28.011Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "ICategoryService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\ICategoryService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\ICategoryService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\ICategoryService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\ICategoryService.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAzwBYAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:16.866Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "IBasketService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IBasketService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\IBasketService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IBasketService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\IBasketService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:11.662Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IAuthService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IAuthService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\IAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:48:07.518Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "UserDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\UserDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\UserDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\UserDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\UserDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:47.077Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "TokenDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\TokenDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\TokenDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\TokenDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\TokenDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.995Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "SettingsDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\SettingsDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\SettingsDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\SettingsDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\SettingsDto.cs",
+              "ViewState": "AgIAADYAAACAMTTdwf4uwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.771Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "RegisterDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\RegisterDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\RegisterDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\RegisterDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\RegisterDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.689Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "OrderItemDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\OrderItemDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\OrderItemDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\OrderItemDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\OrderItemDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.581Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "OrderDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\OrderDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\OrderDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\OrderDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\OrderDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD4AAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.499Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\LoginDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\LoginDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\LoginDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\LoginDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.425Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "HeroDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\HeroDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\HeroDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\HeroDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\HeroDto.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.335Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "CheckOutDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\CheckOutDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\CheckOutDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\CheckOutDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\CheckOutDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.261Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CategoryDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\CategoryDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\CategoryDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\CategoryDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\CategoryDto.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAYwAYAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.178Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "BasketItemDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\BasketItemDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\BasketItemDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\BasketItemDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\BasketItemDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.088Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "AuthResponseDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\AuthResponseDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\AuthResponseDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\AuthResponseDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\AuthResponseDto.cs",
+              "ViewState": "AgIAAAIAAACwt82kxgMgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:46.006Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "AboutDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\AboutDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\AboutDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\AboutDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\AboutDto.cs",
+              "ViewState": "AgIAABsAAAAAMo8JiioVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:44:45.858Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CategoryService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\CategoryService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\CategoryService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\CategoryService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\CategoryService.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAAALUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-08T13:34:14.138Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "BasketService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\BasketService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\BasketService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\BasketService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\BasketService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-08T13:34:11.138Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\AuthService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\AuthService.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAWwBgAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-08T13:34:09.524Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "About.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\About.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Domain\\Entities\\About.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\About.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Domain\\Entities\\About.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-08T13:33:36.718Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "IProductService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IProductService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Interfaces\\IProductService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Interfaces\\IProductService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Interfaces\\IProductService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAABJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T22:37:09.302Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AdminProductController.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminProductController.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\AdminController\\AdminProductController.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminProductController.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\AdminController\\AdminProductController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIcCAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T22:31:08.073Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "IProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Interfaces\\IProductRepository.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Domain\\Interfaces\\IProductRepository.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Interfaces\\IProductRepository.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Domain\\Interfaces\\IProductRepository.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAEwCAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T22:07:17.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "AdminOrderController.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminOrderController.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\AdminController\\AdminOrderController.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminOrderController.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\AdminController\\AdminOrderController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:52:16.416Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\Controllers\\ProductController.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\Controllers\\ProductController.cs",
+              "ViewState": "AgIAAJABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:52:13.391Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "20260207214254_mig_017.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Migrations\\20260207214254_mig_017.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Infrastructure\\Migrations\\20260207214254_mig_017.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Migrations\\20260207214254_mig_017.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Infrastructure\\Migrations\\20260207214254_mig_017.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:42:54.311Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Infrastructure\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Infrastructure\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAcwDkAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:41:52.241Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Product.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Domain\\Entities\\Product.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Product.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Domain\\Entities\\Product.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAIwC8AAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:38:35.199Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "Discount.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Discount.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Domain\\Entities\\Discount.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Discount.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Domain\\Entities\\Discount.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:38:25.387Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "Category.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Category.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Domain\\Entities\\Category.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Domain\\Entities\\Category.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Domain\\Entities\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:38:24.34Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "ProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Repositories\\ProductRepository.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Infrastructure\\Repositories\\ProductRepository.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Infrastructure\\Repositories\\ProductRepository.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Infrastructure\\Repositories\\ProductRepository.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:33:30.32Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProductDto.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\ProductDto.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Dtos\\ProductDto.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Dtos\\ProductDto.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Dtos\\ProductDto.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAnwD8AAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:28:33.518Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductService.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\ProductService.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP.Application\\Services\\ProductService.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP.Application\\Services\\ProductService.cs",
+              "RelativeToolTip": "AYYUAZ.APP.Application\\Services\\ProductService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFgAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:22:38.26Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "AdminHeroController.cs",
+              "DocumentMoniker": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminHeroController.cs",
+              "RelativeDocumentMoniker": "AYYUAZ.APP\\AdminController\\AdminHeroController.cs",
+              "ToolTip": "C:\\Users\\AzSoft\\Desktop\\AYYUAZ.APP\\AYYUAZ.APP\\AdminController\\AdminHeroController.cs",
+              "RelativeToolTip": "AYYUAZ.APP\\AdminController\\AdminHeroController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T21:18:05.963Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Domain.Interfaces
+{
+    public interface IUserRepository
+    {
+        Task<User> GetUserByEmailAsync(string email);
+        Task<User> GetUserByUsernameAsync(string username);
+        Task<User> GetUserByIdAsync(int id);
+        Task<bool> IsEmailUniqueAsync(string email);
+        Task<bool> IsUsernameUniqueAsync(string username);
+        Task AddUserAsync(User user);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(int id);
+        Task<List<User>> GetAllUsersAsync();
+        Task<int> GetUserCountAsync();
+    }
+}

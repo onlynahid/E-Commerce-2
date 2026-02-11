@@ -1,0 +1,370 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
+    {
+        private readonly IAuthService _authService;
+        private readonly ILogger<AuthController> _logger;
+
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        {
+            _authService = authService;
+            _logger = logger;
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+        {
+            try
+            {
+                _logger.LogInformation("Login attempt started for email: {Email}", loginDto?.Email ?? "null");
+
+                if (!ModelState.IsValid)
+                {
+                    var validationErrors = ModelState
+                        .SelectMany(x => x.Value.Errors)
+                        .Select(x => x.ErrorMessage)
+                        .ToList();
+
+                    _logger.LogWarning("Login validation failed for email: {Email}, Errors: {Errors}",
+                        loginDto?.Email, string.Join(", ", validationErrors));
+
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = $"Validation failed: {string.Join(", ", validationErrors)}"
+                    });
+                }
+
+                var result = await _authService.LoginAsync(loginDto);
+
+                if (result.Success)
+                {
+                    _logger.LogInformation("Login successful for email: {Email}", loginDto.Email);
+                    return Ok(result);
+                }
+                else
+                {
+                    _logger.LogWarning("Login failed for email: {Email}, Reason: {Message}",
+                        loginDto.Email, result.Message);
+                    return Unauthorized(result);
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogError(ex, "ArgumentNullException during login for email: {Email}", loginDto?.Email);
+                return BadRequest(new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Required parameter is missing: {ex.ParamName}"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "InvalidOperationException during login for email: {Email}", loginDto?.Email);
+                return BadRequest(new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Invalid operation: {ex.Message}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during login for email: {Email}. Exception type: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace}",
+                    loginDto?.Email, ex.GetType().Name, ex.Message, ex.StackTrace);
+
+                return StatusCode(500, new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Unexpected error occurred: {ex.Message}"
+                });
+            }
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+        {
+            try
+            {
+                _logger.LogInformation("Registration attempt started for email: {Email}, username: {Username}",
+                    registerDto?.Email ?? "null", registerDto?.Username ?? "null");
+
+                if (registerDto == null)
+                {
+                    _logger.LogWarning("Registration failed - null registerDto received");
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Registration data cannot be null"
+                    });
+                }
+
+                _logger.LogDebug("Registration data received - Email: {Email}, Username: {Username}, PasswordLength: {PasswordLength}, ConfirmPasswordLength: {ConfirmPasswordLength}",
+                    registerDto.Email, registerDto.Username,
+                    registerDto.Password?.Length ?? 0, registerDto.ConfirmPassword?.Length ?? 0);
+
+                if (!ModelState.IsValid)
+                {
+                    var validationErrors = ModelState
+                        .Where(x => x.Value.Errors.Any())
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                        );
+
+                    _logger.LogWarning("Registration validation failed for email: {Email}, Validation errors: {@ValidationErrors}",
+                        registerDto.Email, validationErrors);
+
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = $"Validation failed: {string.Join(", ", validationErrors.SelectMany(e => e.Value))}"
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(registerDto.Username))
+                {
+                    _logger.LogWarning("Registration failed - empty username for email: {Email}", registerDto.Email);
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Username cannot be empty"
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(registerDto.Email))
+                {
+                    _logger.LogWarning("Registration failed - empty email");
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Email cannot be empty"
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(registerDto.Password))
+                {
+                    _logger.LogWarning("Registration failed - empty password for email: {Email}", registerDto.Email);
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Password cannot be empty"
+                    });
+                }
+
+                if (registerDto.Password != registerDto.ConfirmPassword)
+                {
+                    _logger.LogWarning("Registration failed - passwords don't match for email: {Email}", registerDto.Email);
+                    return BadRequest(new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Passwords do not match"
+                    });
+                }
+
+                _logger.LogInformation("Calling AuthService.RegisterAsync for email: {Email}", registerDto.Email);
+
+                var result = await _authService.RegisterAsync(registerDto);
+
+                if (result.Success)
+                {
+                    _logger.LogInformation("Registration successful for email: {Email}, User ID: {UserId}",
+                        registerDto.Email, result.User?.Id);
+                    return Ok(result);
+                }
+                else
+                {
+                    _logger.LogWarning("Registration failed for email: {Email}, Reason: {Message}",
+                        registerDto.Email, result.Message);
+                    return BadRequest(result);
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogError(ex, "ArgumentNullException during registration for email: {Email}, Parameter: {ParamName}",
+                    registerDto?.Email, ex.ParamName);
+                return BadRequest(new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Required parameter is missing: {ex.ParamName}"
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "ArgumentException during registration for email: {Email}", registerDto?.Email);
+                return BadRequest(new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Invalid argument: {ex.Message}"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "InvalidOperationException during registration for email: {Email}", registerDto?.Email);
+                return BadRequest(new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Invalid operation: {ex.Message}"
+                });
+            }
+            catch (System.Data.Common.DbException ex)
+            {
+                _logger.LogError(ex, "Database error during registration for email: {Email}, Error Number: {ErrorNumber}",
+                    registerDto?.Email, ex.ErrorCode);
+                return StatusCode(500, new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Database error occurred: {ex.Message}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during registration for email: {Email}. Exception type: {ExceptionType}, Message: {Message}, InnerException: {InnerException}, StackTrace: {StackTrace}",
+                    registerDto?.Email, ex.GetType().Name, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+
+                return StatusCode(500, new AuthResponseDto
+                {
+                    Success = false,
+                    Message = $"Unexpected error occurred: {ex.GetType().Name} - {ex.Message}"
+                });
+            }
+        }
+
+        [HttpPost("validate-token")]
+        [Authorize]
+        public async Task<ActionResult> ValidateToken()
+        {
+            try
+            {
+                _logger.LogInformation("Token validation requested");
+
+                return Ok(new
+                {
+                    message = "Token is valid",
+                    user = User.Identity?.Name,
+                    isAuthenticated = User.Identity?.IsAuthenticated ?? false,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during token validation");
+                return BadRequest(new
+                {
+                    message = "Token validation failed",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            try
+            {
+                _logger.LogInformation("Get current user requested");
+
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+                var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+                return Ok(new
+                {
+                    userId = userId,
+                    username = username,
+                    email = email,
+                    role = role,
+                    isAuthenticated = User.Identity?.IsAuthenticated ?? false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting current user information");
+                return BadRequest(new
+                {
+                    message = "Failed to get user information",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("test-validation")]
+        public ActionResult TestValidation([FromBody] RegisterDto registerDto)
+        {
+            try
+            {
+                _logger.LogInformation("Test validation requested for email: {Email}", registerDto?.Email);
+
+                var result = new
+                {
+                    timestamp = DateTime.UtcNow,
+                    receivedData = new
+                    {
+                        isNull = registerDto == null,
+                        email = registerDto?.Email,
+                        username = registerDto?.Username,
+                        passwordLength = registerDto?.Password?.Length ?? 0,
+                        confirmPasswordLength = registerDto?.ConfirmPassword?.Length ?? 0,
+                        passwordsMatch = registerDto?.Password == registerDto?.ConfirmPassword
+                    },
+                    modelState = new
+                    {
+                        isValid = ModelState.IsValid,
+                        errorCount = ModelState.ErrorCount,
+                        errors = ModelState
+                            .Where(x => x.Value.Errors.Any())
+                            .ToDictionary(
+                                kvp => kvp.Key,
+                                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                            )
+                    }
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during test validation");
+                return BadRequest(new
+                {
+                    message = "Test validation failed",
+                    error = ex.Message,
+                    exceptionType = ex.GetType().Name
+                });
+            }
+        }
+
+        [HttpGet("debug")]
+        public ActionResult Debug()
+        {
+            try
+            {
+                return Ok(new
+                {
+                    timestamp = DateTime.UtcNow,
+                    authServiceRegistered = _authService != null,
+                    environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                    message = "AuthController debug info"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during debug check");
+                return BadRequest(new
+                {
+                    message = "Debug check failed",
+                    error = ex.Message
+                });
+            }
+        }
+    }
+}

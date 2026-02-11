@@ -1,0 +1,64 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+namespace AYYUAZ.APP.AdminController
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AdminOrderController : ControllerBase
+    {
+        private readonly IOrderService _orderService;
+        public AdminOrderController(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDto>> GetOrderById(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found.");
+            }
+            return Ok(order);
+        }
+        [HttpPost("{id}/reject")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<OrderDto>> RejectOrder(int id, [FromBody] string rejectedReason = null)
+        {
+            var order = await _orderService.RejectedOrderAsync(id, rejectedReason);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found.");
+            }
+            return Ok(order);
+        }
+        [HttpPost("{id}/accept")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<OrderDto>> AcceptOrder(int id)
+        {
+            var order = await _orderService.AcceptedOrderAsync(id);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found.");
+            }
+            return Ok(order);
+        }
+        [HttpPost("Get-All-WithItems")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrderWithItems()
+        {
+            var orders = await _orderService.GetOrdersWithItemsAsync();
+            return Ok(orders);
+        }
+    }
+}

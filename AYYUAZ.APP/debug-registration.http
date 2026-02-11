@@ -1,0 +1,63 @@
+### AYYUAZ.APP Registration Debugging - Step by Step Tests
+
+# 1. Test if the API is running
+GET https://localhost:7038/api/health
+
+### 2. Test AuthController debug endpoint
+GET https://localhost:7038/api/auth/debug
+
+### 3. Test validation endpoint with your exact data
+POST https://localhost:7038/api/auth/test-validation
+Content-Type: application/json
+
+{
+    "username": "Mudur01",
+    "email": "mudur@example.com",
+    "password": "Mudur045!",
+    "confirmPassword": "Mudur045!"
+}
+
+### 4. Test the actual registration (this should show detailed error)
+POST https://localhost:7038/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "Mudur01", 
+    "email": "mudur@example.com",
+    "password": "Mudur045!",
+    "confirmPassword": "Mudur045!"
+}
+
+### 5. Test with simplified data
+POST https://localhost:7038/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "test@test.com",
+    "password": "Test123!",
+    "confirmPassword": "Test123!"
+}
+
+### 6. Test login with seeded admin (to verify database connectivity)
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### 7. Test database health
+GET https://localhost:7038/api/health/database
+
+### 8. Test registration with minimal data (to isolate the issue)
+POST https://localhost:7038/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "abc",
+    "email": "a@b.c",
+    "password": "123456",
+    "confirmPassword": "123456"
+}

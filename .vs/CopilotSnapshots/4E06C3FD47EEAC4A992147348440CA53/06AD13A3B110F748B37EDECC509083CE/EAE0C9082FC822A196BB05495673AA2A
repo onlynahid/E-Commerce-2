@@ -1,0 +1,298 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Application.Services;
+using AYYUAZ.APP.Domain.Interfaces;
+using AYYUAZ.APP.Infrastructure.Data;
+using AYYUAZ.APP.Infrastructure.Repositories;
+using AYYUAZ.APP.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using System.Reflection;
+using AYYUAZ.APP.Domain.Entities;
+
+namespace AYYUAZ.APP
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+            var configuration = builder.Configuration;
+
+            // Add services to the container.
+            builder.Services.AddControllers();
+
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo 
+                { 
+                    Title = "AYYUAZ.APP API", 
+                    Version = "v1",
+                    Description = "API for AYYUAZ Application"
+                });
+
+                // Configure JWT authentication in Swagger
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+
+                // Enable XML documentation (optional)
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                if (File.Exists(xmlPath))
+                {
+                    c.IncludeXmlComments(xmlPath);
+                }
+
+                // Handle file upload operations
+                c.MapType<IFormFile>(() => new OpenApiSchema
+                {
+                    Type = "string",
+                    Format = "binary"
+                });
+            });
+
+            // Database configuration
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                options.UseSqlServer(connectionString);
+            });
+
+            // Add Identity services
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+
+                // Signin settings
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+            // JWT Authentication configuration with extensive debugging
+            var jwtKey = configuration["Jwt:Key"];
+            var jwtIssuer = configuration["Jwt:Issuer"];
+            var jwtAudience = configuration["Jwt:Audience"];
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtAudience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                // Add comprehensive debugging events for JWT authentication
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+                        var authHeader = context.Request.Headers["Authorization"].ToString();
+                        logger?.LogDebug("JWT OnMessageReceived - Auth Header: {AuthHeader}", 
+                            string.IsNullOrEmpty(authHeader) ? "MISSING" : authHeader.Substring(0, Math.Min(authHeader.Length, 50)) + "...");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+                        var claims = context.Principal?.Claims?.ToList() ?? new List<System.Security.Claims.Claim>();
+                        logger?.LogDebug("JWT Token validated successfully. Claims count: {ClaimsCount}", claims.Count);
+                        
+                        foreach (var claim in claims)
+                        {
+                            logger?.LogDebug("JWT Claim: {Type} = {Value}", claim.Type, claim.Value);
+                        }
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+                        logger?.LogError("JWT Authentication failed: {Exception}", context.Exception?.ToString());
+                        return Task.CompletedTask;
+                    },
+                    OnChallenge = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+                        logger?.LogWarning("JWT Challenge triggered: {Error}, {ErrorDescription}", 
+                            context.Error, context.ErrorDescription);
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
+            // Repository registrations
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAboutRepository, AboutRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            // Service registrations
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAboutService, AboutService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
+
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+                throw new InvalidOperationException("DefaultConnection string is not configured");
+
+            var app = builder.Build();
+
+            // Initialize directories and database
+            await InitializeApplication(app);
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AYYUAZ.APP API v1");
+                    c.RoutePrefix = "swagger";
+                });
+            }
+
+            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseStaticFiles();
+
+            app.MapControllers();
+            app.Run();
+        }
+
+        private static async Task InitializeApplication(WebApplication app)
+        {
+            // Ensure wwwroot directory exists for static files
+            var wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+            if (!Directory.Exists(wwwrootPath))
+            {
+                Directory.CreateDirectory(wwwrootPath);
+            }
+
+            // Ensure upload directories exist
+            var uploadsPath = Path.Combine(wwwrootPath, "uploads");
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+                Directory.CreateDirectory(Path.Combine(uploadsPath, "products"));
+                Directory.CreateDirectory(Path.Combine(uploadsPath, "categories"));
+                Directory.CreateDirectory(Path.Combine(uploadsPath, "users"));
+            }
+
+            // Create default placeholder images
+            CreateDefaultImages(uploadsPath);
+
+            // Database initialization and seeding
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<AppDbContext>();
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    
+                    // Ensure database is created
+                    context.Database.EnsureCreated();
+                    
+                    // Seed initial data with service provider - await the async call
+                    await DataSeeder.SeedInitialData(context, services);
+                    
+                    logger.LogInformation("Database initialized and seeded successfully.");
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while seeding the database.");
+                }
+            }
+        }
+
+        private static void CreateDefaultImages(string uploadsPath)
+        {
+            // Create default product image placeholder
+            var productImagePath = Path.Combine(uploadsPath, "products", "default-product.jpg");
+            if (!File.Exists(productImagePath))
+            {
+                CreatePlaceholderImage(productImagePath, "Product");
+            }
+
+            // Create default category image placeholder
+            var categoryImagePath = Path.Combine(uploadsPath, "categories", "default-category.jpg");
+            if (!File.Exists(categoryImagePath))
+            {
+                CreatePlaceholderImage(categoryImagePath, "Category");
+            }
+        }
+
+        private static void CreatePlaceholderImage(string filePath, string text)
+        {
+            // Create a simple SVG placeholder that browsers can display
+            var svgContent = $@"<svg width=""400"" height=""300"" xmlns=""http://www.w3.org/2000/svg"">
+                <rect width=""100%"" height=""100%"" fill=""#f0f0f0""/>
+                <text x=""50%"" y=""50%"" text-anchor=""middle"" dy="".3em"" font-family=""Arial, sans-serif"" font-size=""24"" fill=""#666"">{text} Image</text>
+            </svg>";
+
+            // Save as SVG file (browsers can display SVG directly)
+            var svgPath = Path.ChangeExtension(filePath, ".svg");
+            File.WriteAllText(svgPath, svgContent);
+
+            // Also create a simple text file as backup
+            var textPath = Path.ChangeExtension(filePath, ".txt");
+            File.WriteAllText(textPath, $"Placeholder for {text} image");
+        }
+    }
+}

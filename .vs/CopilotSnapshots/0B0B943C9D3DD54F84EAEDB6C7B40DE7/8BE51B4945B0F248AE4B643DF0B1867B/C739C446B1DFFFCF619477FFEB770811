@@ -1,0 +1,139 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using AYYUAZ.APP.Infrastructure.Services;
+using BCrypt.Net;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class AuthService : IAuthService
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly JwtService _jwtService;
+
+        public AuthService(IUserRepository userRepository, JwtService jwtService)
+        {
+            _userRepository = userRepository;
+            _jwtService = jwtService;
+        }
+
+        public async Task<AuthResultDto> LoginAsync(LoginDto loginDto)
+        {
+            try
+            {
+                var user = await _userRepository.GetByEmailAsync(loginDto.Email);
+                
+                if (user == null)
+                {
+                    return new AuthResultDto
+                    {
+                        Success = false,
+                        Message = "Invalid email or password"
+                    };
+                }
+
+                if (!BCrypt.Verify(loginDto.Password, user.PasswordHash))
+                {
+                    return new AuthResultDto
+                    {
+                        Success = false,
+                        Message = "Invalid email or password"
+                    };
+                }
+
+                var token = _jwtService.GenerateToken(user);
+
+                return new AuthResultDto
+                {
+                    Success = true,
+                    Token = token,
+                    User = user,
+                    Message = "Login successful"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new AuthResultDto
+                {
+                    Success = false,
+                    Message = $"An error occurred during login: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto)
+        {
+            try
+            {
+                if (await _userRepository.ExistsAsync(registerDto.Email))
+                {
+                    return new AuthResultDto
+                    {
+                        Success = false,
+                        Message = "User with this email already exists"
+                    };
+                }
+
+                var user = new User
+                {
+                    Username = registerDto.Username,
+                    Email = registerDto.Email,
+                    PasswordHash = BCrypt.HashPassword(registerDto.Password),
+                    IsAdmin = false
+                };
+
+                user = await _userRepository.CreateAsync(user);
+                var token = _jwtService.GenerateToken(user);
+
+                return new AuthResultDto
+                {
+                    Success = true,
+                    Token = token,
+                    User = user,
+                    Message = "Registration successful"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new AuthResultDto
+                {
+                    Success = false,
+                    Message = $"An error occurred during registration: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<User?> GetCurrentUserAsync(string token)
+        {
+            try
+            {
+                var principal = _jwtService.ValidateToken(token);
+                if (principal == null) return null;
+
+                var userIdClaim = principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+                    return null;
+
+                return await _userRepository.GetByIdAsync(userId);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> ValidateTokenAsync(string token)
+        {
+            try
+            {
+                var principal = _jwtService.ValidateToken(token);
+                return principal != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+}

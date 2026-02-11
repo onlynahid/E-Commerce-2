@@ -1,0 +1,45 @@
+### AYYUAZ.APP JWT Authentication Debug Tests
+
+@host = https://localhost:7038
+@baseUrl = {{host}}/api
+
+### 1. Health Check (Should work without authentication)
+GET {{baseUrl}}/health
+
+### 2. Login with Admin user (Get JWT token)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### 3. Test About endpoint without token (Should return 401)
+GET {{baseUrl}}/about
+
+### 4. Test About endpoint with token (Replace YOUR_TOKEN with actual token from step 2)
+GET {{baseUrl}}/about
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 5. Test Protected About endpoint - Create About (Admin only)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Test About - JWT Debug",
+    "description": "This is a test about entry to verify JWT authentication is working correctly."
+}
+
+### 6. Test token validation directly
+POST {{baseUrl}}/auth/validate-token
+Content-Type: application/json
+
+{
+    "token": "YOUR_TOKEN_HERE"
+}
+
+### 7. Get current user info
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE

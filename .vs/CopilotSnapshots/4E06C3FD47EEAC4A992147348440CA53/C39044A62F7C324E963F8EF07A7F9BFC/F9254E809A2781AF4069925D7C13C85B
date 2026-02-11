@@ -1,0 +1,93 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class BasketService : IBasketService
+    {
+        public Task<BasketDto> AddItemToBasketAsync(int basketId, CreateBasketItemDto basketItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ClearBasketAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OrderDto> ConvertBasketToOrderAsync(int basketId, CreateOrderDto orderDetails)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> CreateBasketAsync(CreateBasketDto createBasketDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteBasketAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> GetBasketByIdAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetBasketItemsCountAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetBasketTotalAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> GetBasketWithItemsAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> GetOrCreateBasketAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsBasketEmptyAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsBasketValidAsync(int basketId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> RemoveItemFromBasketAsync(int basketId, int basketItemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> UpdateBasketAsync(UpdateBasketDto updateBasketDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> UpdateBasketItemAsync(int basketId, UpdateBasketItemDto basketItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BasketDto> UpdateItemQuantityAsync(int basketId, int basketItemId, int quantity)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

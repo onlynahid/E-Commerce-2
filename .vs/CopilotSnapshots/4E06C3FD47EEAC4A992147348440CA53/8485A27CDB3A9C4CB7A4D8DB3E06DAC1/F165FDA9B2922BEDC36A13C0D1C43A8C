@@ -1,0 +1,296 @@
+﻿### AYYUAZ.APP API Test Endpoints
+
+@host = https://localhost:7000
+@baseUrl = {{host}}/api
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Detailed Health Check
+GET {{baseUrl}}/health/detailed
+
+###
+### Authentication Tests
+###
+
+### Register New User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "confirmPassword": "password123"
+}
+
+### Admin Login (Seeded Admin)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### Get Current User Info (requires Bearer token)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+### Category Tests
+###
+
+### Get All Categories
+GET {{baseUrl}}/category
+
+### Get Category by ID
+GET {{baseUrl}}/category/1
+
+### Create Category (Admin only)
+POST {{baseUrl}}/category
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="Name"
+
+Test Category
+--WebAppBoundary
+Content-Disposition: form-data; name="Description"
+
+This is a test category created via API
+--WebAppBoundary--
+
+### Search Categories
+GET {{baseUrl}}/category/search?searchTerm=Electronics
+
+### Get Categories with Pagination
+GET {{baseUrl}}/category/paged?page=1&pageSize=5
+
+###
+### Product Tests
+###
+
+### Get All Products
+GET {{baseUrl}}/product
+
+### Get Product by ID
+GET {{baseUrl}}/product/1
+
+### Get Products by Category
+GET {{baseUrl}}/product/category/1
+
+### Search Products
+GET {{baseUrl}}/product/search?searchTerm=Wireless
+
+### Get Products by Price Range
+GET {{baseUrl}}/product/price-range?minPrice=20&maxPrice=50
+
+### Get Available Products
+GET {{baseUrl}}/product/available
+
+### Get Latest Products
+GET {{baseUrl}}/product/latest?count=5
+
+### Get Featured Products
+GET {{baseUrl}}/product/featured
+
+### Get Products with Pagination
+GET {{baseUrl}}/product/paged?page=1&pageSize=5
+
+### Create Product (Admin only)
+POST {{baseUrl}}/product
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="Name"
+
+Test Product
+--WebAppBoundary
+Content-Disposition: form-data; name="Description"
+
+This is a test product created via API
+--WebAppBoundary
+Content-Disposition: form-data; name="Price"
+
+29.99
+--WebAppBoundary
+Content-Disposition: form-data; name="Stock"
+
+10
+--WebAppBoundary
+Content-Disposition: form-data; name="CategoryId"
+
+1
+--WebAppBoundary--
+
+###
+### Order Tests
+###
+
+### Create Order (Public)
+POST {{baseUrl}}/order
+Content-Type: application/json
+
+{
+    "fullName": "John Doe",
+    "phoneNumber": "+1234567890",
+    "email": "john.doe@example.com",
+    "address": "123 Main St, City, State 12345",
+    "notes": "Please deliver after 6 PM",
+    "orderItems": [
+        {
+            "productId": 1,
+            "quantity": 2,
+            "unitPrice": 99.99
+        },
+        {
+            "productId": 2,
+            "quantity": 1,
+            "unitPrice": 19.99
+        }
+    ]
+}
+
+### Get All Orders (Admin only)
+GET {{baseUrl}}/order
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Get Order by ID
+GET {{baseUrl}}/order/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Recent Orders (Admin only)
+GET {{baseUrl}}/order/recent?count=5
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Get Orders with Pagination (Admin only)
+GET {{baseUrl}}/order/paged?page=1&pageSize=10
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+###
+### Settings Tests
+###
+
+### Get All Settings
+GET {{baseUrl}}/settings
+
+### Get Current Settings
+GET {{baseUrl}}/settings/current
+
+### Get Contact Information
+GET {{baseUrl}}/settings/contact/phone
+
+###
+GET {{baseUrl}}/settings/contact/email
+
+###
+GET {{baseUrl}}/settings/contact/address
+
+### Get Social Media Links
+GET {{baseUrl}}/settings/social-media
+
+### Update Settings (Admin only)
+PUT {{baseUrl}}/settings/1
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "AYYUAZ Store Updated",
+    "phoneNumber": "+1-234-567-8901",
+    "address": "456 Updated Street, New City, NC 54321",
+    "email": "updated@ayyuazstore.com",
+    "facebookUrl": "https://facebook.com/ayyuazstore",
+    "instagramUrl": "https://instagram.com/ayyuazstore",
+    "twitterUrl": "https://twitter.com/ayyuazstore"
+}
+
+###
+### About Tests
+###
+
+### Get All About Entries
+GET {{baseUrl}}/about
+
+### Get Latest About Entry
+GET {{baseUrl}}/about/latest
+
+### Create About Entry (Admin only)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Our Mission",
+    "description": "Our mission is to provide exceptional products and services to our customers while maintaining the highest standards of quality and customer satisfaction."
+}
+
+###
+### File Upload Tests
+###
+
+### Upload Single File (Admin only)
+POST {{baseUrl}}/filestorage/upload
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="File"; filename="test-image.jpg"
+Content-Type: image/jpeg
+
+[Binary file content would go here]
+--WebAppBoundary
+Content-Disposition: form-data; name="Folder"
+
+products
+--WebAppBoundary--
+
+### Validate File Format
+POST {{baseUrl}}/filestorage/validate
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="File"; filename="test.txt"
+Content-Type: text/plain
+
+This is a text file
+--WebAppBoundary--
+
+###
+### Statistics and Counts
+###
+
+### Get Product Count
+GET {{baseUrl}}/product/count
+
+### Get Category Count
+GET {{baseUrl}}/category/count
+
+### Get Order Count (Admin only)
+GET {{baseUrl}}/order/count
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Get Average Order Value (Admin only)
+GET {{baseUrl}}/order/statistics/average-order-value
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+###
+### Admin Functions
+###
+
+### Reset Settings to Default (Admin only)
+POST {{baseUrl}}/settings/reset-to-default
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Backup Settings (Admin only)
+POST {{baseUrl}}/settings/backup
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Check Username Uniqueness
+GET {{baseUrl}}/category/check-name?name=NewCategory
+
+### Check Email Uniqueness
+GET {{baseUrl}}/settings/check-email?email=test@example.com

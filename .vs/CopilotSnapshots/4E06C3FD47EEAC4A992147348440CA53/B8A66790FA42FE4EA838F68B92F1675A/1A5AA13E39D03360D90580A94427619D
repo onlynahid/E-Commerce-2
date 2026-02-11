@@ -1,0 +1,19 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IHeroService
+    {
+        Task<HeroDto> AddHeroAsync(CreateHeroDto createHeroDto);
+        Task<List<HeroDto>> GetAllHeroesAsync();
+        Task<HeroDto>UpdateHeroDto(int id, UpdateHeroDto updateHeroDto);
+        Task<bool> DeleteHeroAsync(int id);
+        Task<HeroDto> GetHeroByIdAsync(int heroid);
+    }
+}

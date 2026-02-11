@@ -1,0 +1,196 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FileStorageController : ControllerBase
+    {
+        private readonly IFileStorageService _fileStorageService;
+
+        public FileStorageController(IFileStorageService fileStorageService)
+        {
+            _fileStorageService = fileStorageService;
+        }
+
+        [HttpPost("upload")]
+        [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<object>> UploadFile([FromForm] IFormFile file, [FromQuery] string folder = "products")
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded." });
+            }
+
+            if (!_fileStorageService.IsImageFile(file))
+            {
+                return BadRequest(new { message = "Only image files are allowed." });
+            }
+
+            try
+            {
+                var imageUrl = await _fileStorageService.UploadImageAsync(file, folder);
+                
+                return Ok(new 
+                { 
+                    success = true,
+                    message = "File uploaded successfully.",
+                    imageUrl,
+                    fileName = file.FileName,
+                    contentType = file.ContentType,
+                    size = file.Length
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("upload-multiple")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<object>> UploadMultipleFiles([FromForm] List<IFormFile> files, [FromQuery] string folder = "products")
+        {
+            if (files == null || files.Count == 0)
+            {
+                return BadRequest(new { message = "No files uploaded." });
+            }
+
+            var uploadResults = new List<object>();
+            var errors = new List<string>();
+
+            foreach (var file in files)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    errors.Add($"File {file?.FileName ?? "unknown"} is empty.");
+                    continue;
+                }
+
+                if (!_fileStorageService.IsImageFile(file))
+                {
+                    errors.Add($"File {file.FileName} is not a valid image file.");
+                    continue;
+                }
+
+                try
+                {
+                    var imageUrl = await _fileStorageService.UploadImageAsync(file, folder);
+                    uploadResults.Add(new
+                    {
+                        fileName = file.FileName,
+                        imageUrl,
+                        contentType = file.ContentType,
+                        size = file.Length,
+                        success = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error uploading {file.FileName}: {ex.Message}");
+                }
+            }
+
+            return Ok(new
+            {
+                uploadedFiles = uploadResults,
+                errors = errors,
+                totalUploaded = uploadResults.Count,
+                totalErrors = errors.Count
+            });
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<object>> DeleteFile([FromQuery] string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                return BadRequest(new { message = "Image URL is required." });
+            }
+
+            try
+            {
+                var result = await _fileStorageService.DeleteImageAsync(imageUrl);
+                
+                if (result)
+                {
+                    return Ok(new 
+                    { 
+                        success = true,
+                        message = "File deleted successfully.",
+                        imageUrl 
+                    });
+                }
+                else
+                {
+                    return NotFound(new 
+                    { 
+                        success = false,
+                        message = "File not found or could not be deleted.",
+                        imageUrl 
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("validate")]
+        public ActionResult<object> ValidateFile([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file provided." });
+            }
+
+            var isValid = _fileStorageService.IsImageFile(file);
+            
+            return Ok(new
+            {
+                fileName = file.FileName,
+                contentType = file.ContentType,
+                size = file.Length,
+                isValid,
+                message = isValid ? "File is a valid image." : "File is not a valid image."
+            });
+        }
+
+        [HttpPost("validate-multiple")]
+        public ActionResult<object> ValidateMultipleFiles([FromForm] List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0)
+            {
+                return BadRequest(new { message = "No files provided." });
+            }
+
+            var validationResults = files.Select(file => 
+            {
+                var isValid = file != null && file.Length > 0 && _fileStorageService.IsImageFile(file);
+                return new
+                {
+                    fileName = file?.FileName ?? "unknown",
+                    contentType = file?.ContentType ?? "unknown",
+                    size = file?.Length ?? 0,
+                    isValid,
+                    message = isValid ? "Valid image file" : "Invalid or empty file"
+                };
+            }).ToList();
+
+            var validCount = validationResults.Count(r => r.isValid);
+
+            return Ok(new
+            {
+                files = validationResults,
+                totalFiles = files.Count,
+                validFiles = validCount,
+                invalidFiles = files.Count - validCount
+            });
+        }
+    }
+}

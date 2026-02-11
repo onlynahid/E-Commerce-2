@@ -1,0 +1,100 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class OrderController : ControllerBase
+    {
+        private readonly IOrderService _orderService;
+
+        public OrderController(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDto>> GetOrderById(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found.");
+            }
+            return Ok(order);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var order = await _orderService.CreateOrderAsync(createOrderDto);
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<OrderDto>> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
+        {
+            if (id != updateOrderDto.Id)
+            {
+                return BadRequest("Order ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var order = await _orderService.UpdateOrderAsync(updateOrderDto);
+                if (order == null)
+                {
+                    return NotFound($"Order with ID {id} not found.");
+                }
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteOrder(int id)
+        {
+            var result = await _orderService.DeleteOrderAsync(id);
+            if (!result)
+            {
+                return NotFound($"Order with ID {id} not found.");
+            }
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/accept")]
+        [Authorize
+
+

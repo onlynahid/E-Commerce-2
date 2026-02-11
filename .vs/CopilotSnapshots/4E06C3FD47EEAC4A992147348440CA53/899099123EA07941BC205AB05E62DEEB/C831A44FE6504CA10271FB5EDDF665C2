@@ -1,0 +1,235 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FileStorageController : ControllerBase
+    {
+        private readonly IFileStorageService _fileStorageService;
+
+        public FileStorageController(IFileStorageService fileStorageService)
+        {
+            _fileStorageService = fileStorageService;
+        }
+
+        /// <summary>
+        /// Upload a single image file
+        /// </summary>
+        /// <param name="request">File upload request</param>
+        /// <returns>Upload result with image URL</returns>
+        [HttpPost("upload")]
+        [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<object>> UploadFile([FromForm] FileUploadRequest request)
+        {
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded." });
+            }
+
+            if (!_fileStorageService.IsImageFile(request.File))
+            {
+                return BadRequest(new { message = "Only image files are allowed." });
+            }
+
+            try
+            {
+                var folder = string.IsNullOrEmpty(request.Folder) ? "products" : request.Folder;
+                var imageUrl = await _fileStorageService.UploadImageAsync(request.File, folder);
+                
+                return Ok(new 
+                { 
+                    success = true,
+                    message = "File uploaded successfully.",
+                    imageUrl,
+                    fileName = request.File.FileName,
+                    contentType = request.File.ContentType,
+                    size = request.File.Length
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Upload multiple image files
+        /// </summary>
+        /// <param name="request">Multiple files upload request</param>
+        /// <returns>Upload results for all files</returns>
+        [HttpPost("upload-multiple")]
+        [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<object>> UploadMultipleFiles([FromForm] MultipleFileUploadRequest request)
+        {
+            if (request.Files == null || request.Files.Count == 0)
+            {
+                return BadRequest(new { message = "No files uploaded." });
+            }
+
+            var uploadResults = new List<object>();
+            var errors = new List<string>();
+            var folder = string.IsNullOrEmpty(request.Folder) ? "products" : request.Folder;
+
+            foreach (var file in request.Files)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    errors.Add($"File {file?.FileName ?? "unknown"} is empty.");
+                    continue;
+                }
+
+                if (!_fileStorageService.IsImageFile(file))
+                {
+                    errors.Add($"File {file.FileName} is not a valid image file.");
+                    continue;
+                }
+
+                try
+                {
+                    var imageUrl = await _fileStorageService.UploadImageAsync(file, folder);
+                    uploadResults.Add(new
+                    {
+                        fileName = file.FileName,
+                        imageUrl,
+                        contentType = file.ContentType,
+                        size = file.Length,
+                        success = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error uploading {file.FileName}: {ex.Message}");
+                }
+            }
+
+            return Ok(new
+            {
+                uploadedFiles = uploadResults,
+                errors = errors,
+                totalUploaded = uploadResults.Count,
+                totalErrors = errors.Count
+            });
+        }
+
+        /// <summary>
+        /// Delete an uploaded file
+        /// </summary>
+        /// <param name="imageUrl">URL of the image to delete</param>
+        /// <returns>Deletion result</returns>
+        [HttpDelete]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<object>> DeleteFile([FromQuery] [Required] string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                return BadRequest(new { message = "Image URL is required." });
+            }
+
+            try
+            {
+                var result = await _fileStorageService.DeleteImageAsync(imageUrl);
+                
+                if (result)
+                {
+                    return Ok(new 
+                    { 
+                        success = true,
+                        message = "File deleted successfully.",
+                        imageUrl 
+                    });
+                }
+                else
+                {
+                    return NotFound(new 
+                    { 
+                        success = false,
+                        message = "File not found or could not be deleted.",
+                        imageUrl 
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Validate if a file is a valid image
+        /// </summary>
+        /// <param name="request">File validation request</param>
+        /// <returns>Validation result</returns>
+        [HttpPost("validate")]
+        [Consumes("multipart/form-data")]
+        public ActionResult<object> ValidateFile([FromForm] FileValidationRequest request)
+        {
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest(new { message = "No file provided." });
+            }
+
+            var isValid = _fileStorageService.IsImageFile(request.File);
+            
+            return Ok(new
+            {
+                fileName = request.File.FileName,
+                contentType = request.File.ContentType,
+                size = request.File.Length,
+                isValid,
+                message = isValid ? "File is a valid image." : "File is not a valid image."
+            });
+        }
+    }
+
+    /// <summary>
+    /// Request model for single file upload
+    /// </summary>
+    public class FileUploadRequest
+    {
+        /// <summary>
+        /// The file to upload
+        /// </summary>
+        [Required]
+        public IFormFile File { get; set; } = null!;
+
+        /// <summary>
+        /// Folder to store the file (optional, defaults to 'products')
+        /// </summary>
+        public string? Folder { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for multiple files upload
+    /// </summary>
+    public class MultipleFileUploadRequest
+    {
+        /// <summary>
+        /// The files to upload
+        /// </summary>
+        [Required]
+        public List<IFormFile> Files { get; set; } = new();
+
+        /// <summary>
+        /// Folder to store the files (optional, defaults to 'products')
+        /// </summary>
+        public string? Folder { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for file validation
+    /// </summary>
+    public class FileValidationRequest
+    {
+        /// <summary>
+        /// The file to validate
+        /// </summary>
+        [Required]
+        public IFormFile File { get; set; } = null!;
+    }
+}

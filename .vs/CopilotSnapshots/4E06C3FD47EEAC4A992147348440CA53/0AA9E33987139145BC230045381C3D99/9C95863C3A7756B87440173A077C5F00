@@ -1,0 +1,85 @@
+﻿# Migration Guide for JWT Authentication with Identity
+
+Bu layihə JWT Authentication sistemini Identity ilə konfiqurasiya etmək üçün migration əməliyyatlarının təlimatları.
+
+## Migration əməliyyatları
+
+### 1. Yeni migration yaradın:
+```bash
+# AYYUAZ.APP.Infrastructure folder-indən icra edin:
+dotnet ef migrations add "AddIdentitySupport" --startup-project ../AYYUAZ.APP --context AppDbContext
+
+# Və ya project directory-dən:
+dotnet ef migrations add "AddIdentitySupport" --project AYYUAZ.APP.Infrastructure --startup-project AYYUAZ.APP --context AppDbContext
+```
+
+### 2. Database-i yeniləyin:
+```bash
+# AYYUAZ.APP.Infrastructure folder-indən icra edin:
+dotnet ef database update --startup-project ../AYYUAZ.APP --context AppDbContext
+
+# Və ya project directory-dən:
+dotnet ef database update --project AYYUAZ.APP.Infrastructure --startup-project AYYUAZ.APP --context AppDbContext
+```
+
+### 3. Əgər köhnə database varsa, onu silin və yenidən yaradın:
+```bash
+dotnet ef database drop --startup-project ../AYYUAZ.APP --context AppDbContext
+dotnet ef database update --startup-project ../AYYUAZ.APP --context AppDbContext
+```
+
+## Konfiqurasiya dəyişiklikləri
+
+### 1. User Entity
+- Identity-dən inherit edir: `IdentityUser`
+- Yeni field-lər: `IsAdmin`, `FullName`, `CreatedAt`
+- `Username` property Identity-nin `UserName`-ə map olunur
+
+### 2. JWT Token Claims
+Hər token-da aşağıdaki claim-lər var:
+- `ClaimTypes.NameIdentifier` - User ID (string)
+- `ClaimTypes.Name` - Username
+- `ClaimTypes.Email` - Email
+- `ClaimTypes.Role` - "Admin" və ya "User" 
+- `"IsAdmin"` - "true" və ya "false"
+
+### 3. Authentication Test
+```http
+# Admin istifadəçi ilə login:
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+# Admin endpoint test:
+POST https://localhost:7038/api/about
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Test Admin Access",
+    "description": "Bu yalnız admin istifadəçilər yarada bilər"
+}
+```
+
+## Troubleshooting
+
+### Problem: Migration xətaları
+**Həll**: Köhnə migration faylları silin və yenidən yaradın:
+```bash
+# Migration folder-ini təmizləyin və yeni migration yaradın
+rm -rf AYYUAZ.APP.Infrastructure/Migrations/*
+dotnet ef migrations add "InitialWithIdentity" --startup-project AYYUAZ.APP --project AYYUAZ.APP.Infrastructure
+```
+
+### Problem: Database connection
+**Həll**: `appsettings.json`-da connection string yoxlayın
+
+### Problem: JWT token alınmır
+**Həll**: 
+1. Admin user yaradılıb-yaradılmadığını yoxlayın
+2. Password düzgün olduğunu təstiq edin
+3. Log output-ları yoxlayın

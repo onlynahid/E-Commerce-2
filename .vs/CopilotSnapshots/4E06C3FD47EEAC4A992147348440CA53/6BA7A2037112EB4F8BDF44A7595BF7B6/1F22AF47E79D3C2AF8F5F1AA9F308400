@@ -1,0 +1,329 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class SettingsController : ControllerBase
+    {
+        private readonly ISettingsService _settingsService;
+
+        public SettingsController(ISettingsService settingsService)
+        {
+            _settingsService = settingsService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<SettingsDto>>> GetAllSettings()
+        {
+            var settings = await _settingsService.GetAllSettingsAsync();
+            return Ok(settings);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<SettingsDto>> GetSettingsById(int id)
+        {
+            var settings = await _settingsService.GetSettingsByIdAsync(id);
+            if (settings == null)
+            {
+                return NotFound($"Settings with ID {id} not found.");
+            }
+            return Ok(settings);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<SettingsDto>> CreateSettings([FromBody] CreateSettingsDto createSettingsDto)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can create settings");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Check if email is unique
+                if (!string.IsNullOrEmpty(createSettingsDto.Email) && !await _settingsService.IsEmailUniqueAsync(createSettingsDto.Email))
+                {
+                    return BadRequest(new { message = "Email already exists in settings." });
+                }
+
+                var settings = await _settingsService.CreateSettingsAsync(createSettingsDto);
+                return CreatedAtAction(nameof(GetSettingsById), new { id = settings.Id }, settings);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<ActionResult<SettingsDto>> UpdateSettings(int id, [FromBody] UpdateSettingsDto updateSettingsDto)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can update settings");
+
+            if (id != updateSettingsDto.Id)
+            {
+                return BadRequest("Settings ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Check if email is unique (excluding current settings)
+                if (!string.IsNullOrEmpty(updateSettingsDto.Email) && !await _settingsService.IsEmailUniqueAsync(updateSettingsDto.Email, id))
+                {
+                    return BadRequest(new { message = "Email already exists in settings." });
+                }
+
+                var settings = await _settingsService.UpdateSettingsAsync(updateSettingsDto);
+                if (settings == null)
+                {
+                    return NotFound($"Settings with ID {id} not found.");
+                }
+                return Ok(settings);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<ActionResult> DeleteSettings(int id)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can delete settings");
+
+            var result = await _settingsService.DeleteSettingsAsync(id);
+            if (!result)
+            {
+                return NotFound($"Settings with ID {id} not found.");
+            }
+            return NoContent();
+        }
+
+        [HttpGet("current")]
+        public async Task<ActionResult<SettingsDto>> GetCurrentSettings()
+        {
+            var settings = await _settingsService.GetCurrentSettingsAsync();
+            if (settings == null)
+            {
+                return NotFound("No current settings found.");
+            }
+            return Ok(settings);
+        }
+
+        [HttpGet("default")]
+        public async Task<ActionResult<SettingsDto>> GetDefaultSettings()
+        {
+            var settings = await _settingsService.GetDefaultSettingsAsync();
+            if (settings == null)
+            {
+                return NotFound("No default settings found.");
+            }
+            return Ok(settings);
+        }
+
+        [HttpPut("current")]
+        [Authorize]
+        public async Task<ActionResult<bool>> UpdateCurrentSettings([FromBody] UpdateSettingsDto updateSettingsDto)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can update current settings");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _settingsService.UpdateCurrentSettingsAsync(updateSettingsDto);
+                if (!result)
+                {
+                    return NotFound("Current settings not found.");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("contact/phone")]
+        public async Task<ActionResult<string>> GetContactPhone()
+        {
+            var phone = await _settingsService.GetContactPhoneAsync();
+            return Ok(new { phone });
+        }
+
+        [HttpGet("contact/email")]
+        public async Task<ActionResult<string>> GetContactEmail()
+        {
+            var email = await _settingsService.GetContactEmailAsync();
+            return Ok(new { email });
+        }
+
+        [HttpGet("contact/address")]
+        public async Task<ActionResult<string>> GetContactAddress()
+        {
+            var address = await _settingsService.GetContactAddressAsync();
+            return Ok(new { address });
+        }
+
+        [HttpGet("social-media")]
+        public async Task<ActionResult<Dictionary<string, string>>> GetSocialMediaLinks()
+        {
+            var socialLinks = await _settingsService.GetSocialMediaLinksAsync();
+            return Ok(socialLinks);
+        }
+
+        [HttpPut("social-media")]
+        [Authorize]
+        public async Task<ActionResult<bool>> UpdateSocialMediaLinks([FromBody] Dictionary<string, string> socialLinks)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can update social media links");
+
+            if (socialLinks == null)
+            {
+                return BadRequest("Social media links cannot be null.");
+            }
+
+            try
+            {
+                var result = await _settingsService.UpdateSocialMediaLinksAsync(socialLinks);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("validate")]
+        [Authorize]
+        public async Task<ActionResult<bool>> ValidateSettings([FromBody] SettingsDto settings)
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can validate settings");
+
+            if (settings == null)
+            {
+                return BadRequest("Settings cannot be null.");
+            }
+
+            var isValid = await _settingsService.ValidateSettingsAsync(settings);
+            return Ok(new { isValid });
+        }
+
+        [HttpGet("check-email")]
+        public async Task<ActionResult<bool>> CheckEmailUnique([FromQuery] string email, [FromQuery] int? excludeId = null)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email cannot be empty.");
+            }
+
+            bool isUnique;
+            if (excludeId.HasValue)
+            {
+                isUnique = await _settingsService.IsEmailUniqueAsync(email, excludeId.Value);
+            }
+            else
+            {
+                isUnique = await _settingsService.IsEmailUniqueAsync(email);
+            }
+
+            return Ok(new { email, isUnique });
+        }
+
+        [HttpPost("reset-to-default")]
+        [Authorize]
+        public async Task<ActionResult<bool>> ResetToDefaultSettings()
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can reset settings to default");
+
+            try
+            {
+                var result = await _settingsService.ResetToDefaultSettingsAsync();
+                return Ok(new { success = result, message = result ? "Settings reset to default successfully." : "Failed to reset settings." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("backup")]
+        [Authorize]
+        public async Task<ActionResult<bool>> BackupCurrentSettings()
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can backup settings");
+
+            try
+            {
+                var result = await _settingsService.BackupCurrentSettingsAsync();
+                return Ok(new { success = result, message = result ? "Settings backed up successfully." : "Failed to backup settings." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("restore-from-backup")]
+        [Authorize]
+        public async Task<ActionResult<bool>> RestoreSettingsFromBackup()
+        {
+            // Admin yoxlaması
+            var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+            if (isAdmin != "True")
+                return Forbid("Only admin users can restore settings from backup");
+
+            try
+            {
+                var result = await _settingsService.RestoreSettingsFromBackupAsync();
+                return Ok(new { success = result, message = result ? "Settings restored from backup successfully." : "Failed to restore settings from backup." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
+}

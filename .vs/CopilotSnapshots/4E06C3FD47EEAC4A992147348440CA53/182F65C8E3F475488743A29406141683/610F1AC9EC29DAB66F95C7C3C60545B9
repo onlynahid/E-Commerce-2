@@ -1,0 +1,301 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Infrastructure.Services
+{
+    public static class DataSeeder
+    {
+        public static async Task SeedInitialData(AppDbContext context, IServiceProvider serviceProvider)
+        {
+            // Seed admin user with Identity
+            await SeedAdminAsync(serviceProvider);
+
+            // Seed categories
+            SeedCategories(context);
+
+            // Seed products (after categories)
+            SeedProducts(context);
+
+            // Seed settings
+            SeedSettings(context);
+
+            // Seed about information
+            SeedAbout(context);
+        }
+
+        private static async Task SeedAdminAsync(IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            // Create Admin role if it doesn't exist
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            // Create User role if it doesn't exist
+            if (!await roleManager.RoleExistsAsync("User"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("User"));
+            }
+
+            // Check if admin user exists
+            var adminUser = await userManager.FindByEmailAsync("Admin045@gmail.com");
+            if (adminUser == null)
+            {
+                adminUser = new User
+                {
+                    UserName = "Admin045",
+                    Email = "Admin045@gmail.com",
+                    EmailConfirmed = true,
+                    FullName = "System Administrator",
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "admin123");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+        }
+
+        private static void SeedCategories(AppDbContext context)
+        {
+            if (!context.Categories.Any())
+            {
+                var categories = new[]
+                {
+                    new Category
+                    {
+                        Name = "Electronics",
+                        Description = "Electronic devices and accessories",
+                        ImageUrl = "/uploads/categories/default-category.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Clothing",
+                        Description = "Fashion and apparel",
+                        ImageUrl = "/uploads/categories/default-category.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Books",
+                        Description = "Books and educational materials",
+                        ImageUrl = "/uploads/categories/default-category.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Home & Garden",
+                        Description = "Home improvement and garden supplies",
+                        ImageUrl = "/uploads/categories/default-category.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Sports & Outdoors",
+                        Description = "Sports equipment and outdoor gear",
+                        ImageUrl = "/uploads/categories/default-category.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+
+                context.Categories.AddRange(categories);
+                context.SaveChanges();
+            }
+        }
+
+        private static void SeedProducts(AppDbContext context)
+        {
+            if (!context.Products.Any())
+            {
+                var categories = context.Categories.ToList();
+                if (categories.Any())
+                {
+                    var electronicsCategory = categories.FirstOrDefault(c => c.Name == "Electronics");
+                    var clothingCategory = categories.FirstOrDefault(c => c.Name == "Clothing");
+                    var booksCategory = categories.FirstOrDefault(c => c.Name == "Books");
+                    var homeCategory = categories.FirstOrDefault(c => c.Name == "Home & Garden");
+                    var sportsCategory = categories.FirstOrDefault(c => c.Name == "Sports & Outdoors");
+
+                    var products = new[]
+                    {
+                        // Electronics
+                        new Product
+                        {
+                            Name = "Wireless Bluetooth Headphones",
+                            Description = "High-quality wireless headphones with noise cancellation",
+                            Price = 99.99m,
+                            StockQuantity = 50,
+                            CategoryId = electronicsCategory?.Id ?? 1,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Product
+                        {
+                            Name = "Smartphone Charger",
+                            Description = "Fast charging cable compatible with most devices",
+                            Price = 19.99m,
+                            StockQuantity = 100,
+                            CategoryId = electronicsCategory?.Id ?? 1,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        
+                        // Clothing
+                        new Product
+                        {
+                            Name = "Cotton T-Shirt",
+                            Description = "Comfortable cotton t-shirt available in multiple colors",
+                            Price = 24.99m,
+                            StockQuantity = 75,
+                            CategoryId = clothingCategory?.Id ?? 2,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Product
+                        {
+                            Name = "Denim Jeans",
+                            Description = "Classic fit denim jeans for everyday wear",
+                            Price = 49.99m,
+                            StockQuantity = 40,
+                            CategoryId = clothingCategory?.Id ?? 2,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+
+                        // Books
+                        new Product
+                        {
+                            Name = "Programming Fundamentals",
+                            Description = "Comprehensive guide to programming concepts",
+                            Price = 39.99m,
+                            StockQuantity = 30,
+                            CategoryId = booksCategory?.Id ?? 3,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Product
+                        {
+                            Name = "Web Development Handbook",
+                            Description = "Complete guide to modern web development",
+                            Price = 44.99m,
+                            StockQuantity = 25,
+                            CategoryId = booksCategory?.Id ?? 3,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+
+                        // Home & Garden
+                        new Product
+                        {
+                            Name = "Indoor Plant Pot",
+                            Description = "Decorative ceramic pot perfect for indoor plants",
+                            Price = 15.99m,
+                            StockQuantity = 60,
+                            CategoryId = homeCategory?.Id ?? 4,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Product
+                        {
+                            Name = "LED Table Lamp",
+                            Description = "Modern LED table lamp with adjustable brightness",
+                            Price = 34.99m,
+                            StockQuantity = 35,
+                            CategoryId = homeCategory?.Id ?? 4,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+
+                        // Sports & Outdoors
+                        new Product
+                        {
+                            Name = "Yoga Mat",
+                            Description = "Non-slip yoga mat for home workouts",
+                            Price = 29.99m,
+                            StockQuantity = 45,
+                            CategoryId = sportsCategory?.Id ?? 5,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Product
+                        {
+                            Name = "Water Bottle",
+                            Description = "Stainless steel insulated water bottle",
+                            Price = 22.99m,
+                            StockQuantity = 80,
+                            CategoryId = sportsCategory?.Id ?? 5,
+                            ImageUrl = "/uploads/products/default-product.jpg",
+                            CreatedAt = DateTime.UtcNow
+                        }
+                    };
+
+                    context.Products.AddRange(products);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        private static void SeedSettings(AppDbContext context)
+        {
+            if (!context.Settings.Any())
+            {
+                var settings = new Settings
+                {
+                    Name = "AYYUAZ Store",
+                    PhoneNumber = "+1-234-567-8900",
+                    Email = "contact@ayyuazstore.com",
+                    Address = "123 Business Street, Commerce City, CC 12345",
+                    FacebookUrl = "https://facebook.com/ayyuazstore",
+                    InstagramUrl = "https://instagram.com/ayyuazstore",
+                    TwitterUrl = "https://twitter.com/ayyuazstore"
+                };
+
+                context.Settings.Add(settings);
+                context.SaveChanges();
+            }
+        }
+
+        private static void SeedAbout(AppDbContext context)
+        {
+            if (!context.About.Any())
+            {
+                var about = new About
+                {
+                    Title = "Welcome to AYYUAZ Store",
+                    Description = "AYYUAZ Store is your one-stop destination for quality products across various categories. " +
+                                "We are committed to providing excellent customer service and delivering the best shopping experience. " +
+                                "Our team carefully curates each product to ensure quality, value, and customer satisfaction. " +
+                                "Founded with the vision of making online shopping accessible and enjoyable for everyone, " +
+                                "we strive to offer competitive prices, fast shipping, and exceptional customer support. " +
+                                "\n\nOur mission is to connect customers with the products they love while maintaining the highest " +
+                                "standards of service and reliability. Whether you're looking for the latest electronics, " +
+                                "fashionable clothing, educational books, home essentials, or sports equipment, we have something for everyone."
+                };
+
+                context.About.Add(about);
+                context.SaveChanges();
+            }
+        }
+
+        private static string HashPassword(string password)
+        {
+            // Using the same SHA256 hashing method as AuthService
+            using var sha256 = SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
+        }
+    }
+}

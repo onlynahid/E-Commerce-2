@@ -1,0 +1,121 @@
+﻿# Custom Authorization System
+
+Bu layihədə ənənəvi ASP.NET Core Role sistemi əvəzinə, sadə **IsAdmin** əsaslı authorization sistemi istifadə olunur.
+
+## Sistem necə işləyir
+
+### 1. İstifadəçi Növləri
+- **Admin İstifadəçi**: `IsAdmin = true` olan istifadəçilər
+- **Sadə İstifadəçi**: `IsAdmin = false` olan istifadəçilər
+
+### 2. Custom Authorization Attributes
+
+#### `[RequireAdmin]`
+- Yalnız `IsAdmin = true` olan istifadəçilər üçün
+- JWT token-da `Role = "Admin"` və ya `IsAdmin = "true"` claim-ini yoxlayır
+- İstifadə edildiyi yerlər:
+  - Product CRUD əməliyyatları (Create, Update, Delete)
+  - Category CRUD əməliyyatları (Create, Update, Delete) 
+  - About CRUD əməliyyatları (Create, Update, Delete)
+  - Settings idarə edilməsi
+  - Fayl upload/delete əməliyyatları
+  - Order idarə edilməsi (admin panel üçün)
+
+#### `[RequireAuth]`
+- Hər hansı authenticate olmuş istifadəçi üçün
+- İstifadə edildiyi yerlər:
+  - Fərdi order məlumatlarının görülməsi
+  - İstifadəçinin öz məlumatlarının görülməsi
+
+### 3. Public Endpoint-lər
+Bu endpoint-lər heç bir authentication tələb etmir:
+- About məlumatlarının oxunması
+- Product məlumatlarının oxunması  
+- Category məlumatlarının oxunması
+- Settings məlumatlarının oxunması
+- Order yaratma (guest order)
+
+### 4. JWT Token Claims
+Hər JWT token-da aşağıdaki məlumatlar var:
+```json
+{
+  "nameid": "123",           // User ID
+  "name": "username",        // Username  
+  "email": "user@email.com", // Email
+  "role": "Admin",           // "Admin" və ya "User"
+  "IsAdmin": "true"          // "true" və ya "false"
+}
+```
+
+### 5. İstifadə Nümunələri
+
+#### Admin endpoint-ə giriş:
+```http
+POST /api/about
+Authorization: Bearer <admin-user-jwt-token>
+Content-Type: application/json
+
+{
+  "title": "Yeni məlumat",
+  "description": "Bu yalnız admin tərəfindən yaradıla bilər"
+}
+```
+
+#### Public endpoint:
+```http
+GET /api/about
+# Heç bir authorization tələb olunmur
+```
+
+#### Authenticated endpoint:
+```http
+GET /api/order/123
+Authorization: Bearer <any-authenticated-user-token>
+```
+
+## Error Response-lar
+
+### 401 Unauthorized (Authentication yoxdur):
+```json
+{
+  "message": "Authentication required",
+  "error": "unauthorized"
+}
+```
+
+### 403 Forbidden (Admin hüququn yoxdur):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403
+}
+```
+
+## Fərqi
+
+| Köhnə Sistem | Yeni Sistem |
+|---------------|-------------|
+| `[Authorize(Roles = "Admin")]` | `[RequireAdmin]` |
+| `[Authorize]` | `[RequireAuth]` |
+| Role-based | IsAdmin-based |
+| ASP.NET Core default | Custom implementation |
+
+## Qeydiyyat zamanı Admin yaratma
+
+Yeni istifadəçi qeydiyyat zamanında admin olmaq üçün:
+
+1. Normal qeydiyyat:
+```http
+POST /api/auth/register
+{
+  "username": "user123",
+  "email": "user@email.com", 
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+```
+
+2. Admin yaratmaq üçün database-də `IsAdmin` field-ini `true` etmək lazımdır (bu manual əməliyyatdır və ya admin panel vasitəsilə).
+
+Bu sistem daha sadə və başa düşüləndir, hələ ki adi role management-ə ehtiyac yoxdur.

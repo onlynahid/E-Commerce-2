@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AYYUAZ.APP.Application.Dtos;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IProductService
+    {
+        // Basic CRUD operations
+        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<ProductDto> GetProductByIdAsync(int productId);
+        Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto);
+        Task<ProductDto> UpdateProductAsync(UpdateProductDto updateProductDto);
+        Task<bool> DeleteProductAsync(int productId);
+
+        // Filtering and searching
+        Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string searchTerm);
+        Task<IEnumerable<ProductDto>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice);
+        
+        // Pagination
+        Task<IEnumerable<ProductDto>> GetProductsWithPaginationAsync(int page, int pageSize);
+        Task<int> GetProductCountAsync();
+        Task<int> GetProductCountByCategoryAsync(int categoryId);
+        
+        // Sorting
+        Task<IEnumerable<ProductDto>> GetProductsSortedByPriceAsync(bool ascending = true);
+        Task<IEnumerable<ProductDto>> GetProductsSortedByDateAsync(bool ascending = false);
+        Task<IEnumerable<ProductDto>> GetProductsSortedByNameAsync(bool ascending = true);
+        
+        // Availability
+        Task<bool> IsProductAvailableAsync(int productId);
+        Task<IEnumerable<ProductDto>> GetAvailableProductsAsync();
+        
+        // Featured/Popular products
+        Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10);
+        Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync();
+    }
+}

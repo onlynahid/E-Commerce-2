@@ -1,0 +1,49 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Security.Claims;
+
+namespace AYYUAZ.APP.Attributes
+{
+    /// <summary>
+    /// Custom authorization attribute to check if user is admin based on IsAdmin property
+    /// </summary>
+    public class RequireAdminAttribute : Attribute, IAuthorizationFilter
+    {
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            // Check if user is authenticated
+            if (!context.HttpContext.User.Identity?.IsAuthenticated ?? true)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+
+            // Get the role claim
+            var roleClaim = context.HttpContext.User.FindFirst(ClaimTypes.Role);
+            
+            // Check if user has Admin role (IsAdmin = true)
+            if (roleClaim == null || roleClaim.Value != "Admin")
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Simple authorization attribute to check if user is authenticated (regardless of admin status)
+    /// </summary>
+    public class RequireAuthAttribute : Attribute, IAuthorizationFilter
+    {
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            // Check if user is authenticated
+            if (!context.HttpContext.User.Identity?.IsAuthenticated ?? true)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+        }
+    }
+}

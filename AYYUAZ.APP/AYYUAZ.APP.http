@@ -1,0 +1,6 @@
+@AYYUAZ.APP_HostAddress = http://localhost:5255
+
+GET {{AYYUAZ.APP_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

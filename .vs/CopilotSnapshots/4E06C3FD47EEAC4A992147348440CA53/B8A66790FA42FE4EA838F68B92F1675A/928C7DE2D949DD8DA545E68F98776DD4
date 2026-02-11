@@ -1,0 +1,73 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class AboutService : IAboutService
+    {
+        public Task<AboutDto> CreateAboutAsync(CreateAboutDto createAboutDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAboutAsync(int aboutId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AboutDto> GetAboutByIdAsync(int aboutId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AboutDto> GetAboutByTitleAsync(string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetAboutCountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AboutDto>> GetAboutWithPaginationAsync(int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AboutDto>> GetAllAboutAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AboutDto> GetLatestAboutAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsTitleUniqueAsync(string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsTitleUniqueAsync(string title, int excludeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AboutDto>> SearchAboutByTitleAsync(string searchTerm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

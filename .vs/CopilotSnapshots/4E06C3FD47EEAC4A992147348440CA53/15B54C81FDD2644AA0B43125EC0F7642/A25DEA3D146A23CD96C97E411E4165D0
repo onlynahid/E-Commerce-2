@@ -1,0 +1,11 @@
+﻿### Test About Endpoint WITHOUT Authentication (Should work)
+GET https://localhost:7038/api/About
+
+### Test login to get valid token
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}

@@ -1,0 +1,268 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductController : ControllerBase
+    {
+        private readonly IProductService _productService;
+        public ProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            return Ok(products);
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+            return Ok(product);
+        }
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            return Ok(products);
+        }
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                throw new ArgumentException("Search term cannot be empty.");
+
+            var products = await _productService.GetProductsByNameAsync(searchTerm);
+            return Ok(products);
+        }
+        [HttpGet("price-range")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByPriceRange([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
+        {
+            if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+                throw new ArgumentException("Invalid price range.");
+
+            var products = await _productService.GetProductsByPriceRangeAsync(minPrice, maxPrice);
+            return Ok(products);
+        }
+        [HttpGet("paged")]
+        public async Task<ActionResult<object>> GetProductsWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+                throw new ArgumentException("Page and page size must be greater than 0.");
+
+            var products = await _productService.GetProductsWithPaginationAsync(page, pageSize);
+            var totalcount = await _productService.GetProductCountAsync();
+
+            return Ok(new
+            {
+                products,
+                totalcount,
+                currentPage = page,
+                pageSize,
+                totalPages = (int)Math.Ceiling((double)totalcount / pageSize)
+            });
+        }
+        [HttpGet("available")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAvailableProducts()
+        {
+            var products = await _productService.GetAvailableProductsAsync();
+            return Ok(products);
+        }
+        [HttpGet("latest")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetLatestProducts([FromQuery] int count = 10)
+        {
+            var products = await _productService.GetLatestProductsAsync(count);
+            return Ok(products);
+        }
+        [HttpGet("sorted-by-price")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsSortedByPrice([FromQuery] bool ascending = true)
+        {
+            var products = await _productService.GetProductsSortedByPriceAsync(ascending);
+            return Ok(products);
+        }
+        [HttpGet("{id}/availability")]
+        public async Task<ActionResult<bool>> CheckProductAvailability(int id)
+        {
+            var isAvailable = await _productService.IsProductAvailableAsync(id);
+            return Ok(new { productId = id, isAvailable });
+        }
+        [HttpPost("filter")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> FilterProducts([FromBody] ProductFilterDto filter)
+        {
+            if (filter == null)
+                throw new ArgumentException("Filter criteria cannot be null.");
+
+            if (filter.MinPrice.HasValue && filter.MaxPrice.HasValue && filter.MinPrice > filter.MaxPrice)
+                throw new ArgumentException("Minimum price cannot be greater than maximum price.");
+
+            if ((filter.MinPrice ?? 0) < 0 || (filter.MaxPrice ?? 0) < 0)
+                throw new ArgumentException("Price values cannot be negative.");
+
+            var filteredProducts = await _productService.FilterProductsAsync(filter);
+            var productDtos = filteredProducts.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Stock = p.StockQuantity,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name ?? "",
+                ImageUrl = p.ImageUrl,
+                CreatedAt = p.CreatedAt,
+                AgeGroups = string.IsNullOrEmpty(p.AgeGroup) ? null : p.AgeGroup.Split(',').ToList(),
+                Materials = string.IsNullOrEmpty(p.Material) ? null : p.Material.Split(',').ToList(),
+                Size = string.IsNullOrEmpty(p.Size) ? null : p.Size.Split(',').ToList(),
+                Colors = string.IsNullOrEmpty(p.Colors) ? null : p.Colors.Split(',').ToList()
+            }).ToList();
+
+            return Ok(new
+            {
+                products = productDtos,
+                totalCount = productDtos.Count,
+                appliedFilters = new
+                {
+                    ageGroups = filter.AgeGroups,
+                    materials = filter.Materials,
+                    sizes = filter.Size,
+                    colors = filter.Colors,
+                    minPrice = filter.MinPrice,
+                    maxPrice = filter.MaxPrice
+                }
+            });
+        }
+        [HttpPost("test-filter")]
+        public async Task<ActionResult> TestFilterLogic([FromBody] ProductFilterDto filter)
+        {
+            var filteredProducts = await _productService.FilterProductsAsync(filter);
+
+            return Ok(new
+            {
+                message = "Test filter results",
+                filterCriteria = new
+                {
+                    sizes = filter.Size,
+                    ageGroups = filter.AgeGroups,
+                    materials = filter.Materials,
+                    colors = filter.Colors,
+                    minPrice = filter.MinPrice,
+                    maxPrice = filter.MaxPrice
+                },
+                resultsCount = filteredProducts.Count,
+                firstFewResults = filteredProducts.Take(3).Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    rawSize = p.Size,
+                    rawAgeGroup = p.AgeGroup,
+                    rawMaterial = p.Material,
+                    rawColors = p.Colors,
+                    price = p.Price
+                }).ToList()
+            });
+        }
+        [HttpGet("debug/all-sizes")]
+        public async Task<ActionResult> GetAllSizesForDebug()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            var sizes = products
+                .Where(p => !string.IsNullOrEmpty(p.Size?.FirstOrDefault()))
+                .SelectMany(p => p.Size ?? new List<string>())
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+            return Ok(new
+            {
+                message = "All unique sizes in database",
+                sizes = sizes,
+                totalProducts = products.Count(),
+                productsWithSizes = products.Count(p => p.Size != null && p.Size.Any())
+            });
+        }
+        [HttpGet("debug/all-data")]
+        public async Task<ActionResult> GetAllDataForDebug()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            var productDetails = products.Take(5).Select(p => new
+            {
+                id = p.Id,
+                name = p.Name,
+                sizeRaw = p.Size?.FirstOrDefault(),
+                sizeList = p.Size,
+                sizesCount = p.Size?.Count ?? 0,
+                ageGroupRaw = p.AgeGroups?.FirstOrDefault(),
+                ageGroupList = p.AgeGroups,
+                materialsRaw = p.Materials?.FirstOrDefault(),
+                materialsList = p.Materials,
+                colorsRaw = p.Colors?.FirstOrDefault(),
+                colorsList = p.Colors
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Raw data from first 5 products",
+                totalProducts = products.Count(),
+                sampleProducts = productDetails,
+                allUniqueSizes = products
+                    .Where(p => p.Size != null && p.Size.Any())
+                    .SelectMany(p => p.Size)
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToList()
+            });
+        }
+       [HttpGet("debug/raw-database")]
+        public async Task<ActionResult> GetRawDatabaseData()
+        {
+            var filteredProducts = await _productService.FilterProductsAsync(new ProductFilterDto());
+
+            var rawData = filteredProducts.Take(5).Select(p => new
+            {
+                id = p.Id,
+                name = p.Name,
+                sizeRaw = p.Size,
+                ageGroupRaw = p.AgeGroup,
+                materialRaw = p.Material,
+                colorsRaw = p.Colors
+            }).ToList();
+
+            return Ok(new
+            {
+                message = "Raw database fields from first 5 products",
+                totalProducts = filteredProducts.Count,
+                sampleRawProducts = rawData
+            });
+        }
+        [HttpPost("debug-simple-filter")]
+        public async Task<ActionResult> DebugSimpleFilter()
+        {
+            var simpleFilter = new ProductFilterDto
+            {
+                Size = new List<string> { "L" }
+            };
+
+            var filteredProducts = await _productService.FilterProductsAsync(simpleFilter);
+
+            return Ok(new
+            {
+                message = "Simple L size filter test",
+                totalProducts = filteredProducts.Count,
+                productsWithL = filteredProducts.Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    rawSize = p.Size,
+                    hasL = p.Size?.Contains("L") ?? false,
+                    exactMatch = p.Size?.Split(',')?.Contains("L") ?? false
+                }).ToList()
+            });
+        }
+    }
+}

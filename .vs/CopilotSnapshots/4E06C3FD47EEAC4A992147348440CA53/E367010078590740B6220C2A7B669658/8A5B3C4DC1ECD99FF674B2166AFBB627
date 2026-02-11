@@ -1,0 +1,78 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+namespace AYYUAZ.APP.AdminController
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AdminAboutController : ControllerBase
+    {
+        private readonly IAboutService _aboutService;
+        private readonly ILogger<AdminAboutController> _logger;
+        public AdminAboutController(IAboutService aboutService, ILogger<AdminAboutController> logger)
+        {
+            _aboutService = aboutService;
+            _logger = logger;
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<AboutDto>> CreateAbout([FromBody] CreateAboutDto createAboutDto)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Check if title is unique
+            var about = await _aboutService.CreateAboutAsync(createAboutDto);
+            return CreatedAtAction(nameof(GetAboutById), new { id = about.Id }, about);
+        }
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<AboutDto>> UpdateAbout(int id, [FromBody] UpdateAboutDto updateAboutDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var about = await _aboutService.UpdateAboutAsync(updateAboutDto,id);
+            if (about == null)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return Ok(about);
+        }
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteAbout(int id)
+        {  
+            var result = await _aboutService.DeleteAboutAsync(id);
+            if (!result)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return NoContent();
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AboutDto>> GetAboutById(int id)
+        {
+            var about = await _aboutService.GetAboutByIdAsync(id);
+            if (about == null)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return Ok(about);
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
+        {
+            var aboutList = await _aboutService.GetAllAboutAsync();
+            return Ok(aboutList);
+        }
+    }
+}

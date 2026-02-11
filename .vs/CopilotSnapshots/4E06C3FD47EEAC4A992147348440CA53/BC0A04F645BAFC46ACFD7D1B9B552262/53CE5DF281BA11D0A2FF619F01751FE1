@@ -1,0 +1,44 @@
+﻿### AYYUAZ.APP Registration Debugging Tests
+
+# First, test if the API is running
+GET https://localhost:7038/api/health
+
+### Test database connectivity
+GET https://localhost:7038/api/health/database
+
+### Test database operations
+GET https://localhost:7038/api/health/test-db-operations
+
+### Test authentication service health
+GET https://localhost:7038/api/auth/health
+
+### Test registration with detailed logging
+POST https://localhost:7038/api/Auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser123",
+    "email": "testuser123@example.com", 
+    "password": "TestPassword123!",
+    "confirmPassword": "TestPassword123!"
+}
+
+### Test login with seeded admin user
+POST https://localhost:7038/api/Auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### Test registration with different data
+POST https://localhost:7038/api/Auth/register
+Content-Type: application/json
+
+{
+    "username": "newuser",
+    "email": "newuser@test.com",
+    "password": "NewUser123!",
+    "confirmPassword": "NewUser123!"
+}

@@ -1,0 +1,139 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
+
+namespace AYYUAZ.APP.Attributes
+{
+    /// <summary>
+    /// Custom authorization attribute to check if user is admin based on IsAdmin property
+    /// This checks both Role claim and IsAdmin claim for flexibility
+    /// </summary>
+    public class RequireAdminAttribute : Attribute, IAuthorizationFilter
+    {
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            // Get logger for debugging
+            var logger = context.HttpContext.RequestServices.GetService<ILogger<RequireAdminAttribute>>();
+            
+            try
+            {
+                // Log all incoming request headers for debugging
+                var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
+                logger?.LogDebug("RequireAdmin - Authorization Header: {AuthHeader}", 
+                    string.IsNullOrEmpty(authHeader) ? "MISSING" : authHeader.Substring(0, Math.Min(authHeader.Length, 50)) + "...");
+
+                // Check if user is authenticated
+                var isAuthenticated = context.HttpContext.User.Identity?.IsAuthenticated ?? false;
+                logger?.LogDebug("RequireAdmin - User Authenticated: {IsAuthenticated}", isAuthenticated);
+
+                if (!isAuthenticated)
+                {
+                    logger?.LogWarning("RequireAdmin - User not authenticated, returning 401");
+                    context.Result = new UnauthorizedObjectResult(new 
+                    { 
+                        message = "Authentication required",
+                        error = "unauthorized",
+                        debug = "User.Identity.IsAuthenticated = false"
+                    });
+                    return;
+                }
+
+                // Log all user claims for debugging
+                var claims = context.HttpContext.User.Claims.ToList();
+                logger?.LogDebug("RequireAdmin - User Claims Count: {ClaimsCount}", claims.Count);
+                
+                foreach (var claim in claims)
+                {
+                    logger?.LogDebug("RequireAdmin - Claim: {Type} = {Value}", claim.Type, claim.Value);
+                }
+
+                // Method 1: Check the role claim
+                var roleClaim = context.HttpContext.User.FindFirst(ClaimTypes.Role);
+                bool isAdminByRole = roleClaim?.Value == "Admin";
+                logger?.LogDebug("RequireAdmin - Role Claim: {RoleClaim}, IsAdmin by Role: {IsAdminByRole}", 
+                    roleClaim?.Value ?? "NULL", isAdminByRole);
+
+                // Method 2: Check the IsAdmin claim (if exists)
+                var isAdminClaim = context.HttpContext.User.FindFirst("IsAdmin");
+                bool isAdminByClaim = isAdminClaim?.Value?.ToLower() == "true";
+                logger?.LogDebug("RequireAdmin - IsAdmin Claim: {IsAdminClaim}, IsAdmin by Claim: {IsAdminByClaim}", 
+                    isAdminClaim?.Value ?? "NULL", isAdminByClaim);
+
+                // User is admin if either role is "Admin" OR IsAdmin claim is true
+                bool isAdmin = isAdminByRole || isAdminByClaim;
+                logger?.LogDebug("RequireAdmin - Final IsAdmin Result: {IsAdmin}", isAdmin);
+
+                if (!isAdmin)
+                {
+                    logger?.LogWarning("RequireAdmin - User is not admin, returning 403");
+                    context.Result = new ForbidResult("User does not have admin privileges");
+                    return;
+                }
+
+                // Log successful admin access
+                var userId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var username = context.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+                logger?.LogInformation("RequireAdmin - Admin access granted to User: {Username} (ID: {UserId})", 
+                    username, userId);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "RequireAdmin - Error during authorization");
+                context.Result = new UnauthorizedObjectResult(new 
+                { 
+                    message = "Authentication required",
+                    error = "authorization_error",
+                    debug = ex.Message
+                });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Simple authorization attribute to check if user is authenticated (regardless of admin status)
+    /// </summary>
+    public class RequireAuthAttribute : Attribute, IAuthorizationFilter
+    {
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            var logger = context.HttpContext.RequestServices.GetService<ILogger<RequireAuthAttribute>>();
+            
+            try
+            {
+                // Log authentication status
+                var isAuthenticated = context.HttpContext.User.Identity?.IsAuthenticated ?? false;
+                logger?.LogDebug("RequireAuth - User Authenticated: {IsAuthenticated}", isAuthenticated);
+
+                if (!isAuthenticated)
+                {
+                    logger?.LogWarning("RequireAuth - User not authenticated, returning 401");
+                    context.Result = new UnauthorizedObjectResult(new 
+                    { 
+                        message = "Authentication required",
+                        error = "unauthorized",
+                        debug = "User.Identity.IsAuthenticated = false"
+                    });
+                    return;
+                }
+
+                // User is authenticated, access granted
+                var userId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var username = context.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+                logger?.LogInformation("RequireAuth - Authenticated access granted to User: {Username} (ID: {UserId})", 
+                    username, userId);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "RequireAuth - Error during authorization");
+                context.Result = new UnauthorizedObjectResult(new 
+                { 
+                    message = "Authentication required",
+                    error = "authorization_error",
+                    debug = ex.Message
+                });
+            }
+        }
+    }
+}

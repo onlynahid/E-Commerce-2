@@ -1,0 +1,29 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class UserDto
+    {
+        public string Id { get; set; } = string.Empty; // Identity uses string IDs
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
+        public string? FullName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+    public class ChangePasswordDto
+    {
+        [Required]
+        [DataType(DataType.Password)]
+        public string CurrentPassword { get; set; }
+        [Required]
+        [MinLength(6)]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; }
+        [Required]
+        [Compare("NewPassword", ErrorMessage = "New password and confirmation password do not match.")]
+        [DataType(DataType.Password)]
+        public string ConfirmNewPassword { get; set; }
+    }
+
+    public class ChangeEmail

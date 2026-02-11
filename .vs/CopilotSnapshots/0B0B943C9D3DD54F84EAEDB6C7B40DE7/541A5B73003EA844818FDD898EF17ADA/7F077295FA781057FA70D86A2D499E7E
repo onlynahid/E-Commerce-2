@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class BasketDto
+    {
+        public int Id { get; set; }
+        public List<BasketItemDto> BasketItems { get; set; } = new List<BasketItemDto>();
+        public decimal TotalPrice => BasketItems.Sum(i => i.Quantity * i.Price);
+        public int TotalQuantity => BasketItems.Sum(i => i.Quantity);
+    }
+
+    public class CreateBasketDto
+    {
+        public List<CreateBasketItemDto> BasketItems { get; set; } = new List<CreateBasketItemDto>();
+    }
+
+    public class UpdateBasketDto
+    {
+        public int Id { get; set; }
+        public List<UpdateBasketItemDto> BasketItems { get; set; } = new List<UpdateBasketItemDto>();
+    }
+}

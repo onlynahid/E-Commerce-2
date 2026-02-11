@@ -1,0 +1,55 @@
+﻿### AYYUAZ.APP Login Probleminin Həlli - Test Sırası
+
+# 1. API-nin işləməsini yoxla
+GET https://localhost:7038/api/health
+
+### 2. AuthController debug endpoint-ini yoxla  
+GET https://localhost:7038/api/auth/debug
+
+### 3. Database bağlantısını yoxla
+GET https://localhost:7038/api/health/database
+
+### 4. Seeded admin user ilə giriş test et
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### 5. Validation test et - boş data
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "",
+    "password": ""
+}
+
+### 6. Validation test et - yanlış format
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "invalid-email",
+    "password": "123"
+}
+
+### 7. Mövcud olmayan user
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "nonexistent@test.com",
+    "password": "password123"
+}
+
+### 8. Yanlış password
+POST https://localhost:7038/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "wrongpassword"
+}

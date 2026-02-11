@@ -1,0 +1,27 @@
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace AYYUAZ.APP.Domain.Entities
+{
+    public class User : IdentityUser
+    {
+        // Only use IdentityUser's built-in properties:
+        // - Id (string) 
+        // - UserName
+        // - Email
+        // - EmailConfirmed
+        // - PasswordHash
+        // - PhoneNumber
+        // - PhoneNumberConfirmed
+        // - TwoFactorEnabled
+        // - LockoutEnd
+        // - LockoutEnabled
+        // - AccessFailedCount
+        // - NormalizedUserName
+        // - NormalizedEmail
+        // - ConcurrencyStamp
+        // - SecurityStamp
+
+        // We'll determine admin status through Identity roles in AspNetUserRoles table
+        public bool IsAdmin { get; set; }
+    }
+}

@@ -1,0 +1,72 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AboutController : ControllerBase
+    {
+        private readonly IAboutService _aboutService;
+        private readonly ILogger<AboutController> _logger;
+        public AboutController(IAboutService aboutService, ILogger<AboutController> logger)
+        {
+            _aboutService = aboutService;
+            _logger = logger;
+         
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
+        {
+            var aboutList = await _aboutService.GetAllAboutAsync();
+            return Ok(aboutList);
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AboutDto>> GetAboutById(int id)
+        {
+            var about = await _aboutService.GetAboutByIdAsync(id);
+            if (about == null)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return Ok(about);
+        }
+        [HttpGet("debug/auth")]
+        public ActionResult<object> DebugAuth()
+        {
+            try
+            {
+                var authHeader = Request.Headers["Authorization"].ToString();
+                var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+                var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
+
+                var roleClaim = User.FindFirst(ClaimTypes.Role);
+                var isAdminClaim = User.FindFirst("IsAdmin");
+
+                return Ok(new
+                {
+                    timestamp = DateTime.UtcNow,
+                    authHeader = string.IsNullOrEmpty(authHeader) ? "MISSING" : authHeader.Substring(0, Math.Min(authHeader.Length, 50)) + "...",
+                    isAuthenticated,
+                    claimsCount = claims.Count,
+                    claims,
+                    roleClaim = roleClaim?.Value,
+                    isAdminClaim = isAdminClaim?.Value,
+                    isAdminByRole = roleClaim?.Value == "Admin",
+                    isAdminByClaim = isAdminClaim?.Value?.ToLower() == "true"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in debug auth endpoint");
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+    }
+}

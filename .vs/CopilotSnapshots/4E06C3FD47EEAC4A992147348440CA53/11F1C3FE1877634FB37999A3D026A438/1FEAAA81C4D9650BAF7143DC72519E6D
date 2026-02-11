@@ -1,0 +1,108 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class SettingsService : ISettingsService
+    {
+        public Task<bool> BackupCurrentSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SettingsDto> CreateSettingsAsync(CreateSettingsDto createSettingsDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteSettingsAsync(int settingsId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<SettingsDto>> GetAllSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetContactAddressAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetContactEmailAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetContactPhoneAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SettingsDto> GetCurrentSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SettingsDto> GetDefaultSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SettingsDto> GetSettingsByIdAsync(int settingsId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Dictionary<string, string>> GetSocialMediaLinksAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsEmailUniqueAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsEmailUniqueAsync(string email, int excludeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ResetToDefaultSettingsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> RestoreSettingsFromBackupAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateCurrentSettingsAsync(UpdateSettingsDto updateSettingsDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<SettingsDto> UpdateSettingsAsync(UpdateSettingsDto updateSettingsDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateSocialMediaLinksAsync(Dictionary<string, string> socialLinks)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ValidateSettingsAsync(SettingsDto settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

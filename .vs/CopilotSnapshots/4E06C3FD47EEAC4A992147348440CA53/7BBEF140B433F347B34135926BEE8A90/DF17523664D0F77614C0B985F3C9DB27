@@ -1,0 +1,79 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class CategoryService : ICategoryService
+    {
+        public Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteCategoryAsync(int categoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CategoryDto>> GetCategoriesWithPaginationAsync(int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CategoryDto>> GetCategoriesWithProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CategoryDto> GetCategoryByIdAsync(int categoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetCategoryCountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CategoryDto> GetCategoryWithProductsAsync(int categoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CategoryDto>> GetPopularCategoriesAsync(int count = 5)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsCategoryNameUniqueAsync(string categoryName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsCategoryNameUniqueAsync(string categoryName, int excludeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CategoryDto>> SearchCategoriesByNameAsync(string searchTerm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

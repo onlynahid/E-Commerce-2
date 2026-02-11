@@ -1,0 +1,18 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace AYYUAZ.APP.Domain.Interfaces
+{
+    public interface IAboutRepository
+    {
+        Task<List<About>> GetAllAboutAsync();
+        Task<About> GetAboutByIdAsync(int id);
+        Task<About> GetFirstAboutAsync();
+        Task AddAboutAsync(About about);
+        Task UpdateAboutAsync(About about);
+        Task DeleteAboutAsync(int id);
+    }
+}

@@ -1,0 +1,115 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class ProductDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        public string ImageUrl { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public List<string>? AgeGroups { get; set; }
+        public List<string>? Materials { get; set; }
+        public List<string>? Size { get; set; }
+        public List<string>? Colors { get; set; }
+        public decimal FinalPrice { get; set; }
+        public decimal DiscountPercantage { get; set; }
+
+        //public decimal? DiscountPercentage { get; set; }
+        //public decimal FinalPrice => DiscountPercentage.HasValue ? Price - (Price * DiscountPercentage.Value / 100m) : Price;
+        //public Discount Discount { get; set; }
+        //public decimal FinalPrice
+        //{
+        //    get
+        //    {
+        //        if (Discount != null && Discount.Percentage.HasValue)
+        //        {
+        //            var discountamount = (Price * Discount.Percentage.Value) / 100;
+        //            return Price - discountamount;
+        //        }
+        //        return Price;
+        //    }
+        //}
+    }
+    public class CreateProductDto
+    {
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+        public string Description { get; set; }
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        [Required]
+        public int CategoryId { get; set; }
+        [Required]
+        public IFormFile? Image { get; set; }
+        public List<string>? AgeGroups { get; set; }
+        public List<string>? Materials { get; set; }
+        public List<string>? Size { get; set; }
+        public List<string>? Colors { get; set; }
+        public decimal? DiscountPercentage { get; set; }
+     
+
+        //public decimal? Discount { get; set; }
+
+    }
+    public class UpdateProductDto
+    {
+        [Required]
+        public string Name { get; set; }
+        public string Description { get; set; }
+        [Required]
+        public decimal Price { get; set; }
+        public int? Stock { get; set; }
+        public int CategoryId { get; set; }
+        public IFormFile? Image { get; set; }
+        public List<string>? AgeGroups { get; set; }
+        public List<string>? Materials { get; set; }
+        public List<string>? Size { get; set; }
+        public List<string>? Colors { get; set; }
+    }
+    public class ProductGetDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
+        public int? Stock { get; set; }
+        public List<string>? AgeGroups { get; set; }
+        public List<string>? Materials { get; set; }
+        public List<string>? Size { get; set; }
+        public List<string>? Colors { get; set; }
+    }
+    public class ProductFilterDto
+    {
+        public List<string>?AgeGroups { get; set; }
+        public List<string>?Materials{ get; set; }
+        public List<string>?Size { get; set; }
+        public List<string>? Colors { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public decimal? MinPrice { get; set; }
+    }
+
+}
+
+
+
+
+
+
+

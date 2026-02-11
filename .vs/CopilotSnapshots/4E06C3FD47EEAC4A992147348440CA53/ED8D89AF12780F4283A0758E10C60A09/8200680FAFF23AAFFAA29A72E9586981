@@ -1,0 +1,10 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class RejectOrderDto
+    {
+        [StringLength(500, ErrorMessage = "Rejection reason cannot exceed 500 characters")]
+        public string? RejectedReason { get; set; }
+    }
+}

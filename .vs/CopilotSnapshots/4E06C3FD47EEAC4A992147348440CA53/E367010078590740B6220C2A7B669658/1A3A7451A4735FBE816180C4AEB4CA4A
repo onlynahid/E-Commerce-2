@@ -1,0 +1,35 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Application.Dtos;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class HeroController : ControllerBase
+    {
+        private readonly IHeroService _heroService;
+        public HeroController(IHeroService heroService)
+        {
+            _heroService = heroService;
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<HeroDto>>> GetAllHeroes()
+        {
+            var heroes = await _heroService.GetAllHeroesAsync();
+            return Ok(heroes);
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<HeroDto>> GetHeroById(int id)
+        {    
+            var hero = await _heroService.GetHeroByIdAsync(id);
+            if (hero == null)
+            {
+                return NotFound($"Hero with ID {id} not found.");
+            }
+            return Ok(hero);
+        }
+     
+    }
+}

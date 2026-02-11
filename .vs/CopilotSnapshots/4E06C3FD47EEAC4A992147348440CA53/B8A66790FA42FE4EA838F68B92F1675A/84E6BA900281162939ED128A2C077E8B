@@ -1,0 +1,155 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class AboutService : IAboutService
+    {
+        private readonly IAboutRepository _aboutRepository;
+
+        public AboutService(IAboutRepository aboutRepository)
+        {
+            _aboutRepository = aboutRepository;
+        }
+
+        public async Task<AboutDto> CreateAboutAsync(CreateAboutDto createAboutDto)
+        {
+            // Check if title is unique
+            var isUnique = await IsTitleUniqueAsync(createAboutDto.Title);
+            if (!isUnique)
+            {
+                throw new ArgumentException("About title already exists.");
+            }
+
+            var about = new About
+            {
+                Title = createAboutDto.Title,
+                Description = createAboutDto.Description
+            };
+
+            await _aboutRepository.AddAboutAsync(about);
+            return MapToDto(about);
+        }
+
+        public async Task<bool> DeleteAboutAsync(int aboutId)
+        {
+            var about = await _aboutRepository.GetAboutByIdAsync(aboutId);
+            if (about == null)
+                return false;
+
+            await _aboutRepository.DeleteAboutAsync(aboutId);
+            return true;
+        }
+
+        public async Task<AboutDto> GetAboutByIdAsync(int aboutId)
+        {
+            var about = await _aboutRepository.GetAboutByIdAsync(aboutId);
+            return about == null ? null : MapToDto(about);
+        }
+
+        public async Task<AboutDto> GetAboutByTitleAsync(string title)
+        {
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            var about = allAbouts.FirstOrDefault(a => a.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+            return about == null ? null : MapToDto(about);
+        }
+
+        public async Task<int> GetAboutCountAsync()
+        {
+            var abouts = await _aboutRepository.GetAllAboutAsync();
+            return abouts.Count;
+        }
+
+        public async Task<IEnumerable<AboutDto>> GetAboutWithPaginationAsync(int page, int pageSize)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            var pagedAbouts = allAbouts
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
+            return pagedAbouts.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<AboutDto>> GetAllAboutAsync()
+        {
+            var abouts = await _aboutRepository.GetAllAboutAsync();
+            return abouts.Select(MapToDto);
+        }
+
+        public async Task<AboutDto> GetLatestAboutAsync()
+        {
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            var latestAbout = allAbouts.OrderByDescending(a => a.Id).FirstOrDefault();
+            return latestAbout == null ? null : MapToDto(latestAbout);
+        }
+
+        public async Task<bool> IsTitleUniqueAsync(string title)
+        {
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            return !allAbouts.Any(a => a.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public async Task<bool> IsTitleUniqueAsync(string title, int excludeId)
+        {
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            return !allAbouts.Any(a => a.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && a.Id != excludeId);
+        }
+
+        public async Task<IEnumerable<AboutDto>> SearchAboutByTitleAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await GetAllAboutAsync();
+            }
+
+            var allAbouts = await _aboutRepository.GetAllAboutAsync();
+            var matchingAbouts = allAbouts.Where(a => 
+                a.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                a.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+            return matchingAbouts.Select(MapToDto);
+        }
+
+        public async Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto)
+        {
+            var about = await _aboutRepository.GetAboutByIdAsync(updateAboutDto.Id);
+            if (about == null)
+            {
+                throw new KeyNotFoundException("About not found");
+            }
+
+            // Check if title is unique (excluding current about)
+            var isUnique = await IsTitleUniqueAsync(updateAboutDto.Title, updateAboutDto.Id);
+            if (!isUnique)
+            {
+                throw new ArgumentException("About title already exists.");
+            }
+
+            about.Title = updateAboutDto.Title;
+            about.Description = updateAboutDto.Description;
+
+            await _aboutRepository.UpdateAboutAsync(about);
+            return MapToDto(about);
+        }
+
+        private static AboutDto MapToDto(About about)
+        {
+            return new AboutDto
+            {
+                Id = about.Id,
+                Title = about.Title,
+                Description = about.Description
+            };
+        }
+    }
+}

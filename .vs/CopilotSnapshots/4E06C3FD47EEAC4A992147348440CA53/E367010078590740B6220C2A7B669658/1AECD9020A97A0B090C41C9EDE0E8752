@@ -1,0 +1,374 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+namespace AYYUAZ.APP.AdminController;
+[ApiController]
+[Route("api/[controller]")]
+public class AdminAuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
+    private readonly ILogger<AdminAuthController> _logger;
+    private readonly UserManager<User> _userManager;
+    private readonly IJwtService _jwtService;
+    public AdminAuthController(
+        IAuthService authService,
+        ILogger<AdminAuthController> logger,
+        UserManager<User> userManager,
+        IJwtService jwtService)
+    {
+        _authService = authService;
+        _logger = logger;
+        _userManager = userManager;
+        _jwtService = jwtService;
+    }
+    [HttpPost("login")]
+    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+    {
+        _logger.LogInformation("Login attempt started for email: {Email}", loginDto?.Email ?? "null");
+
+        if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+        {
+            _logger.LogWarning("Login failed - invalid input data");
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Email and password are required"
+            });
+        }
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+        if (user == null)
+        {
+            _logger.LogWarning("Login failed - user not found for email: {Email}", loginDto.Email);
+            return Unauthorized(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Invalid email or password"
+            });
+        }
+
+        _logger.LogDebug("User found for email: {Email}, UserId: {UserId}", loginDto.Email, user.Id);
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+        if (!isPasswordValid)
+        {
+            _logger.LogWarning("Login failed - invalid password for email: {Email}", loginDto.Email);
+            return Unauthorized(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Invalid email or password"
+            });
+        }
+
+        _logger.LogDebug("Password verification successful for user: {UserId}", user.Id);
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var isAdmin = userRoles.Contains("Admin");
+
+        var tokenInfo = await _jwtService.GenerateTokenAsync(user.Id);
+
+        _logger.LogInformation("Login successful for user: {UserId}, roles: [{Roles}]",
+            user.Id, string.Join(", ", userRoles));
+
+        return Ok(new AuthResponseDto
+        {
+            Success = true,
+            Message = "Login successful",
+            Token = tokenInfo.AccessToken,
+            TokenInfo = tokenInfo,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                Username = user.UserName!,
+                IsAdmin = isAdmin,
+                FullName = user.UserName ?? string.Empty,
+                CreatedAt = DateTime.UtcNow
+            }
+        });
+    }
+    [HttpPost("register")]
+    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+    {
+        _logger.LogInformation("Registration attempt started for email: {Email}, username: {Username}",
+            registerDto?.Email ?? "null", registerDto?.Username ?? "null");
+
+        if (registerDto == null)
+        {
+            _logger.LogWarning("Registration failed - null registerDto received");
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Registration data cannot be null"
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var validationErrors = ModelState
+                .Where(x => x.Value?.Errors.Any() == true)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            _logger.LogWarning("Registration validation failed for email: {Email}, Validation errors: {@ValidationErrors}",
+                registerDto.Email, validationErrors);
+
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = $"Validation failed: {string.Join(", ", validationErrors.SelectMany(e => e.Value))}"
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(registerDto.Username))
+        {
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Username cannot be empty"
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(registerDto.Email))
+        {
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Email cannot be empty"
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(registerDto.Password))
+        {
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Password cannot be empty"
+            });
+        }
+
+        if (registerDto.Password != registerDto.ConfirmPassword)
+        {
+            return BadRequest(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Passwords do not match"
+            });
+        }
+
+        var result = await _authService.RegisterAsync(registerDto);
+
+        if (result.Success)
+        {
+            _logger.LogInformation("Registration successful for email: {Email}, User ID: {UserId}",
+                registerDto.Email, result.User?.Id);
+            return Ok(result);
+        }
+        else
+        {
+            _logger.LogWarning("Registration failed for email: {Email}, Reason: {Message}",
+                registerDto.Email, result.Message);
+            return BadRequest(result);
+        }
+    }
+    [HttpPost("validate-token")]
+    [AllowAnonymous]
+    public async Task<ActionResult<object>> ValidateToken([FromBody] TokenValidationRequest request)
+    {
+        _logger.LogInformation("Token validation requested");
+
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            return BadRequest(new { success = false, message = "Token is required" });
+        }
+
+        var isValid = await _authService.ValidateTokenAsync(request.Token);
+        return Ok(new { success = isValid, message = isValid ? "Token is valid" : "Token is invalid" });
+    }
+    [HttpGet("me")]
+    [Authorize(Roles = "Admin")]
+    public ActionResult<object> GetCurrentUser()
+    {
+        _logger.LogInformation("Get current user requested");
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var username = User.FindFirst(ClaimTypes.Name)?.Value;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var isAdminClaim = User.FindFirst("isAdmin")?.Value;
+
+        return Ok(new
+        {
+            userId,
+            username,
+            email,
+            roles,
+            isAdmin = isAdminClaim,
+            isAuthenticated = User.Identity?.IsAuthenticated ?? false,
+            claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList()
+        });
+    }
+    [HttpPost("debug/decode-token")]
+    [AllowAnonymous]
+    public ActionResult<object> DecodeToken([FromBody] TokenValidationRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            return BadRequest(new { error = "Token is required" });
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+
+        if (!handler.CanReadToken(request.Token))
+        {
+            return BadRequest(new { error = "Invalid JWT token format" });
+        }
+
+        var jsonToken = handler.ReadJwtToken(request.Token);
+
+        var claims = jsonToken.Claims.Select(c => new { c.Type, c.Value }).ToList();
+
+        return Ok(new
+        {
+            header = jsonToken.Header,
+            payload = new
+            {
+                issuer = jsonToken.Issuer,
+                audience = jsonToken.Audiences,
+                expiry = jsonToken.ValidTo,
+                issuedAt = jsonToken.IssuedAt,
+                notBefore = jsonToken.ValidFrom
+            },
+            claims,
+            isExpired = jsonToken.ValidTo < DateTime.UtcNow,
+            timeUntilExpiry = jsonToken.ValidTo - DateTime.UtcNow
+        });
+    }
+    [HttpGet("debug")]
+    [AllowAnonymous]
+    public ActionResult Debug()
+    {
+        return Ok(new
+        {
+            timestamp = DateTime.UtcNow,
+            authServiceRegistered = _authService != null,
+            jwtServiceRegistered = _jwtService != null,
+            environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            message = "AuthController debug info"
+        });
+    }
+    [HttpPost("change-password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID not found in token");
+        }
+        var result = await _authService.ChangePasswordAsync(userId, changePasswordDto);
+
+        if (!result)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Password change failed. Please check your current password.",
+                timestamp = DateTime.UtcNow
+            });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = "Password changed successfully",
+            timestamp = DateTime.UtcNow
+        });
+    }
+    [HttpPost("change-email")]
+    [Authorize(Roles ="Admin")]
+    public async Task<ActionResult> ChangeEmail([FromBody] ChangeEmailDto changeEmailDto)
+    {
+        _logger.LogInformation("Email change request received");
+
+        if (!ModelState.IsValid)
+        {
+            var validationErrors = ModelState
+                .Where(x => x.Value?.Errors.Any() == true)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            _logger.LogWarning("Email change validation failed: {@ValidationErrors}", validationErrors);
+
+            return BadRequest(new
+            {
+                success = false,
+                message = $"Validation failed: {string.join(", ", validationErrors.SelectMany(e => e.Value))}",
+                timestamp = DateTime.UtcNow
+            });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            _logger.LogWarning("Email change failed - user ID not found in token");
+            return Unauthorized(new
+            {
+                success = false,
+                message = "User ID not found in token",
+                timestamp = DateTime.UtcNow
+            });
+        }
+
+        var result = await _authService.ChangeEmailAsync(userId, changeEmailDto);
+
+        if (!result)
+        {
+            _logger.LogWarning("Email change failed for user: {UserId}", userId);
+            return BadRequest(new
+            {
+                success = false,
+                message = "Email change failed. Please check your current password and ensure the new email is not already in use.",
+                timestamp = DateTime.UtcNow
+            });
+        }
+
+        _logger.LogInformation("Email changed successfully for user: {UserId}", userId);
+
+        return Ok(new
+        {
+            success = true,
+            message = "Email changed successfully",
+            newEmail = changeEmailDto.NewEmail,
+            timestamp = DateTime.UtcNow
+        });
+    }
+}
+public class TokenValidationRequest
+{
+    [Required]
+    public string Token { get; set; } = string.Empty;
+}
+
+
+
+

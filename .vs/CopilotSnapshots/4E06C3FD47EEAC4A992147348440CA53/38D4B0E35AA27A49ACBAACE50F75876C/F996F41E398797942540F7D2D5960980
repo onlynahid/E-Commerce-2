@@ -1,0 +1,23 @@
+﻿# Test Change Email Endpoint
+POST https://localhost:7081/api/auth/change-email
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+    "currentPassword": "CurrentPassword123!",
+    "newEmail": "newemail@example.com",
+    "confirmNewEmail": "newemail@example.com"
+}
+
+###
+
+# Alternative test with validation errors
+POST https://localhost:7081/api/auth/change-email
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+    "currentPassword": "CurrentPassword123!",
+    "newEmail": "invalid-email",
+    "confirmNewEmail": "different@example.com"
+}

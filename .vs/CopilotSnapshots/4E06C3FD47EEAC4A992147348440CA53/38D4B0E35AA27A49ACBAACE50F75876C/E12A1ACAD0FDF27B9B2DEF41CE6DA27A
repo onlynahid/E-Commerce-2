@@ -1,0 +1,36 @@
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class HeroDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public string ImageUrl { get; set; }
+        public string? DiscountMessage { get; set; }
+        public string OrderMessage { get; set; }
+    }
+    public class CreateHeroDto
+    {
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public IFormFile? ImageUrl { get; set; }
+        public string? DiscountMessage { get; set; }
+        public string OrderMessage { get; set; }
+    }
+    public class UpdateHeroDto
+    {
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public IFormFile? ImageUrl { get; set; }
+        public string? DiscountMessage { get; set; }
+        public string OrderMessage { get; set; }
+    }
+
+}

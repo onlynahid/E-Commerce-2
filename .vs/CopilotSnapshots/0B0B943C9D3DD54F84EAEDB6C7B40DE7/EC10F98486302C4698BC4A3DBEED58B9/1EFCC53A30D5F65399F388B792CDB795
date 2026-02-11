@@ -1,0 +1,13 @@
+﻿using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    // This file is moved to Infrastructure layer
+    // See: AYYUAZ.APP.Infrastructure\Services\FileStorageService.cs
+}

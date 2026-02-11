@@ -1,0 +1,116 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class OrderService : IOrderService
+    {
+        private readonly IOrderRepository _orderRepository;
+
+        public OrderService(IOrderRepository orderRepository)
+        {
+            _orderRepository = orderRepository;
+        }
+
+        public Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteOrderAsync(int orderId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetAverageOrderValueAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OrderDto> GetOrderByIdAsync(int orderId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetOrderCountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetOrderCountByStatusAsync(string status)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetOrdersByCustomerAsync(string customerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetOrdersByStatusAsync(string status)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetOrdersWithItemsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetOrdersWithPaginationAsync(int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OrderDto> GetOrderWithItemsAsync(int orderId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> GetRecentOrdersAsync(int count = 10)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetTotalRevenueAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<OrderDto>> SearchOrdersAsync(string searchTerm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

@@ -1,0 +1,244 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class AuthService : IAuthService
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IJwtService _jwtService;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthService> _logger;
+
+        public AuthService(IUserRepository userRepository, IJwtService jwtService, IConfiguration configuration, ILogger<AuthService> logger)
+        {
+            _userRepository = userRepository;
+            _jwtService = jwtService;
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
+        {
+            try
+            {
+                _logger.LogInformation("Login attempt started for email: {Email}", loginDto?.Email ?? "null");
+
+                // Validate input
+                if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+                {
+                    _logger.LogWarning("Login failed - invalid input data");
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Email and password are required"
+                    };
+                }
+
+                // Get user by email
+                var user = await _userRepository.GetByEmailAsync(loginDto.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Login failed - user not found for email: {Email}", loginDto.Email);
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid email or password"
+                    };
+                }
+
+                _logger.LogDebug("User found for email: {Email}, UserId: {UserId}", loginDto.Email, user.Id);
+
+                // Verify password
+                if (!VerifyPassword(loginDto.Password, user.PasswordHash))
+                {
+                    _logger.LogWarning("Login failed - invalid password for email: {Email}", loginDto.Email);
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid email or password"
+                    };
+                }
+
+                _logger.LogDebug("Password verification successful for user: {UserId}", user.Id);
+
+                // Generate JWT token
+                var token = _jwtService.GenerateToken(user);
+                
+                _logger.LogInformation("Login successful for email: {Email}, UserId: {UserId}", loginDto.Email, user.Id);
+
+                return new AuthResponseDto
+                {
+                    Success = true,
+                    Message = "Login successful",
+                    Token = token,
+                    User = new UserDto
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email,
+                        IsAdmin = user.IsAdmin
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during login for email: {Email}. Exception: {ExceptionType}, Message: {Message}", 
+                    loginDto?.Email, ex.GetType().Name, ex.Message);
+                
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = "An error occurred during login"
+                };
+            }
+        }
+
+        public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
+        {
+            try
+            {
+                _logger.LogInformation("Registration attempt started for email: {Email}, username: {Username}", 
+                    registerDto?.Email ?? "null", registerDto?.Username ?? "null");
+
+                // Validate input
+                if (registerDto == null)
+                {
+                    _logger.LogWarning("Registration failed - null input data");
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Registration data cannot be null"
+                    };
+                }
+
+                if (string.IsNullOrEmpty(registerDto.Email) || string.IsNullOrEmpty(registerDto.Username) || string.IsNullOrEmpty(registerDto.Password))
+                {
+                    _logger.LogWarning("Registration failed - required fields missing for email: {Email}", registerDto.Email);
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "All required fields must be provided"
+                    };
+                }
+
+                // Check if email is unique
+                if (!await _userRepository.IsEmailUniqueAsync(registerDto.Email))
+                {
+                    _logger.LogWarning("Registration failed - email already exists: {Email}", registerDto.Email);
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Email is already registered"
+                    };
+                }
+
+                // Check if username is unique
+                if (!await _userRepository.IsUsernameUniqueAsync(registerDto.Username))
+                {
+                    _logger.LogWarning("Registration failed - username already exists: {Username}", registerDto.Username);
+                    return new AuthResponseDto
+                    {
+                        Success = false,
+                        Message = "Username is already taken"
+                    };
+                }
+
+                // Create user object
+                var user = new User
+                {
+                    Username = registerDto.Username,
+                    Email = registerDto.Email,
+                    PasswordHash = HashPassword(registerDto.Password),
+                    IsAdmin = false,
+                };
+
+                _logger.LogDebug("Creating new user with email: {Email}, username: {Username}", registerDto.Email, registerDto.Username);
+
+                // Save user to database
+                var createdUser = await _userRepository.AddAsync(user);
+                
+                _logger.LogInformation("User created successfully - UserId: {UserId}, Email: {Email}", createdUser.Id, createdUser.Email);
+
+                // Generate JWT token
+                var token = _jwtService.GenerateToken(createdUser);
+
+                return new AuthResponseDto
+                {
+                    Success = true,
+                    Message = "Registration successful",
+                    Token = token,
+                    User = new UserDto
+                    {
+                        Id = createdUser.Id,
+                        Username = createdUser.Username,
+                        Email = createdUser.Email,
+                        IsAdmin = createdUser.IsAdmin
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during registration for email: {Email}. Exception: {ExceptionType}, Message: {Message}", 
+                    registerDto?.Email, ex.GetType().Name, ex.Message);
+                
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = "An error occurred during registration"
+                };
+            }
+        }
+
+        public async Task<bool> ValidateTokenAsync(string token)
+        {
+            try
+            {
+                _logger.LogDebug("Token validation requested");
+                var principal = _jwtService.ValidateToken(token);
+                var isValid = principal != null;
+                
+                _logger.LogDebug("Token validation result: {IsValid}", isValid);
+                return isValid;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during token validation");
+                return false;
+            }
+        }
+
+        public async Task<ClaimsPrincipal?> GetPrincipalFromTokenAsync(string token)
+        {
+            try
+            {
+                return _jwtService.ValidateToken(token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting principal from token");
+                return null;
+            }
+        }
+
+        private string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
+        }
+
+        private bool VerifyPassword(string password, string hash)
+        {
+            var hashedPassword = HashPassword(password);
+            return hashedPassword == hash;
+        }
+    }
+}

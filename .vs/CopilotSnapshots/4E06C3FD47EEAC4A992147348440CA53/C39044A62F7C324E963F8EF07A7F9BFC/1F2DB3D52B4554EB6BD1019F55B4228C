@@ -1,0 +1,332 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Application.Services
+{
+    public class BasketService : IBasketService
+    {
+        private readonly IBasketRepository _basketRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IOrderRepository _orderRepository;
+
+        public BasketService(
+            IBasketRepository basketRepository,
+            IProductRepository productRepository,
+            IOrderRepository orderRepository)
+        {
+            _basketRepository = basketRepository;
+            _productRepository = productRepository;
+            _orderRepository = orderRepository;
+        }
+
+        public async Task<BasketDto> GetBasketByIdAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket != null ? MapToBasketDto(basket) : null;
+        }
+
+        public async Task<BasketDto> CreateBasketAsync(CreateBasketDto createBasketDto)
+        {
+            var basket = new Basket();
+            
+            if (createBasketDto.BasketItems?.Any() == true)
+            {
+                var basketItems = new List<BasketItem>();
+                foreach (var itemDto in createBasketDto.BasketItems)
+                {
+                    var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId);
+                    if (product != null)
+                    {
+                        basketItems.Add(new BasketItem
+                        {
+                            ProductId = itemDto.ProductId,
+                            Quantity = itemDto.Quantity,
+                            Price = itemDto.Price,
+                            Product = product
+                        });
+                    }
+                }
+                basket.BasketItems = basketItems;
+            }
+
+            await _basketRepository.AddBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<BasketDto> UpdateBasketAsync(UpdateBasketDto updateBasketDto)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(updateBasketDto.Id);
+            if (basket == null)
+                return null;
+
+            // Clear existing items and add updated ones
+            basket.BasketItems.Clear();
+            
+            if (updateBasketDto.BasketItems?.Any() == true)
+            {
+                var basketItems = new List<BasketItem>();
+                foreach (var itemDto in updateBasketDto.BasketItems)
+                {
+                    var product = await _productRepository.GetProductByIdAsync(itemDto.Id);
+                    if (product != null)
+                    {
+                        basketItems.Add(new BasketItem
+                        {
+                            Id = itemDto.Id,
+                            BasketId = basket.Id,
+                            ProductId = product.Id,
+                            Quantity = itemDto.Quantity,
+                            Price = itemDto.Price,
+                            Product = product
+                        });
+                    }
+                }
+                basket.BasketItems = basketItems;
+            }
+
+            await _basketRepository.UpdateBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<bool> DeleteBasketAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null)
+                return false;
+
+            await _basketRepository.ClearBasketByIdAsync(basketId);
+            return true;
+        }
+
+        public async Task<BasketDto> GetOrCreateBasketAsync()
+        {
+            // For now, create a new basket. In a real app, this would check for user session
+            var basket = new Basket();
+            await _basketRepository.AddBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<bool> ClearBasketAsync(int basketId)
+        {
+            await _basketRepository.ClearBasketByIdAsync(basketId);
+            return true;
+        }
+
+        public async Task<BasketDto> GetBasketWithItemsAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket != null ? MapToBasketDto(basket) : null;
+        }
+
+        public async Task<BasketDto> AddItemToBasketAsync(int basketId, CreateBasketItemDto basketItem)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null)
+                return null;
+
+            var product = await _productRepository.GetProductByIdAsync(basketItem.ProductId);
+            if (product == null)
+                return null;
+
+            // Check if item already exists in basket
+            var existingItem = basket.BasketItems.FirstOrDefault(x => x.ProductId == basketItem.ProductId);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += basketItem.Quantity;
+            }
+            else
+            {
+                var newItem = new BasketItem
+                {
+                    BasketId = basketId,
+                    ProductId = basketItem.ProductId,
+                    Quantity = basketItem.Quantity,
+                    Price = basketItem.Price,
+                    Product = product
+                };
+                basket.BasketItems.Add(newItem);
+            }
+
+            await _basketRepository.UpdateBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<BasketDto> UpdateBasketItemAsync(int basketId, UpdateBasketItemDto basketItem)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null)
+                return null;
+
+            var existingItem = basket.BasketItems.FirstOrDefault(x => x.Id == basketItem.Id);
+            if (existingItem == null)
+                return null;
+
+            existingItem.Quantity = basketItem.Quantity;
+            existingItem.Price = basketItem.Price;
+
+            await _basketRepository.UpdateBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<BasketDto> RemoveItemFromBasketAsync(int basketId, int basketItemId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null)
+                return null;
+
+            var itemToRemove = basket.BasketItems.FirstOrDefault(x => x.Id == basketItemId);
+            if (itemToRemove != null)
+            {
+                basket.BasketItems.Remove(itemToRemove);
+                await _basketRepository.UpdateBasketAsync(basket);
+            }
+
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<BasketDto> UpdateItemQuantityAsync(int basketId, int basketItemId, int quantity)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null)
+                return null;
+
+            var item = basket.BasketItems.FirstOrDefault(x => x.Id == basketItemId);
+            if (item == null)
+                return null;
+
+            if (quantity <= 0)
+            {
+                basket.BasketItems.Remove(item);
+            }
+            else
+            {
+                item.Quantity = quantity;
+            }
+
+            await _basketRepository.UpdateBasketAsync(basket);
+            return MapToBasketDto(basket);
+        }
+
+        public async Task<decimal> GetBasketTotalAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket?.BasketItems.Sum(i => i.Quantity * i.Price) ?? 0;
+        }
+
+        public async Task<int> GetBasketItemsCountAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket?.BasketItems.Sum(i => i.Quantity) ?? 0;
+        }
+
+        public async Task<bool> IsBasketValidAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket != null && basket.BasketItems.Any() && 
+                   basket.BasketItems.All(i => i.Quantity > 0 && i.Price > 0);
+        }
+
+        public async Task<bool> IsBasketEmptyAsync(int basketId)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            return basket == null || !basket.BasketItems.Any();
+        }
+
+        public async Task<OrderDto> ConvertBasketToOrderAsync(int basketId, CreateOrderDto orderDetails)
+        {
+            var basket = await _basketRepository.GetBasketByIdAsync(basketId);
+            if (basket == null || !basket.BasketItems.Any())
+                return null;
+
+            var order = new Order
+            {
+                FullName = orderDetails.FullName,
+                PhoneNumber = orderDetails.PhoneNumber,
+                Email = orderDetails.Email,
+                Address = orderDetails.Address,
+                Notes = orderDetails.Notes,
+                TotalAmount = basket.BasketItems.Sum(i => i.Quantity * i.Price),
+                CreatedAt = DateTime.UtcNow,
+                Status = OrderStatus.Pending
+            };
+
+            var orderItems = basket.BasketItems.Select(bi => new OrderItem
+            {
+                ProductId = bi.ProductId,
+                Quantity = bi.Quantity,
+                UnitPrice = bi.Price,
+                Product = bi.Product
+            }).ToList();
+
+            order.OrderItems = orderItems;
+
+            await _orderRepository.AddOrderAsync(order);
+
+            // Clear the basket after converting to order
+            await _basketRepository.ClearBasketByIdAsync(basketId);
+
+            return MapToOrderDto(order);
+        }
+
+        private static BasketDto MapToBasketDto(Basket basket)
+        {
+            return new BasketDto
+            {
+                Id = basket.Id,
+                BasketItems = basket.BasketItems?.Select(MapToBasketItemDto).ToList() ?? new List<BasketItemDto>()
+            };
+        }
+
+        private static BasketItemDto MapToBasketItemDto(BasketItem basketItem)
+        {
+            return new BasketItemDto
+            {
+                Id = basketItem.Id,
+                BasketId = basketItem.BasketId,
+                ProductId = basketItem.ProductId,
+                ProductName = basketItem.Product?.Name ?? string.Empty,
+                ProductImageUrl = basketItem.Product?.ImageUrl ?? string.Empty,
+                Quantity = basketItem.Quantity,
+                Price = basketItem.Price
+            };
+        }
+
+        private static OrderDto MapToOrderDto(Order order)
+        {
+            return new OrderDto
+            {
+                Id = order.Id,
+                FullName = order.FullName,
+                PhoneNumber = order.PhoneNumber,
+                Email = order.Email,
+                Address = order.Address,
+                Notes = order.Notes,
+                CreatedAt = order.CreatedAt,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status.ToString(),
+                OrderItems = order.OrderItems?.Select(MapToOrderItemDto).ToList() ?? new List<OrderItemDto>()
+            };
+        }
+
+        private static OrderItemDto MapToOrderItemDto(OrderItem orderItem)
+        {
+            return new OrderItemDto
+            {
+                Id = orderItem.Id,
+                OrderId = orderItem.OrderId,
+                ProductId = orderItem.ProductId,
+                ProductName = orderItem.Product?.Name ?? string.Empty,
+                ProductImageUrl = orderItem.Product?.ImageUrl ?? string.Empty,
+                Quantity = orderItem.Quantity,
+                UnitPrice = orderItem.UnitPrice
+            };
+        }
+    }
+}

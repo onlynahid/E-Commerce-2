@@ -1,0 +1,26 @@
+﻿using AYYUAZ.APP.Domain.Common;
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+
+namespace AYYUAZ.APP.Domain.Entities
+{
+    public class User : IdentityUser
+    {
+        [StringLength(100)]
+        public string? FullName { get; set; }
+        
+        /// <summary>
+        /// Indicates if the user has admin privileges
+        
+        /// <summary>
+        /// Custom Username property for compatibility with existing code
+        /// This maps to the inherited UserName property from IdentityUser
+        /// </summary>
+        
+    }
+}

@@ -1,0 +1,118 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.Extensions.Logging;
+
+namespace AYYUAZ.APP.Infrastructure.Services
+{
+    public class JwtService : IJwtService
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<JwtService> _logger;
+
+        public JwtService(IConfiguration configuration, ILogger<JwtService> logger)
+        {
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        public string GenerateToken(User user)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtKey = _configuration["Jwt:Key"];
+                
+                if (string.IsNullOrEmpty(jwtKey))
+                {
+                    throw new InvalidOperationException("JWT Key is not configured");
+                }
+
+                var key = Encoding.ASCII.GetBytes(jwtKey);
+                
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+                };
+
+                // Get expiration hours with default fallback
+                var expiresInHours = _configuration["Jwt:ExpiresInHours"];
+                double hours = 24; // default to 24 hours
+                
+                if (!string.IsNullOrEmpty(expiresInHours) && double.TryParse(expiresInHours, out var parsedHours))
+                {
+                    hours = parsedHours;
+                }
+                else
+                {
+                    _logger.LogWarning("JWT ExpiresInHours not configured or invalid, using default: {Hours} hours", hours);
+                }
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddHours(hours),
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+                
+                _logger.LogDebug("JWT token generated successfully for user: {Username}", user.Username);
+                return tokenString;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating JWT token for user: {Username}", user.Username);
+                throw;
+            }
+        }
+
+        public ClaimsPrincipal? ValidateToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtKey = _configuration["Jwt:Key"];
+                
+                if (string.IsNullOrEmpty(jwtKey))
+                {
+                    _logger.LogError("JWT Key is not configured for token validation");
+                    return null;
+                }
+
+                var key = Encoding.ASCII.GetBytes(jwtKey);
+                
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var claims = jwtToken.Claims.ToList();
+                return new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Token validation failed");
+                return null;
+            }
+        }
+    }
+}

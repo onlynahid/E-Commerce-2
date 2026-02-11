@@ -1,0 +1,52 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.Data;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Infrastructure.Services
+{
+    public static class DataSeeder
+    {
+        public static void SeedAdmin(AppDbContext context)
+        {
+            if (!context.Users.Any(u => u.IsAdmin))
+            {
+                var user = new User
+                {
+                    Username = "Admin045",
+                    Email = "Admin045@gmail.com",
+                    IsAdmin = true,
+                    PasswordHash = GeneratePasswordHash("admin123") // Updated to use a custom password hashing method
+                };
+
+                context.Users.Add(user);
+                context.SaveChanges();
+            }
+        }
+
+        private static string GeneratePasswordHash(string password)
+        {
+            // Updated implementation of password hashing using Rfc2898DeriveBytes
+            var salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
+            {
+                var hash = pbkdf2.GetBytes(20);
+                var hashBytes = new byte[36];
+                Array.Copy(salt, 0, hashBytes, 0, 16);
+                Array.Copy(hash, 0, hashBytes, 16, 20);
+
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+    }
+}

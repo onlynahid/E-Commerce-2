@@ -1,0 +1,135 @@
+﻿using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.Data;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AYYUAZ.APP.Infrastructure.Services
+{
+    public static class DataSeeder
+    {
+        public static void SeedAdmin(AppDbContext context)
+        {
+            if (!context.Users.Any(u => u.IsAdmin))
+            {
+                var user = new User
+                {
+                    Username = "Admin045",
+                    Email = "Admin045@gmail.com",
+                    IsAdmin = true,
+                    PasswordHash = HashPassword("admin123") // Using same hashing as AuthService
+                };
+
+                context.Users.Add(user);
+                context.SaveChanges();
+            }
+        }
+
+        public static void SeedInitialData(AppDbContext context)
+        {
+            // Seed admin user
+            SeedAdmin(context);
+
+            // Seed categories
+            SeedCategories(context);
+
+            // Seed settings
+            SeedSettings(context);
+
+            // Seed about information
+            SeedAbout(context);
+        }
+
+        private static void SeedCategories(AppDbContext context)
+        {
+            if (!context.Categories.Any())
+            {
+                var categories = new[]
+                {
+                    new Category
+                    {
+                        Name = "Electronics",
+                        Description = "Electronic devices and accessories",
+                        ImageUrl = "/uploads/categories/electronics.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Clothing",
+                        Description = "Fashion and apparel",
+                        ImageUrl = "/uploads/categories/clothing.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Books",
+                        Description = "Books and educational materials",
+                        ImageUrl = "/uploads/categories/books.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Category
+                    {
+                        Name = "Home & Garden",
+                        Description = "Home improvement and garden supplies",
+                        ImageUrl = "/uploads/categories/home-garden.jpg",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+
+                context.Categories.AddRange(categories);
+                context.SaveChanges();
+            }
+        }
+
+        private static void SeedSettings(AppDbContext context)
+        {
+            if (!context.Settings.Any())
+            {
+                var settings = new Settings
+                {
+                    Name = "AYYUAZ Store",
+                    PhoneNumber = "+1-234-567-8900",
+                    Email = "contact@ayyuazstore.com",
+                    Address = "123 Business Street, Commerce City, CC 12345",
+                    FacebookUrl = "https://facebook.com/ayyuazstore",
+                    InstagramUrl = "https://instagram.com/ayyuazstore",
+                    TwitterUrl = "https://twitter.com/ayyuazstore"
+                };
+
+                context.Settings.Add(settings);
+                context.SaveChanges();
+            }
+        }
+
+        private static void SeedAbout(AppDbContext context)
+        {
+            if (!context.About.Any())
+            {
+                var about = new About
+                {
+                    Title = "Welcome to AYYUAZ Store",
+                    Description = "AYYUAZ Store is your one-stop destination for quality products across various categories. " +
+                                "We are committed to providing excellent customer service and delivering the best shopping experience. " +
+                                "Our team carefully curates each product to ensure quality, value, and customer satisfaction. " +
+                                "Founded with the vision of making online shopping accessible and enjoyable for everyone, " +
+                                "we strive to offer competitive prices, fast shipping, and exceptional customer support."
+                };
+
+                context.About.Add(about);
+                context.SaveChanges();
+            }
+        }
+
+        private static string HashPassword(string password)
+        {
+            // Using the same SHA256 hashing method as AuthService
+            using var sha256 = SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
+        }
+    }
+}

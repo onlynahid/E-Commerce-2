@@ -1,0 +1,159 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using AYYUAZ.APP.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class HealthController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<HealthController> _logger;
+
+        public HealthController(AppDbContext context, ILogger<HealthController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Health check endpoint to verify API is running
+        /// </summary>
+        /// <returns>API status information</returns>
+        [HttpGet]
+        public ActionResult<object> GetHealth()
+        {
+            return Ok(new
+            {
+                status = "Healthy",
+                timestamp = DateTime.UtcNow,
+                version = "1.0.0",
+                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+                message = "AYYUAZ.APP API is running successfully"
+            });
+        }
+
+        /// <summary>
+        /// Detailed system information endpoint
+        /// </summary>
+        /// <returns>Detailed system information</returns>
+        [HttpGet("detailed")]
+        public ActionResult<object> GetDetailedHealth()
+        {
+            return Ok(new
+            {
+                status = "Healthy",
+                timestamp = DateTime.UtcNow,
+                version = "1.0.0",
+                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+                dotnetVersion = Environment.Version.ToString(),
+                machineName = Environment.MachineName,
+                osVersion = Environment.OSVersion.ToString(),
+                processorCount = Environment.ProcessorCount,
+                workingSet = Environment.WorkingSet,
+                uptime = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime(),
+                message = "AYYUAZ.APP API is running successfully"
+            });
+        }
+
+        /// <summary>
+        /// Database connectivity health check
+        /// </summary>
+        /// <returns>Database status information</returns>
+        [HttpGet("database")]
+        public async Task<ActionResult<object>> GetDatabaseHealth()
+        {
+            try
+            {
+                // Test database connectivity
+                var canConnect = await _context.Database.CanConnectAsync();
+                
+                if (!canConnect)
+                {
+                    return StatusCode(503, new
+                    {
+                        status = "Unhealthy",
+                        message = "Cannot connect to database",
+                        timestamp = DateTime.UtcNow
+                    });
+                }
+
+                // Get some basic stats
+                var userCount = await _context.Users.CountAsync();
+                var productCount = await _context.Products.CountAsync();
+                var categoryCount = await _context.Categories.CountAsync();
+                var orderCount = await _context.Orders.CountAsync();
+
+                return Ok(new
+                {
+                    status = "Healthy",
+                    message = "Database connection successful",
+                    timestamp = DateTime.UtcNow,
+                    statistics = new
+                    {
+                        users = userCount,
+                        products = productCount,
+                        categories = categoryCount,
+                        orders = orderCount
+                    },
+                    connectionString = _context.Database.GetConnectionString()?.Substring(0, 50) + "..."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Database health check failed");
+                return StatusCode(503, new
+                {
+                    status = "Unhealthy",
+                    message = "Database health check failed",
+                    error = ex.Message,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+        }
+
+        /// <summary>
+        /// Test user creation and database operations
+        /// </summary>
+        /// <returns>Database operation test results</returns>
+        [HttpGet("test-db-operations")]
+        public async Task<ActionResult<object>> TestDatabaseOperations()
+        {
+            try
+            {
+                // Test reading from Users table
+                var existingUsers = await _context.Users.Take(5).ToListAsync();
+                
+                // Test if we can query the database structure
+                var hasUsersTable = await _context.Database.SqlQueryRaw<int>("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users'").FirstOrDefaultAsync() > 0;
+                
+                return Ok(new
+                {
+                    status = "Success",
+                    message = "Database operations test completed",
+                    timestamp = DateTime.UtcNow,
+                    results = new
+                    {
+                        hasUsersTable = hasUsersTable,
+                        existingUserCount = existingUsers.Count,
+                        sampleUsers = existingUsers.Select(u => new { u.Id, u.Username, u.Email, u.IsAdmin }).ToList()
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Database operations test failed");
+                return StatusCode(500, new
+                {
+                    status = "Failed",
+                    message = "Database operations test failed",
+                    error = ex.Message,
+                    innerException = ex.InnerException?.Message,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+        }
+    }
+}

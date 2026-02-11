@@ -1,0 +1,260 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Application.Dtos;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
+
+namespace AYYUAZ.APP.Infrastructure.Services
+{
+    public class JwtService : IJwtService
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<JwtService> _logger;
+        private readonly UserManager<User> _userManager;
+
+        public JwtService(
+            IConfiguration configuration,
+            ILogger<JwtService> logger,
+            UserManager<User> userManager)
+        {
+            _configuration = configuration;
+            _logger = logger;
+            _userManager = userManager;
+        }
+
+        public string GenerateToken(User user)
+        {
+            try
+            {
+                _logger.LogDebug("Starting token generation for user: {UserId}", user.Id);
+
+                // Get user roles from Identity system
+                var userRoles = _userManager.GetRolesAsync(user).GetAwaiter().GetResult();
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("email_verified", user.EmailConfirmed.ToString().ToLower())
+                };
+
+                // Add all user roles to claims
+                foreach (var role in userRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                    claims.Add(new Claim("role", role));
+                    _logger.LogDebug("Added role claim: {Role} for user: {UserId}", role, user.Id);
+                }
+
+                // Determine admin status based on roles
+                var isAdmin = userRoles.Contains("Admin");
+                claims.Add(new Claim("isAdmin", isAdmin.ToString().ToLower()));
+
+                // JWT configuration
+                var secretKey = _configuration["Jwt:Key"]
+                    ?? _configuration["JWT:Secret"]
+                    ?? throw new InvalidOperationException("JWT Key is not configured");
+
+                var issuer = _configuration["Jwt:Issuer"] ?? "AYYUAZ.APP";
+                var audience = _configuration["Jwt:Audience"] ?? "AYYUAZ.APP";
+                var expiresInHours = double.Parse(_configuration["Jwt:ExpiresInHours"] ?? "24");
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddHours(expiresInHours),
+                    Issuer = issuer,
+                    Audience = audience,
+                    SigningCredentials = credentials
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                _logger.LogInformation("JWT token generated successfully for user: {UserId} with {ClaimsCount} claims and {RolesCount} roles",
+                    user.Id, claims.Count, userRoles.Count);
+
+                return tokenString;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating JWT token for user: {UserId}", user.Id);
+                throw;
+            }
+        }
+
+        public async Task<TokenDto> GenerateTokenAsync(string userId)
+        {
+            try
+            {
+                _logger.LogDebug("Starting async token generation for user: {UserId}", userId);
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    _logger.LogError("User not found with ID: {UserId}", userId);
+                    throw new ArgumentException($"User not found with ID: {userId}");
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                var claims = new List<Claim>
+                {
+                    new Claim("id", user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName ?? user.Email ?? string.Empty),
+                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat,
+                        new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(),
+                        ClaimValueTypes.Integer64),
+                    new Claim("email_verified", user.EmailConfirmed.ToString().ToLower()),
+                    new Claim("phone", user.PhoneNumber ?? string.Empty),
+                    new Claim("phone_verified", user.PhoneNumberConfirmed.ToString().ToLower())
+                };
+
+                // Add role claims
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                    claims.Add(new Claim("role", role));
+                }
+
+                // Determine admin status based on roles
+                var isAdmin = roles.Contains("Admin");
+                claims.Add(new Claim("isAdmin", isAdmin.ToString().ToLower()));
+
+                // JWT configuration with fallbacks
+                var secretKey = _configuration["Jwt:Key"]
+                    ?? _configuration["JWT:Secret"]
+                    ?? throw new InvalidOperationException("JWT Key is not configured. Please add 'Jwt:Key' to your appsettings.json");
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var expirationHours = double.Parse(_configuration["Jwt:ExpiresInHours"] ?? "24");
+                var expiration = DateTime.UtcNow.AddHours(expirationHours);
+
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"] ?? "AYYUAZ.APP",
+                    audience: _configuration["Jwt:Audience"] ?? "AYYUAZ.APP",
+                    claims: claims,
+                    expires: expiration,
+                    signingCredentials: credentials
+                );
+
+                var refreshToken = await GenerateRefreshTokenAsync();
+
+                _logger.LogInformation("JWT token generated async for user: {UserId}, expires at: {Expiration}, roles: [{Roles}]",
+                    userId, expiration, string.Join(", ", roles));
+
+                return new TokenDto
+                {
+                    AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                    RefreshToken = refreshToken,
+                    AccessTokenExpiration = expiration,
+                    RefreshTokenExpiration = DateTime.UtcNow.AddDays(7)
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating async JWT token for user: {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<string> GenerateRefreshTokenAsync()
+        {
+            try
+            {
+                var randomNumber = new byte[32];
+                using var rng = RandomNumberGenerator.Create();
+                rng.GetBytes(randomNumber);
+                return await Task.FromResult(Convert.ToBase64String(randomNumber));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating refresh token");
+                throw;
+            }
+        }
+
+        public ClaimsPrincipal? ValidateToken(string token)
+        {
+            try
+            {
+                _logger.LogDebug("Starting token validation");
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtKey = _configuration["Jwt:Key"] ?? _configuration["JWT:Secret"];
+                var jwtIssuer = _configuration["Jwt:Issuer"];
+                var jwtAudience = _configuration["Jwt:Audience"];
+
+                if (string.IsNullOrEmpty(jwtKey))
+                {
+                    _logger.LogError("JWT Key is not configured for validation");
+                    return null;
+                }
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtIssuer ?? "AYYUAZ.APP",
+                    ValidateAudience = true,
+                    ValidAudience = jwtAudience ?? "AYYUAZ.APP",
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+
+                _logger.LogDebug("Token validation successful, Claims count: {ClaimsCount}", jwtToken.Claims.Count());
+
+                return principal;
+            }
+            catch (SecurityTokenExpiredException ex)
+            {
+                _logger.LogWarning("Token validation failed - token expired: {Message}", ex.Message);
+                return null;
+            }
+            catch (SecurityTokenInvalidSignatureException ex)
+            {
+                _logger.LogWarning("Token validation failed - invalid signature: {Message}", ex.Message);
+                return null;
+            }
+            catch (SecurityTokenValidationException ex)
+            {
+                _logger.LogWarning("Token validation failed - validation error: {Message}", ex.Message);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during token validation: {ExceptionType}, Message: {Message}",
+                    ex.GetType().Name, ex.Message);
+                return null;
+            }
+        }
+    }
+}

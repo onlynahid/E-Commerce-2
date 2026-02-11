@@ -1,0 +1,109 @@
+### Test Custom Authorization System - Admin Only Features
+
+@host = https://localhost:7038
+@baseUrl = {{host}}/api
+
+### 1. Login with regular user (should not be able to access admin endpoints)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "regularuser@example.com",
+    "password": "password123"
+}
+
+### 2. Login with Admin user (should be able to access all endpoints)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com",
+    "password": "admin123"
+}
+
+### 3. Test Public About endpoint (no authentication required)
+GET {{baseUrl}}/about
+
+### 4. Test Protected About Creation (Admin only) - Replace with Admin token
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Test Admin Authorization",
+    "description": "This endpoint should only be accessible by users with IsAdmin = true."
+}
+
+### 5. Test Protected About Creation with regular user token (should fail)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_REGULAR_USER_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Test Regular User",
+    "description": "This should fail because user is not admin."
+}
+
+### 6. Test Protected Product Creation (Admin only)
+POST {{baseUrl}}/product
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="Name"
+
+Test Product - Admin Authorization
+--WebAppBoundary
+Content-Disposition: form-data; name="Description"
+
+Testing admin-only product creation
+--WebAppBoundary
+Content-Disposition: form-data; name="Price"
+
+25.99
+--WebAppBoundary
+Content-Disposition: form-data; name="Stock"
+
+5
+--WebAppBoundary
+Content-Disposition: form-data; name="CategoryId"
+
+1
+--WebAppBoundary--
+
+### 7. Test Settings Update (Admin only)
+PUT {{baseUrl}}/settings/1
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Updated by Admin Only",
+    "phoneNumber": "+1-999-999-9999",
+    "email": "admin-updated@ayyuazstore.com",
+    "address": "Admin Updated Address"
+}
+
+### 8. Test File Upload (Admin only)
+POST {{baseUrl}}/filestorage/upload
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="File"; filename="test.jpg"
+Content-Type: image/jpeg
+
+[Binary file content]
+--WebAppBoundary
+Content-Disposition: form-data; name="Folder"
+
+test
+--WebAppBoundary--
+
+### 9. Test Order Management (Admin only)
+GET {{baseUrl}}/order
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### 10. Test authenticated but not admin endpoint (any authenticated user)
+GET {{baseUrl}}/order/1
+Authorization: Bearer YOUR_REGULAR_USER_TOKEN_HERE

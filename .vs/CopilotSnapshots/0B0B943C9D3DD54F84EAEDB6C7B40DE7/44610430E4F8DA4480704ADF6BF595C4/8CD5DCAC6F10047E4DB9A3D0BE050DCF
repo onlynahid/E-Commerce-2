@@ -1,0 +1,44 @@
+﻿### Enhanced JWT Service Test
+### Test the new async token generation with refresh token support
+
+@host = https://localhost:7066
+
+### 1. Register a new user (should return enhanced token info)
+POST {{host}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "Test123!",
+  "confirmPassword": "Test123!"
+}
+
+### 2. Login with the user (should return enhanced token info)
+POST {{host}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+
+### 3. Test token validation
+POST {{host}}/api/Auth/validate-token
+Content-Type: application/json
+
+{
+  "token": "{{token}}"
+}
+
+### 4. Get current user info
+GET {{host}}/api/Auth/me
+Authorization: Bearer {{token}}
+
+### 5. Test enhanced token decode
+POST {{host}}/api/Auth/debug/decode-token
+Content-Type: application/json
+
+{
+  "token": "{{token}}"
+}

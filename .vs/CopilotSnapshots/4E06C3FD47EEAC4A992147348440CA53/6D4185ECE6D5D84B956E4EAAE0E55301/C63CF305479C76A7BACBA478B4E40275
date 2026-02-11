@@ -1,0 +1,200 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Attributes;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AYYUAZ.APP.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AboutController : ControllerBase
+    {
+        private readonly IAboutService _aboutService;
+
+        public AboutController(IAboutService aboutService)
+        {
+            _aboutService = aboutService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
+        {
+            var aboutList = await _aboutService.GetAllAboutAsync();
+            return Ok(aboutList);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AboutDto>> GetAboutById(int id)
+        {
+            var about = await _aboutService.GetAboutByIdAsync(id);
+            if (about == null)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return Ok(about);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<AboutDto>> CreateAbout([FromBody] CreateAboutDto createAboutDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+
+                // Check if title is unique
+                if (!await _aboutService.IsTitleUniqueAsync(createAboutDto.Title))
+                {
+                    return BadRequest(new { message = "About title already exists." });
+                }
+                var isAdmin = User.Claims.FirstOrDefault(c => c.Type == "isAdmin")?.Value;
+                if (isAdmin != "True")
+                    return Forbid();
+                var about = await _aboutService.CreateAboutAsync(createAboutDto);    
+                return CreatedAtAction(nameof(GetAboutById), new { id = about.Id }, about);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        [RequireAdmin]
+        public async Task<ActionResult<AboutDto>> UpdateAbout(int id, [FromBody] UpdateAboutDto updateAboutDto)
+        {
+            if (id != updateAboutDto.Id)
+            {
+                return BadRequest("About ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Check if title is unique (excluding current about)
+                if (!await _aboutService.IsTitleUniqueAsync(updateAboutDto.Title, id))
+                {
+                    return BadRequest(new { message = "About title already exists." });
+                }
+
+                var about = await _aboutService.UpdateAboutAsync(updateAboutDto);
+                if (about == null)
+                {
+                    return NotFound($"About with ID {id} not found.");
+                }
+                return Ok(about);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [RequireAdmin]
+        public async Task<ActionResult> DeleteAbout(int id)
+        {
+            var result = await _aboutService.DeleteAboutAsync(id);
+            if (!result)
+            {
+                return NotFound($"About with ID {id} not found.");
+            }
+            return NoContent();
+        }
+
+        [HttpGet("latest")]
+        public async Task<ActionResult<AboutDto>> GetLatestAbout()
+        {
+            var about = await _aboutService.GetLatestAboutAsync();
+            if (about == null)
+            {
+                return NotFound("No about information found.");
+            }
+            return Ok(about);
+        }
+
+        [HttpGet("by-title/{title}")]
+        public async Task<ActionResult<AboutDto>> GetAboutByTitle(string title)
+        {
+            if (string.IsNullOrEmpty(title))
+            {
+                return BadRequest("Title cannot be empty.");
+            }
+
+            var about = await _aboutService.GetAboutByTitleAsync(title);
+            if (about == null)
+            {
+                return NotFound($"About with title '{title}' not found.");
+            }
+            return Ok(about);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<AboutDto>>> SearchAbout([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+
+            var aboutList = await _aboutService.SearchAboutByTitleAsync(searchTerm);
+            return Ok(aboutList);
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<object>> GetAboutWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and page size must be greater than 0.");
+            }
+
+            var aboutList = await _aboutService.GetAboutWithPaginationAsync(page, pageSize);
+            var totalCount = await _aboutService.GetAboutCountAsync();
+            
+            return Ok(new
+            {
+                aboutList,
+                totalCount,
+                currentPage = page,
+                pageSize,
+                totalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+            });
+        }
+
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetAboutCount()
+        {
+            var count = await _aboutService.GetAboutCountAsync();
+            return Ok(count);
+        }
+
+        [HttpGet("check-title")]
+        public async Task<ActionResult<bool>> CheckTitleUnique([FromQuery] string title, [FromQuery] int? excludeId = null)
+        {
+            if (string.IsNullOrEmpty(title))
+            {
+                return BadRequest("Title cannot be empty.");
+            }
+
+            bool isUnique;
+            if (excludeId.HasValue)
+            {
+                isUnique = await _aboutService.IsTitleUniqueAsync(title, excludeId.Value);
+            }
+            else
+            {
+                isUnique = await _aboutService.IsTitleUniqueAsync(title);
+            }
+
+            return Ok(new { title, isUnique });
+        }
+    }
+}

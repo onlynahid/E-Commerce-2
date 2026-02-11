@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AYYUAZ.APP.Application.Dtos;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IOrderItemService
+    {
+        // Basic CRUD operations
+        Task<IEnumerable<OrderItemDto>> GetAllOrderItemsAsync();
+        Task<OrderItemDto> GetOrderItemByIdAsync(int orderItemId);
+        Task<OrderItemDto> CreateOrderItemAsync(CreateOrderItemDto createOrderItemDto);
+        Task<OrderItemDto> UpdateOrderItemAsync(UpdateOrderItemDto updateOrderItemDto);
+        Task<bool> DeleteOrderItemAsync(int orderItemId);
+
+        // Order item specific operations
+        Task<IEnumerable<OrderItemDto>> GetOrderItemsByOrderIdAsync(int orderId);
+        Task<IEnumerable<OrderItemDto>> GetOrderItemsByProductIdAsync(int productId);
+        
+        // Order item calculations
+        Task<decimal> GetOrderItemsTotalByOrderIdAsync(int orderId);
+        Task<int> GetOrderItemsCountByOrderIdAsync(int orderId);
+        
+        // Bulk operations
+        Task<bool> AddMultipleOrderItemsAsync(List<CreateOrderItemDto> orderItems);
+        Task<bool> DeleteOrderItemsByOrderIdAsync(int orderId);
+        Task<bool> UpdateOrderItemQuantityAsync(int orderItemId, int newQuantity);
+    }
+}

@@ -1,0 +1,40 @@
+﻿### JWT Authentication Debugging
+
+@host = https://localhost:7038
+@baseUrl = {{host}}/api
+
+### 1. Health check (should work without auth)
+GET {{baseUrl}}/health
+
+### 2. Login with Admin user to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Admin045@gmail.com", 
+    "password": "admin123"
+}
+
+### 3. Debug authentication without token
+GET {{baseUrl}}/about/debug/auth
+
+### 4. Debug authentication WITH token (replace YOUR_TOKEN with actual token from step 2)
+GET {{baseUrl}}/about/debug/auth
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 5. Test protected endpoint (should work with admin token)
+POST {{baseUrl}}/about
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "title": "Debug Test",
+    "description": "Testing admin authorization after debugging"
+}
+
+### 6. Test public endpoint (should always work)
+GET {{baseUrl}}/about
+
+### 7. Check current user info endpoint 
+GET {{baseUrl}}/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE

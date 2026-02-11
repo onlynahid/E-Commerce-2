@@ -1,0 +1,21 @@
+﻿using AYYUAZ.APP.Domain.Enum;
+
+namespace AYYUAZ.APP.Application.Dtos
+{
+    public class CreateOrderDto
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+        public List<CreateOrderItemDto> OrderItems { get; set; } = new();
+    }
+
+    public class CreateOrderItemDto
+    {
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+    }
+}

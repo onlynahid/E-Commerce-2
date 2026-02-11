@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AYYUAZ.APP.Application.Dtos;
+
+namespace AYYUAZ.APP.Application.Interfaces
+{
+    public interface IBasketItemService
+    {
+        // Basic CRUD operations
+        Task<IEnumerable<BasketItemDto>> GetAllBasketItemsAsync();
+        Task<BasketItemDto> GetBasketItemByIdAsync(int basketItemId);
+        Task<BasketItemDto> CreateBasketItemAsync(CreateBasketItemDto createBasketItemDto);
+        Task<BasketItemDto> UpdateBasketItemAsync(UpdateBasketItemDto updateBasketItemDto);
+        Task<bool> DeleteBasketItemAsync(int basketItemId);
+
+        // Basket item specific operations
+        Task<IEnumerable<BasketItemDto>> GetBasketItemsByBasketIdAsync(int basketId);
+        Task<BasketItemDto> GetBasketItemByProductIdAsync(int basketId, int productId);
+        Task<bool> IsProductInBasketAsync(int basketId, int productId);
+        
+        // Quantity management
+        Task<bool> UpdateQuantityAsync(int basketItemId, int quantity);
+        Task<bool> IncreaseQuantityAsync(int basketItemId, int amount = 1);
+        Task<bool> DecreaseQuantityAsync(int basketItemId, int amount = 1);
+        
+        // Calculations
+        Task<decimal> GetBasketItemTotalAsync(int basketItemId);
+        Task<decimal> GetBasketItemsTotalByBasketIdAsync(int basketId);
+        Task<int> GetBasketItemsCountByBasketIdAsync(int basketId);
+        
+        // Bulk operations
+        Task<bool> DeleteAllBasketItemsByBasketIdAsync(int basketId);
+        Task<bool> AddMultipleBasketItemsAsync(List<CreateBasketItemDto> basketItems);
+        
+        // Validation
+        Task<bool> ValidateBasketItemAsync(BasketItemDto basketItem);
+        Task<bool> CheckProductAvailabilityAsync(int productId, int requestedQuantity);
+    }
+}

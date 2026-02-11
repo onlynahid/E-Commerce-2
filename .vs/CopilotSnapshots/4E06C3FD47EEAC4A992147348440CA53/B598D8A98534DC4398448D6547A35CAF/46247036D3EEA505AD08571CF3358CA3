@@ -1,0 +1,87 @@
+﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace AYYUAZ.APP.Application.Services
+{
+    public class HeroService:IHeroService
+    {
+        private readonly IHeroRepository _heroRepository;
+        public HeroService(IHeroRepository heroRepository)
+        {
+            _heroRepository = heroRepository;
+        }
+        public async Task<HeroDto> AddHeroAsync(CreateHeroDto createHeroDto)
+        {
+          var hero = new Hero
+          {
+              Title = createHeroDto.Title,
+              Description = createHeroDto.Description,
+              ImageUrl = createHeroDto.ImageUrl,
+              DiscountMessage = createHeroDto.DiscountMessage,
+              OrderMessage = createHeroDto.OrderMessage
+          };
+          await _heroRepository.AddHeroAsync(hero);
+         return MapToDto(hero);
+
+        }
+        private HeroDto MapToDto(Hero hero)
+        {
+           return new HeroDto
+           {
+                Id = hero.Id,
+                Title = hero.Title,
+                Description = hero.Description,
+                ImageUrl = hero.ImageUrl,
+                DiscountMessage = hero.DiscountMessage,
+                OrderMessage = hero.OrderMessage
+
+           };
+
+        }
+        public async Task<List<HeroDto>> GetAllHeroesAsync()
+        {
+         var heroes =  await _heroRepository.GetAllHeroesAsync();
+           return heroes.Select(h => MapToDto(h)).ToList();
+
+        }
+        public async Task<HeroDto> GetHeroByIdAsync(int heroid)
+        {
+         var hero = await _heroRepository.GetHeroByIdAsync(heroid);
+            if(hero == null)
+                throw new KeyNotFoundException($"Hero with ID {heroid} not found.");
+            return MapToDto(hero);
+        }
+
+        public async Task<HeroDto> UpdateHeroAsync(int id, UpdateHeroDto updateHeroDto)
+        {
+            var hero = await _heroRepository.GetHeroByIdAsync(id);
+            if(hero == null)
+                throw new KeyNotFoundException($"Hero with ID {id} not found.");
+
+            hero.Title = updateHeroDto.Title;
+            hero.Description = updateHeroDto.Description;
+            hero.ImageUrl = updateHeroDto.ImageUrl;
+            hero.DiscountMessage = updateHeroDto.DiscountMessage;
+            hero.OrderMessage = updateHeroDto.OrderMessage;
+
+            await _heroRepository.UpdateHeroAsync(hero);
+            return MapToDto(hero);
+
+        }
+        public async Task<bool> DeleteHeroAsync(int id)
+        {
+          var hero =  await _heroRepository.GetHeroByIdAsync(id);
+            if(hero== null)
+                return false;
+
+            await _heroRepository.DeleteHeroAsync(id);
+            return true;
+        }
+    }
+}
