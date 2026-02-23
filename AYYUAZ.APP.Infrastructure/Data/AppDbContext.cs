@@ -31,8 +31,21 @@ namespace AYYUAZ.APP.Infrastructure.Data
                 .HasColumnType("decimal(18,2)");
 
             builder.Entity<OrderItem>()
-                .Property(o => o.UnitPrice)
+                .Property(oi => oi.UnitPrice)
                 .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderItem>()
+                .HasOne(o => o.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(o => o.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");

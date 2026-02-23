@@ -32,24 +32,26 @@ namespace AYYUAZ.APP.Controllers
             }
             return Ok(order);
         }
-        //[HttpPost]
-        //public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        
+        [HttpPost]
+        public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    try
-        //    {
-        //        var order = await _orderService.CreateOrderAsync(createOrderDto);
-        //        return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { message = ex.Message });
-        //    }
-        //}
+            try
+            {
+                var order = await _orderService.CreateOrderAsync(createOrderDto);
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
         [HttpPut("{id}")]
         public async Task<ActionResult<OrderDto>> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
@@ -79,6 +81,7 @@ namespace AYYUAZ.APP.Controllers
             }
             return NoContent();
         }
+        
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout(CreateOrderDto dto)
         {
@@ -86,6 +89,7 @@ namespace AYYUAZ.APP.Controllers
                 return BadRequest("No items in the order.");
 
             decimal total = 0;
+            var orderItems = new List<OrderItem>();
 
             foreach (var item in dto.OrderItems)
             {
@@ -94,13 +98,23 @@ namespace AYYUAZ.APP.Controllers
                 {
                     return BadRequest($"Product with ID {item.ProductId} not found.");
                 }
-                total += product.Price * item.Quantity;
+                
                 if (item.Quantity <= 0)
                 {
                     return BadRequest("Quantity must be greater than zero.");
-
                 }
+                
+                total += product.Price * item.Quantity;
+                
+                // OrderItem yarat
+                orderItems.Add(new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = product.Price
+                });
             }
+            
             var order = new Order
             {
                 FullName = dto.FullName,
@@ -110,12 +124,18 @@ namespace AYYUAZ.APP.Controllers
                 Notes = dto.Notes,
                 CreatedAt = DateTime.UtcNow,
                 TotalAmount = total,
-
+                OrderStatus = Domain.Enum.OrderStatus.Processed,
+                OrderItems = orderItems  // OrderItems ?lav? et
             };
+            
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-            return Ok(new { OrderId = order.Id });
-
+            
+            return Ok(new { 
+                OrderId = order.Id,
+                TotalAmount = total,
+                ItemCount = orderItems.Count
+            });
         }
     }
 }

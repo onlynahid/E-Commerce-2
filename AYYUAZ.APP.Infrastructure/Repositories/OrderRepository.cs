@@ -40,6 +40,8 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
             return await _context.Orders
+                .Include(o=>o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
         }

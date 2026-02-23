@@ -88,7 +88,6 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            decimal calculatedTotal = 0;
             var order = new Order
             {
                 FullName = createOrderDto.FullName,
@@ -98,26 +97,37 @@ namespace AYYUAZ.APP.Application.Services
                 Notes = createOrderDto.Notes,
                 CreatedAt = DateTime.UtcNow,
                 OrderStatus = OrderStatus.Processed,
-                TotalAmount = calculatedTotal,
-                AcceptedAt = default,
-                RejectedAt = default,
+                TotalAmount = 0, // İlk olaraq 0, sonra hesaplayacağıq
+                AcceptedAt = null,
+                RejectedAt = null,
                 RejectedReason = null,
                 OrderItems = new List<OrderItem>()
-
             };
+
+            decimal calculatedTotal = 0;
+            
             foreach (var itemDto in createOrderDto.OrderItems)
             {
                 var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId);
-                order.OrderItems.Add(new OrderItem
+                if (product == null)
+                {
+                    throw new ArgumentException($"Product with ID {itemDto.ProductId} not found");
+                }
+
+                var orderItem = new OrderItem
                 {
                     ProductId = itemDto.ProductId,
                     Quantity = itemDto.Quantity,
-                    UnitPrice = product.Price
-                    
-                });
+                    UnitPrice = product.Price,
+                    Order = order // Navigation property set et
+                };
+                
+                order.OrderItems.Add(orderItem);
+                calculatedTotal += orderItem.Quantity * orderItem.UnitPrice;
             }
 
-            calculatedTotal+= order.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
+            // Total amount-ı set et
+            order.TotalAmount = calculatedTotal;
 
             await _orderRepository.AddOrderAsync(order);
             return await GetOrderByIdAsync(order.Id);
@@ -237,7 +247,17 @@ namespace AYYUAZ.APP.Application.Services
                 AcceptedAt = order.AcceptedAt != default(DateTime) ? order.AcceptedAt : null,
                 RejectedAt = order.RejectedAt != default(DateTime) ? order.RejectedAt : null,
                 RejectedReason = order.RejectedReason,
-                OrderItems = new List<OrderItemDto>()
+                OrderItems = order.OrderItems?.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    OrderId = oi.OrderId,
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product?.Name ?? string.Empty,
+                    ProductImageUrl = oi.Product?.ImageUrl ?? string.Empty,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice,
+                   
+                }).ToList() ?? new List<OrderItemDto>()
             };
         }
         private OrderDto MapToDtoWithItems(Order order)
