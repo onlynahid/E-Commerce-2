@@ -1,5 +1,13 @@
-**/bin/
-**/obj/
+# build
+bin/
+obj/
+
+# user-specific / IDE
 .vs/
+.vscode/
+.idea/
 *.user
 *.suo
+
+# secrets (əgər içində sensitive var)
+appsettings.Development.json
