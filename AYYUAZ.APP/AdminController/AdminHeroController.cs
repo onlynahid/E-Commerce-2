@@ -35,11 +35,6 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> CreateHero([FromForm] CreateHeroDto createHeroDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var hero = await _heroService.AddHeroAsync(createHeroDto);
             return CreatedAtAction(nameof(GetHeroById), new { id = hero.Id }, hero);
         }
@@ -47,10 +42,6 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> UpdateHero(int id, [FromForm] UpdateHeroDto updateHeroDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var hero = await _heroService.UpdateHeroAsync(id, updateHeroDto);
             if (hero == null)

@@ -19,12 +19,7 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> CreateSettings([FromBody] CreateSettingsDto createSettingsDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Check if email is unique
+          
             var settings = await _settingsService.CreateSettingsAsync(createSettingsDto);
             return CreatedAtAction(nameof(GetSettingsById), new { id = settings.Id }, settings);
         }
@@ -45,11 +40,6 @@ namespace AYYUAZ.APP.AdminController
             if (id != updateSettingsDto.Id)
             {
                 return BadRequest("Settings ID mismatch.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             var settings = await _settingsService.UpdateSettingsAsync(updateSettingsDto);

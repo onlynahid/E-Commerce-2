@@ -30,7 +30,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
             // Seed about information
             SeedAbout(context);
         }
-
         private static async Task SeedAdminAsync(IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
@@ -113,7 +112,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 }
             }
         }
-
         private static void SeedCategories(AppDbContext context)
         {
             if (!context.Categories.Any())
@@ -161,7 +159,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 context.SaveChanges();
             }
         }
-
         private static void SeedProducts(AppDbContext context)
         {
             if (!context.Products.Any())
@@ -293,7 +290,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 }
             }
         }
-
         private static void SeedSettings(AppDbContext context)
         {
             if (!context.Settings.Any())
@@ -313,7 +309,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 context.SaveChanges();
             }
         }
-
         private static void SeedAbout(AppDbContext context)
         {
             if (!context.About.Any())
@@ -335,7 +330,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 context.SaveChanges();
             }
         }
-
         private static string HashPassword(string password)
         {
             // Using the same SHA256 hashing method as AuthService

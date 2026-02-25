@@ -33,7 +33,7 @@ namespace AYYUAZ.APP.Application.Services
         {
             var about = await _aboutRepository.GetAboutByIdAsync(aboutId);
             if (about == null)
-                return false;
+                throw new KeyNotFoundException("About not found");
 
             await _aboutRepository.DeleteAboutAsync(aboutId);
             return true;

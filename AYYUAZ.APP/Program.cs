@@ -1,11 +1,15 @@
+using AYYUAZ.APP.Application.DI.Application;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Application.Service;
 using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
+using AYYUAZ.APP.Infrastructure.DI.Infrastructure;
 using AYYUAZ.APP.Infrastructure.Repositories;
 using AYYUAZ.APP.Infrastructure.Services;
+using AYYUAZ.APP.Middleware;
+using AYYUAZ.APP.ServiceExtensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using GlobalExceptionMiddleware = AYYUAZ.APP.Middleware.GlobalExceptionMiddleware;
 namespace AYYUAZ.APP
 {
     public class Program
@@ -21,204 +26,65 @@ namespace AYYUAZ.APP
         {
             var builder = WebApplication.CreateBuilder(args);
             var configuration = builder.Configuration;
-
-            // Add services to the container.
-            builder.Services.AddControllers();
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "AYYUAZ.APP API",
-                    Version = "v1",
-                    Description = "API for AYYUAZ Application"
-                });
-
-                // Configure JWT authentication in Swagger
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "Bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-
-                // Enable XML documentation (optional)
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                if (File.Exists(xmlPath))
-                {
-                    c.IncludeXmlComments(xmlPath);
-                }
-
-                // Handle file upload operations
-                c.MapType<IFormFile>(() => new OpenApiSchema
-                {
-                    Type = "string",
-                    Format = "binary"
-                });
-            });
-
-            // Database configuration
+          https://aka.ms/aspnetcore/swashbuckle
+          
+     
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 options.UseSqlServer(connectionString);
             });
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy
-                        .WithOrigins("http://localhost:3000","https://localhost:3000")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
-
-            // Add Identity services
+          
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
-                // Password settings
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 6;
-
-                // User settings
                 options.User.RequireUniqueEmail = true;
-
-                // Signin settings
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             })
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
-
-            // JWT Authentication configuration with extensive debugging
-            var jwtKey = configuration["Jwt:Key"];
-            var jwtIssuer = configuration["Jwt:Issuer"];
-            var jwtAudience = configuration["Jwt:Audience"];
-
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwtAudience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-
-                };
-
-
-                // Add comprehensive debugging events for JWT authentication
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
-                        var authHeader = context.Request.Headers["Authorization"].ToString();
-                        logger?.LogDebug("JWT OnMessageReceived - Auth Header: {AuthHeader}",
-                            string.IsNullOrEmpty(authHeader) ? "MISSING" : authHeader.Substring(0, Math.Min(authHeader.Length, 50)) + "...");
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
-                        var claims = context.Principal?.Claims?.ToList() ?? new List<System.Security.Claims.Claim>();
-                        logger?.LogDebug("JWT Token validated successfully. Claims count: {ClaimsCount}", claims.Count);
-
-                        foreach (var claim in claims)
-                        {
-                            logger?.LogDebug("JWT Claim: {Type} = {Value}", claim.Type, claim.Value);
-                        }
-                        return Task.CompletedTask;
-                    },
-                    OnAuthenticationFailed = context =>
-                    {
-                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
-                        logger?.LogError("JWT Authentication failed: {Exception}", context.Exception?.ToString());
-                        return Task.CompletedTask;
-                    },
-                    OnChallenge = context =>
-                    {
-                        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
-                        logger?.LogWarning("JWT Challenge triggered: {Error}, {ErrorDescription}",
-                            context.Error, context.ErrorDescription);
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-
+            .AddDefaultTokenProviders();           
+            #region
             // Repository registrations
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IAboutRepository, AboutRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IHeroRepository, HeroRepository>();
+            //builder.Services.                                     AddScoped<IProductRepository, ProductRepository>();
+            //builder.Services                                      .AddScoped<IOrderRepository, OrderRepository>();
+            //builder.Services                                     .AddScoped<ISettingsRepository, SettingsRepository>();
+            //builder.Services                                          .AddScoped<ICategoryRepository, CategoryRepository>();
+            //builder.Services                                           .AddScoped<IAboutRepository, AboutRepository>();
+            //builder.Services                                           .AddScoped<IUserRepository, UserRepository>();
+            //builder.Services.                                               AddScoped<IHeroRepository, HeroRepository>();
 
 
             // Service registrations
-            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IOrderService, OrderService>();
-            builder.Services.AddScoped<ISettingsService, SettingsService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IAboutService, AboutService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IJwtService, JwtService>();
-            //builder.Services.AddScoped<IBasketService, BasketService>();
-            builder.Services.AddScoped<IHeroService, HeroService>();
-            builder.Services.AddScoped<GlobalExceptionFilter>();
-
-            builder.Services.AddControllers(options =>
-            {
-                options.Filters.Add<GlobalExceptionFilter>();
-
-            });
+            //builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+            //builder.Services.AddScoped<IProductService, ProductService>();
+            //builder.Services.AddScoped<IOrderService, OrderService>();
+            //builder.Services.AddScoped<ISettingsService, SettingsService>();
+            //builder.Services.AddScoped<ICategoryService, CategoryService>();
+            //builder.Services.AddScoped<IAboutService, AboutService>();
+            //builder.Services.AddScoped<IAuthService, AuthService>();
+            //builder.Services.AddScoped<IJwtService, JwtService>();
+            ////builder.Services.AddScoped<IBasketService, BasketService>();
+            //builder.Services.AddScoped<IHeroService, HeroService>();
+            //builder.Services.AddScoped<GlobalExceptionFilter>();
+            #endregion
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddProjectServices(builder.Configuration);
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
+
             if (string.IsNullOrEmpty(connectionString))
                 throw new InvalidOperationException("DefaultConnection string is not configured");
 
             var app = builder.Build();
-
-            // Initialize directories and database
+            app.UseMiddleware<GlobalExceptionMiddleware>();
             await InitializeApplication(app);
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -234,11 +100,9 @@ namespace AYYUAZ.APP
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
-
             app.MapControllers();
             app.Run();
         }
-
         private static async Task InitializeApplication(WebApplication app)
         {
             // Ensure wwwroot directory exists for static files
@@ -285,7 +149,6 @@ namespace AYYUAZ.APP
                 }
             }
         }
-
         private static void CreateDefaultImages(string uploadsPath)
         {
             // Create default product image placeholder

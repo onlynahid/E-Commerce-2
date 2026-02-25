@@ -23,10 +23,6 @@ namespace AYYUAZ.APP.AdminController
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
 
                 var product = await _productService.CreateProductAsync(createProductDto);
                 return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
@@ -47,10 +43,7 @@ namespace AYYUAZ.APP.AdminController
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+               
 
                 var product = await _productService.UpdateProductAsync(id, updateProductDto);
                 return Ok(product);
@@ -425,7 +418,6 @@ namespace AYYUAZ.APP.AdminController
                     return NotFound(new { message = $"Product with ID {productId} not found or discount could not be added." });
                 }
 
-                // Get updated product to return current state
                 var updatedProduct = await _productService.GetProductByIdAsync(productId);
 
                 return Ok(new
@@ -463,7 +455,6 @@ namespace AYYUAZ.APP.AdminController
                     return NotFound(new { message = $"Product with ID {productId} not found or discount could not be updated." });
                 }
 
-                // Get updated product to return current state
                 var updatedProduct = await _productService.GetProductByIdAsync(productId);
 
                 return Ok(new
@@ -496,7 +487,6 @@ namespace AYYUAZ.APP.AdminController
                     return NotFound(new { message = $"Product with ID {productId} not found or has no discount to remove." });
                 }
 
-                // Get updated product to return current state
                 var updatedProduct = await _productService.GetProductByIdAsync(productId);
 
                 return Ok(new

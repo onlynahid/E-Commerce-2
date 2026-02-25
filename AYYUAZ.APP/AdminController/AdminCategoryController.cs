@@ -18,41 +18,15 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromForm] CreateCategoryDto createCategoryDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Check if category name is unique
-            if (!await _categoryService.IsCategoryNameUniqueAsync(createCategoryDto.Name))
-            {
-                return BadRequest(new { message = "Category name already exists." });
-            }
 
             var category = await _categoryService.CreateCategoryAsync(createCategoryDto);
             return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, [FromForm] UpdateCategoryDto updateCategoryDto)
+        public async Task<ActionResult<CategoryDto>> UpdateCategory(int id,[FromForm] UpdateCategoryDto updateCategoryDto)
         {
-            if (id != updateCategoryDto.Id)
-            {
-                return BadRequest("Category ID mismatch.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Check if category name is unique (excluding current category)
-            if (!await _categoryService.IsCategoryNameUniqueAsync(updateCategoryDto.Name, id))
-            {
-                return BadRequest(new { message = "Category name already exists." });
-            }
-
-            var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto);
+            var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto,id);
             if (category == null)
             {
                 return NotFound($"Category with ID {id} not found.");

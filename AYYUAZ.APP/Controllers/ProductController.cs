@@ -265,11 +265,6 @@ namespace AYYUAZ.APP.Controllers
             });
         }
 
-        // ===== DISCOUNT INFORMATION ENDPOINTS (Public) =====
-
-        /// <summary>
-        /// Get discount information for a product (Public)
-        /// </summary>
         [HttpGet("{id}/discount-info")]
         public async Task<ActionResult<object>> GetProductDiscountInfo(int id)
         {
@@ -298,10 +293,6 @@ namespace AYYUAZ.APP.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
-        /// <summary>
-        /// Get all products with discounts (Public)
-        /// </summary>
         [HttpGet("with-discounts")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsWithDiscounts()
         {
@@ -325,10 +316,6 @@ namespace AYYUAZ.APP.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
-        /// <summary>
-        /// Get products with discounts above a certain percentage (Public)
-        /// </summary>
         [HttpGet("discounts-above")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsWithDiscountsAbove([FromQuery] decimal minDiscountPercentage = 10)
         {
@@ -358,10 +345,6 @@ namespace AYYUAZ.APP.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
-        /// <summary>
-        /// Get discount statistics (Public)
-        /// </summary>
         [HttpGet("discount-statistics")]
         public async Task<ActionResult<object>> GetDiscountStatistics()
         {

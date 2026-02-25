@@ -59,14 +59,14 @@ namespace AYYUAZ.APP.Application.Services
             await _categoryRepository.AddAsync(category);
             return MapToDto(category);
         }
-        public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto)
+        public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto,int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(updateCategoryDto.Id);
+            var category = await _categoryRepository.GetByIdAsync(id);
             if (category == null)
             {
                 throw new KeyNotFoundException("Category not found");
             }
-            var isUnique = await IsCategoryNameUniqueAsync(updateCategoryDto.Name, updateCategoryDto.Id);
+            var isUnique = await IsCategoryNameUniqueAsync(updateCategoryDto.Name,id);
             if (!isUnique)
             {
                 throw new ArgumentException("Category name already exists.");
@@ -88,10 +88,6 @@ namespace AYYUAZ.APP.Application.Services
                 {
                     throw new ArgumentException($"Image upload failed: {ex.Message}");
                 }
-            }
-            else if (!string.IsNullOrEmpty(updateCategoryDto.ImageUrl))
-            {
-                category.ImageUrl = updateCategoryDto.ImageUrl;
             }
 
            
@@ -177,5 +173,7 @@ namespace AYYUAZ.APP.Application.Services
                 ProductCount = category.Products?.Count ?? 0
             };
         }
+
+        
     }
 }

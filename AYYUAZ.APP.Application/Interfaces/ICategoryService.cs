@@ -12,7 +12,7 @@ namespace AYYUAZ.APP.Application.Interfaces
         Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
         Task<CategoryDto> GetCategoryByIdAsync(int categoryId);
         Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
-        Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto);
+        Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto,int categoryid);
         Task<bool> DeleteCategoryAsync(int categoryId);
         Task<IEnumerable<CategoryDto>> GetCategoriesWithProductsAsync();
         Task<CategoryDto> GetCategoryWithProductsAsync(int categoryId);

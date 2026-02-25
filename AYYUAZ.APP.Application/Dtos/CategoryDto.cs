@@ -28,12 +28,10 @@ namespace AYYUAZ.APP.Application.Dtos
     }
     public class UpdateCategoryDto
     {
-        public int Id { get; set; }
         [Required]
         [StringLength(100)]
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; }
         public IFormFile Image { get; set; }
     }
 }

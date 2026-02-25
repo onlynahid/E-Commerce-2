@@ -52,7 +52,6 @@ namespace AYYUAZ.APP.Application.Service
 
             await _productRepository.AddProductAsync(product);
 
-            // Create discount if provided
             if (createProductDto.DiscountPercentage.HasValue && createProductDto.DiscountPercentage.Value > 0)
             {
                 await _productRepository.AddDiscountToProductAsync(product.Id, createProductDto.DiscountPercentage.Value);
@@ -187,24 +186,13 @@ namespace AYYUAZ.APP.Application.Service
 
             if (updateProductDto.Image != null && updateProductDto.Image.Length > 0)
             {
-                try
-                {
-                    // Delete old image if it's not the default
-                    if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "default-product.jpg")
+                 
+                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "default-product.jpg")
                     {
                         await _fileStorageService.DeleteImageAsync(product.ImageUrl);
                     }
-
-
                     product.ImageUrl = await _fileStorageService.UploadImageAsync(updateProductDto.Image, "products");
-                }
-                catch (ArgumentException ex)
-                {
-                    throw new ArgumentException($"Image upload failed: {ex.Message}");
-                }
             }
-
-            // Update other properties
             product.Name = updateProductDto.Name;
             product.Description = updateProductDto.Description;
             product.Price = updateProductDto.Price;

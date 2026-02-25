@@ -48,7 +48,7 @@ namespace AYYUAZ.APP.Domain.Entities
         //}
         public Product()
         {
-            CreatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
         }
 
     }

@@ -34,13 +34,10 @@ namespace AYYUAZ.APP.Controllers
         }
         
         [HttpPost]
+  
         public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+           
             try
             {
                 var order = await _orderService.CreateOrderAsync(createOrderDto);
@@ -58,11 +55,6 @@ namespace AYYUAZ.APP.Controllers
             if (id != updateOrderDto.Id)
             {
                 return BadRequest("Order ID mismatch.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
                 var order = await _orderService.UpdateOrderAsync(updateOrderDto);
                 if (order == null)
@@ -125,7 +117,7 @@ namespace AYYUAZ.APP.Controllers
                 CreatedAt = DateTime.UtcNow,
                 TotalAmount = total,
                 OrderStatus = Domain.Enum.OrderStatus.Processed,
-                OrderItems = orderItems  // OrderItems ?lav? et
+                OrderItems = orderItems  
             };
             
             _context.Orders.Add(order);

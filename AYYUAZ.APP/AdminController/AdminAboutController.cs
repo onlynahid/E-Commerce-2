@@ -22,12 +22,6 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult<AboutDto>> CreateAbout([FromBody] CreateAboutDto createAboutDto)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Check if title is unique
             var about = await _aboutService.CreateAboutAsync(createAboutDto);
             return CreatedAtAction(nameof(GetAboutById), new { id = about.Id }, about);
         }
@@ -35,10 +29,6 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AboutDto>> UpdateAbout(int id, [FromBody] UpdateAboutDto updateAboutDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var about = await _aboutService.UpdateAboutAsync(updateAboutDto,id);
             if (about == null)

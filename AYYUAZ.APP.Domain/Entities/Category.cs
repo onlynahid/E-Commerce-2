@@ -17,7 +17,7 @@ namespace AYYUAZ.APP.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public Category()
         {
-            CreatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
         }
     }
 }

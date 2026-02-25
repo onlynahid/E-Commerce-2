@@ -114,24 +114,6 @@ public class AdminAuthController : ControllerBase
             });
         }
 
-        if (!ModelState.IsValid)
-        {
-            var validationErrors = ModelState
-                .Where(x => x.Value?.Errors.Any() == true)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-
-            _logger.LogWarning("Registration validation failed for email: {Email}, Validation errors: {@ValidationErrors}",
-                registerDto.Email, validationErrors);
-
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = $"Validation failed: {string.Join(", ", validationErrors.SelectMany(e => e.Value))}"
-            });
-        }
 
         if (string.IsNullOrWhiteSpace(registerDto.Username))
         {
@@ -274,10 +256,6 @@ public class AdminAuthController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
@@ -307,25 +285,6 @@ public class AdminAuthController : ControllerBase
     public async Task<ActionResult> ChangeEmail([FromBody] ChangeEmailDto changeEmailDto)
     {
         _logger.LogInformation("Email change request received");
-
-        if (!ModelState.IsValid)
-        {
-            var validationErrors = ModelState
-                .Where(x => x.Value?.Errors.Any() == true)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-
-            _logger.LogWarning("Email change validation failed: {@ValidationErrors}", validationErrors);
-
-            return BadRequest(new
-            {
-                success = false,
-                message = $"Validation failed: {string.Join(", ", validationErrors.SelectMany(e => e.Value))}",
-                timestamp = DateTime.UtcNow
-            });
-        }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))

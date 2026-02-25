@@ -7,18 +7,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Hosting;
 namespace AYYUAZ.APP.Infrastructure.Services
 {
     public class FileStorageService : IFileStorageService
     {
         private readonly string _webRootPath;
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-        private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
-
+        private const long MaxFileSize = 5 * 1024 * 1024; 
+        
         public FileStorageService(IWebHostEnvironment env)
         {
             _webRootPath = env.WebRootPath;
+        }
+        public static class FilePaths
+        {
+            public const string UploadRoot = "/uploads";
         }
 
         public async Task<string> UploadImageAsync(IFormFile file, string folder = "products")
@@ -31,23 +35,28 @@ namespace AYYUAZ.APP.Infrastructure.Services
 
             if (file.Length > MaxFileSize)
                 throw new ArgumentException($"File size exceeds the maximum limit of {MaxFileSize / (1024 * 1024)}MB");
+           
 
-            // Create upload directory if it doesn't exist
-            var uploadPath = Path.Combine(_webRootPath, "uploads", folder);
+
+            folder = new string(folder.Where(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_').ToArray());
+            if (string.IsNullOrWhiteSpace(folder)) folder = "products";
+
+
+            var uploadRootFolder = FilePaths.UploadRoot.Trim('/');
+
+            var uploadPath = Path.Combine(_webRootPath, uploadRootFolder, folder);
             Directory.CreateDirectory(uploadPath);
 
-            // Generate unique filename
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName).ToLowerInvariant()}";
             var filePath = Path.Combine(uploadPath, fileName);
 
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            await using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 await file.CopyToAsync(stream);
             }
 
-            // Return relative URL
-            return $"/uploads/{folder}/{fileName}";
+
+            return $"{FilePaths.UploadRoot.TrimEnd('/')}/{folder}/{fileName}";
         }
 
         public Task<bool> DeleteImageAsync(string imageUrl)
@@ -57,7 +66,6 @@ namespace AYYUAZ.APP.Infrastructure.Services
                 if (string.IsNullOrEmpty(imageUrl) || imageUrl == "default-product.jpg")
                     return Task.FromResult(true);
 
-                // Remove leading slash and convert to physical path
                 var relativePath = imageUrl.TrimStart('/');
                 var physicalPath = Path.Combine(_webRootPath, relativePath);
 
