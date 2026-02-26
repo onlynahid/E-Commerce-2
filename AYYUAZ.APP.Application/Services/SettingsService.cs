@@ -1,4 +1,5 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Exceptions.AppException;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
@@ -14,21 +15,24 @@ namespace AYYUAZ.APP.Application.Service
     public class SettingsService : ISettingsService
     {
         private readonly ISettingsRepository _settingsRepository;
-        private Settings? _settingsBackup;
+
         public SettingsService(ISettingsRepository settingsRepository)
         {
             _settingsRepository = settingsRepository;
         }
+
         public async Task<IEnumerable<SettingsDto>> GetAllSettingsAsync()
         {
             var settings = await _settingsRepository.GetAllSettingsAsync();
             return settings.Select(MapToDto);
         }
+
         public async Task<SettingsDto> GetSettingsByIdAsync(int settingsId)
         {
             var settings = await _settingsRepository.GetSettingsByIdAsync(settingsId);
-            return settings == null ? throw new KeyNotFoundException("Not Found SettingsId") : MapToDto(settings);
+            return settings == null ? throw new NotFoundException() : MapToDto(settings);
         }
+
         public async Task<SettingsDto> CreateSettingsAsync(CreateSettingsDto createSettingsDto)
         {
             var settings = new Settings
@@ -45,11 +49,12 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.AddSettingsAsync(settings);
             return MapToDto(settings);
         }
+
         public async Task<SettingsDto> UpdateSettingsAsync(UpdateSettingsDto updateSettingsDto)
         {
             var settings = await _settingsRepository.GetSettingsByIdAsync(updateSettingsDto.Id);
             if (settings == null)
-                throw new KeyNotFoundException("Settings not found");
+                throw new NotFoundException();
 
             settings.Name = updateSettingsDto.Name;
             settings.PhoneNumber = updateSettingsDto.PhoneNumber;
@@ -62,15 +67,17 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.UpdateSettingsAsync(settings);
             return MapToDto(settings);
         }
+
         public async Task<bool> DeleteSettingsAsync(int settingsId)
         {
             var settings = await _settingsRepository.GetSettingsByIdAsync(settingsId);
             if (settings == null)
-                return false;
+                throw new NotFoundException();
 
             await _settingsRepository.DeleteSettingsAsync(settingsId);
             return true;
         }
+
         public async Task<bool> UpdateCurrentSettingsAsync(UpdateSettingsDto updateSettingsDto)
         {
             var allSettings = await _settingsRepository.GetAllSettingsAsync();
@@ -78,7 +85,6 @@ namespace AYYUAZ.APP.Application.Service
 
             if (currentSettings == null)
             {
-                // Create new settings if none exist
                 var newSettings = new Settings
                 {
                     Name = updateSettingsDto.Name,
@@ -104,6 +110,7 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.UpdateSettingsAsync(currentSettings);
             return true;
         }
+
         public async Task<Dictionary<string, string>> GetSocialMediaLinksAsync()
         {
             var allSettings = await _settingsRepository.GetAllSettingsAsync();
@@ -126,13 +133,14 @@ namespace AYYUAZ.APP.Application.Service
                 { "twitter", currentSettings.TwitterUrl ?? "" }
             };
         }
+
         public async Task<bool> UpdateSocialMediaLinksAsync(Dictionary<string, string> socialLinks)
         {
             var allSettings = await _settingsRepository.GetAllSettingsAsync();
             var currentSettings = allSettings.FirstOrDefault();
 
             if (currentSettings == null)
-                return false;
+                throw new NotFoundException();
 
             if (socialLinks.ContainsKey("facebook"))
                 currentSettings.FacebookUrl = socialLinks["facebook"];
@@ -144,16 +152,15 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.UpdateSettingsAsync(currentSettings);
             return true;
         }
+
         public async Task<bool> ValidateSettingsAsync(SettingsDto settings)
         {
             if (settings == null)
                 return false;
 
-            // Validate required fields
             if (string.IsNullOrWhiteSpace(settings.Name))
                 return false;
 
-            // Validate email format if provided
             if (!string.IsNullOrWhiteSpace(settings.Email))
             {
                 var emailAttribute = new EmailAddressAttribute();
@@ -161,7 +168,6 @@ namespace AYYUAZ.APP.Application.Service
                     return false;
             }
 
-            // Validate URLs if provided
             if (!string.IsNullOrWhiteSpace(settings.FacebookUrl) && !IsValidUrl(settings.FacebookUrl))
                 return false;
             if (!string.IsNullOrWhiteSpace(settings.InstagramUrl) && !IsValidUrl(settings.InstagramUrl))
@@ -171,6 +177,7 @@ namespace AYYUAZ.APP.Application.Service
 
             return true;
         }
+
         private SettingsDto MapToDto(Settings settings)
         {
             return new SettingsDto
@@ -185,7 +192,8 @@ namespace AYYUAZ.APP.Application.Service
                 TwitterUrl = settings.TwitterUrl
             };
         }
-        private bool IsValidUrl(string url)    /// http/https yoxlama link ucun
+
+        private bool IsValidUrl(string url)
         {
             return Uri.TryCreate(url, UriKind.Absolute, out var result) &&
                    (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);

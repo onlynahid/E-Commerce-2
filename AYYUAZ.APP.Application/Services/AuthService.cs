@@ -1,6 +1,7 @@
 using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Application.Exceptions.AppException;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -13,6 +14,7 @@ namespace AYYUAZ.APP.Application.Services
         private readonly UserManager<User> _userManager;
         private readonly IJwtService _jwtService;
         private readonly ILogger<AuthService> _logger;
+
         public AuthService(
             UserManager<User> userManager,
             IJwtService jwtService,
@@ -22,56 +24,40 @@ namespace AYYUAZ.APP.Application.Services
             _jwtService = jwtService;
             _logger = logger;
         }
+
         public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
         {
             try
             {
                 _logger.LogInformation("Login attempt started for email: {Email}", loginDto?.Email ?? "null");
 
-                // Validate input
                 if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
                 {
                     _logger.LogWarning("Login failed - invalid input data");
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "Email and password are required"
-                    };
+                    throw new BadRequestException();
                 }
 
-                // Get user by email
                 var user = await _userManager.FindByEmailAsync(loginDto.Email);
                 if (user == null)
                 {
                     _logger.LogWarning("Login failed - user not found for email: {Email}", loginDto.Email);
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "Invalid email or password"
-                    };
+                    throw new UnauthorizedException();
                 }
 
                 _logger.LogDebug("User found for email: {Email}, UserId: {UserId}", loginDto.Email, user.Id);
 
-                // Check password using UserManager (better for API than SignInManager)
                 var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
                 if (!isPasswordValid)
                 {
                     _logger.LogWarning("Login failed - invalid password for email: {Email}", loginDto.Email);
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "Invalid email or password"
-                    };
+                    throw new UnauthorizedException();
                 }
 
                 _logger.LogDebug("Password verification successful for user: {UserId}", user.Id);
 
-                // Get user roles for response
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var isAdmin = userRoles.Contains("Admin");
 
-                // Generate JWT token
                 var tokenInfo = await _jwtService.GenerateTokenAsync(user.Id);
 
                 _logger.LogInformation("Login successful for user: {UserId}, roles: [{Roles}]",
@@ -94,58 +80,43 @@ namespace AYYUAZ.APP.Application.Services
                     }
                 };
             }
+            catch (AYYUAZ.APP.Application.Exceptions.AppException.AppException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error during login for email: {Email}", loginDto?.Email ?? "null");
-                return new AuthResponseDto
-                {
-                    Success = false,
-                    Message = $"An error occurred during login: {ex.Message}"
-                };
+                throw new BadRequestException();
             }
         }
+
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
         {
             try
             {
                 _logger.LogInformation("Registration attempt started for email: {Email}", registerDto?.Email ?? "null");
 
-                // Validate input
                 if (registerDto == null || string.IsNullOrEmpty(registerDto.Email) || string.IsNullOrEmpty(registerDto.Password))
                 {
                     _logger.LogWarning("Registration failed - invalid input data");
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "Email and password are required"
-                    };
+                    throw new BadRequestException();
                 }
 
-                // Check if user already exists
                 var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
                 if (existingUser != null)
                 {
                     _logger.LogWarning("Registration failed - user already exists for email: {Email}", registerDto.Email);
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "User with this email already exists"
-                    };
+                    throw new BadRequestException();
                 }
 
-                // Check if username already exists
                 var existingUsername = await _userManager.FindByNameAsync(registerDto.Username);
                 if (existingUsername != null)
                 {
                     _logger.LogWarning("Registration failed - username already exists: {Username}", registerDto.Username);
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = "Username is already taken"
-                    };
+                    throw new BadRequestException();
                 }
 
-                // Create new user
                 var user = new User
                 {
                     UserName = registerDto.Username,
@@ -163,22 +134,15 @@ namespace AYYUAZ.APP.Application.Services
                     _logger.LogWarning("Registration failed - user creation failed for email: {Email}, errors: {Errors}",
                         registerDto.Email, errors);
 
-                    return new AuthResponseDto
-                    {
-                        Success = false,
-                        Message = $"Registration failed: {errors}"
-                    };
+                    throw new BadRequestException();
                 }
 
-                // Assign default role
                 await _userManager.AddToRoleAsync(user, "User");
                 _logger.LogDebug("Assigned default role 'User' to user: {UserId}", user.Id);
 
-                // Get user roles after assignment
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var isAdmin = userRoles.Contains("Admin");
 
-                // Generate JWT token
                 var tokenInfo = await _jwtService.GenerateTokenAsync(user.Id);
 
                 _logger.LogInformation("Registration successful for user: {UserId}, email: {Email}",
@@ -201,16 +165,17 @@ namespace AYYUAZ.APP.Application.Services
                     }
                 };
             }
+            catch (AYYUAZ.APP.Application.Exceptions.AppException.AppException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error during registration for email: {Email}", registerDto?.Email ?? "null");
-                return new AuthResponseDto
-                {
-                    Success = false,
-                    Message = $"An error occurred during registration: {ex.Message}"
-                };
+                throw new BadRequestException();
             }
         }
+
         public async Task<bool> ValidateTokenAsync(string token)
         {
             try
@@ -235,6 +200,7 @@ namespace AYYUAZ.APP.Application.Services
                 return false;
             }
         }
+
         public async Task<ClaimsPrincipal?> GetPrincipalFromTokenAsync(string token)
         {
             try
@@ -258,6 +224,7 @@ namespace AYYUAZ.APP.Application.Services
                 return null;
             }
         }
+
         public async Task<TokenDto> GenerateTokenAsync(string userId)
         {
             try
@@ -266,7 +233,7 @@ namespace AYYUAZ.APP.Application.Services
 
                 if (string.IsNullOrEmpty(userId))
                 {
-                    throw new ArgumentException("User ID is required", nameof(userId));
+                    throw new BadRequestException();
                 }
 
                 var tokenInfo = await _jwtService.GenerateTokenAsync(userId);
@@ -274,21 +241,26 @@ namespace AYYUAZ.APP.Application.Services
                 _logger.LogDebug("Token generated successfully for user: {UserId}", userId);
                 return tokenInfo;
             }
+            catch (AYYUAZ.APP.Application.Exceptions.AppException.AppException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating token for user: {UserId}", userId);
-                throw;
+                throw new BadRequestException();
             }
         }
+
         public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto)
         {
             try
             {
-                var user = _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    return false;
+                    throw new NotFoundException();
 
-                var result = await _userManager.ChangePasswordAsync(user.Result, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+                var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
 
                 if (result.Succeeded)
                 {
@@ -298,15 +270,22 @@ namespace AYYUAZ.APP.Application.Services
                 {
                     _logger.LogWarning("Password change failed for user: {UserId}, errors: {Errors}",
                         userId, string.Join(", ", result.Errors.Select(e => e.Description)));
+                    throw new BadRequestException();
                 }
+
                 return result.Succeeded;
+            }
+            catch (AYYUAZ.APP.Application.Exceptions.AppException.AppException)
+            {
+                throw;
             }
             catch
             {
                 _logger.LogError("Error changing password for user: {UserId}", userId);
-                return false;
+                throw new BadRequestException();
             }
         }
+
         public async Task<bool> ChangeEmailAsync(string userId, ChangeEmailDto changeEmailDto)
         {
             try
@@ -317,32 +296,28 @@ namespace AYYUAZ.APP.Application.Services
                 if (user == null)
                 {
                     _logger.LogWarning("Email change failed - user not found: {UserId}", userId);
-                    return false;
+                    throw new NotFoundException();
                 }
 
-                // Verify current password
                 var isPasswordValid = await _userManager.CheckPasswordAsync(user, changeEmailDto.CurrentPassword);
                 if (!isPasswordValid)
                 {
                     _logger.LogWarning("Email change failed - invalid password for user: {UserId}", userId);
-                    return false;
+                    throw new UnauthorizedException();
                 }
 
-                // Check if the new email is already in use
                 var existingUser = await _userManager.FindByEmailAsync(changeEmailDto.NewEmail);
                 if (existingUser != null && existingUser.Id != userId)
                 {
                     _logger.LogWarning("Email change failed - email already in use: {NewEmail}", changeEmailDto.NewEmail);
-                    return false;
+                    throw new BadRequestException();
                 }
 
-                // Change email
                 var token = await _userManager.GenerateChangeEmailTokenAsync(user, changeEmailDto.NewEmail);
                 var result = await _userManager.ChangeEmailAsync(user, changeEmailDto.NewEmail, token);
 
                 if (result.Succeeded)
                 {
-                    // Also update the username to match the new email (if desired)
                     user.UserName = changeEmailDto.NewEmail;
                     var updateResult = await _userManager.UpdateAsync(user);
                     
@@ -356,20 +331,24 @@ namespace AYYUAZ.APP.Application.Services
                     {
                         _logger.LogWarning("Email changed but username update failed for user: {UserId}, errors: {Errors}",
                             userId, string.Join(", ", updateResult.Errors.Select(e => e.Description)));
-                        return true; // Email change succeeded, even if username update failed
+                        return true;
                     }
                 }
                 else
                 {
                     _logger.LogWarning("Email change failed for user: {UserId}, errors: {Errors}",
                         userId, string.Join(", ", result.Errors.Select(e => e.Description)));
-                    return false;
+                    throw new BadRequestException();
                 }
+            }
+            catch (AYYUAZ.APP.Application.Exceptions.AppException.AppException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error changing email for user: {UserId}", userId);
-                return false;
+                throw new BadRequestException();
             }
         }
     }

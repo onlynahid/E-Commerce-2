@@ -3,6 +3,7 @@ using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Domain.Enum;
+using AYYUAZ.APP.Application.Exceptions.AppException;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,30 +16,27 @@ namespace AYYUAZ.APP.Application.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
-        public OrderService(IOrderRepository orderRepository,IProductRepository productRepository)
+
+        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
         }
+
         public async Task<OrderAcceptedDto> AcceptedOrderAsync(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
-                throw new KeyNotFoundException($"Order with Id {orderId} not found");
+                throw new NotFoundException();
 
-            // STATUS VALIDATION
             if (order.OrderStatus == OrderStatus.Accepted)
-                throw new InvalidOperationException("Order is already accepted");
+                throw new BadRequestException();
 
             if (order.OrderStatus == OrderStatus.Rejected)
-                throw new InvalidOperationException("Rejected order cannot be accepted");
-
+                throw new BadRequestException();
 
             order.OrderStatus = OrderStatus.Accepted;
             order.AcceptedAt = DateTime.UtcNow;
-          
-
-            // Clear reject data
 
             await _orderRepository.UpdateOrderAsync(order);
 
@@ -58,22 +56,21 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList()
             };
         }
+
         public async Task<OrderDto> RejectedOrderAsync(int orderId, string? rejectedReason = null)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
-                throw new KeyNotFoundException($"Order with ID {orderId} not found");
+                throw new NotFoundException();
 
-            // STATUS VALIDATION
             if (order.OrderStatus == OrderStatus.Rejected)
-                throw new InvalidOperationException("Order is already rejected");
+                throw new BadRequestException();
 
             if (order.OrderStatus == OrderStatus.Accepted)
-                throw new InvalidOperationException("Accepted order cannot be rejected");
+                throw new BadRequestException();
 
             order.OrderStatus = OrderStatus.Rejected;
             order.RejectedAt = DateTime.UtcNow;
-
             order.RejectedReason = string.IsNullOrWhiteSpace(rejectedReason)
                 ? "Order rejected"
                 : rejectedReason.Trim();
@@ -82,10 +79,12 @@ namespace AYYUAZ.APP.Application.Services
 
             return MapToDto(order);
         }
+
         public async Task<OrderDto> RejectedOrderDto(int orderId)
         {
             return await RejectedOrderAsync(orderId, "Order rejected by administrator");
         }
+
         public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
             var order = new Order
@@ -97,7 +96,7 @@ namespace AYYUAZ.APP.Application.Services
                 Notes = createOrderDto.Notes,
                 CreatedAt = DateTime.UtcNow,
                 OrderStatus = OrderStatus.Processed,
-                TotalAmount = 0, // İlk olaraq 0, sonra hesaplayacağıq
+                TotalAmount = 0,
                 AcceptedAt = null,
                 RejectedAt = null,
                 RejectedReason = null,
@@ -111,7 +110,7 @@ namespace AYYUAZ.APP.Application.Services
                 var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId);
                 if (product == null)
                 {
-                    throw new ArgumentException($"Product with ID {itemDto.ProductId} not found");
+                    throw new NotFoundException();
                 }
 
                 var orderItem = new OrderItem
@@ -119,33 +118,35 @@ namespace AYYUAZ.APP.Application.Services
                     ProductId = itemDto.ProductId,
                     Quantity = itemDto.Quantity,
                     UnitPrice = product.Price,
-                    Order = order // Navigation property set et
+                    Order = order
                 };
                 
                 order.OrderItems.Add(orderItem);
                 calculatedTotal += orderItem.Quantity * orderItem.UnitPrice;
             }
 
-            // Total amount-ı set et
             order.TotalAmount = calculatedTotal;
 
             await _orderRepository.AddOrderAsync(order);
             return await GetOrderByIdAsync(order.Id);
         }
+
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
-                return false;
+                throw new NotFoundException();
 
             await _orderRepository.DeleteOrderAsync(orderId);
             return true;
         }
+
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
             return orders.Select(MapToDto);
         }
+
         public async Task<decimal> GetAverageOrderValueAsync()
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -154,16 +155,19 @@ namespace AYYUAZ.APP.Application.Services
 
             return orders.Average(o => o.TotalAmount);
         }
+
         public async Task<OrderDto> GetOrderByIdAsync(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            return order == null ? throw new KeyNotFoundException("Not Found OrderId") : MapToDto(order);
+            return order == null ? throw new NotFoundException() : MapToDto(order);
         }
+
         public async Task<int> GetOrderCountAsync()
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
             return orders.Count();
         }
+
         public async Task<IEnumerable<OrderDto>> GetOrdersByCustomerAsync(string customerName)
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -171,6 +175,7 @@ namespace AYYUAZ.APP.Application.Services
                 .Where(o => o.FullName.Contains(customerName, StringComparison.OrdinalIgnoreCase))
                 .Select(MapToDto);
         }
+
         public async Task<IEnumerable<OrderDto>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -178,6 +183,7 @@ namespace AYYUAZ.APP.Application.Services
                 .Where(o => o.CreatedAt >= startDate && o.CreatedAt <= endDate)
                 .Select(MapToDto);
         }
+
         public async Task<IEnumerable<OrderDto>> GetOrdersWithItemsAsync()
         {
             var orders = await _orderRepository.GetAllOrdersWithItemsAsync();
@@ -185,6 +191,7 @@ namespace AYYUAZ.APP.Application.Services
                 .Where(o => o.OrderItems != null && o.OrderItems.Any())
                 .Select(MapToDtoWithItems);
         }
+
         public async Task<IEnumerable<OrderDto>> GetOrdersWithPaginationAsync(int page, int pageSize)
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -193,11 +200,13 @@ namespace AYYUAZ.APP.Application.Services
                 .Take(pageSize)
                 .Select(MapToDto);
         }
+
         public async Task<OrderDto> GetOrderWithItemsAsync(int orderId)
         {
             var order = await _orderRepository.GetOrderWithItemsAsync(orderId);
-            return order == null ? throw new KeyNotFoundException("Not Found Orderid for items") : MapToDtoWithItems(order);
+            return order == null ? throw new NotFoundException() : MapToDtoWithItems(order);
         }
+
         public async Task<IEnumerable<OrderDto>> GetRecentOrdersAsync(int count = 10)
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -206,6 +215,7 @@ namespace AYYUAZ.APP.Application.Services
                 .Take(count)
                 .Select(MapToDto);
         }
+
         public async Task<IEnumerable<OrderDto>> SearchOrdersAsync(string searchTerm)
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
@@ -216,11 +226,12 @@ namespace AYYUAZ.APP.Application.Services
                            o.Address.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .Select(MapToDto);
         }
+
         public async Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto)
         {
             var order = await _orderRepository.GetOrderByIdAsync(updateOrderDto.Id);
             if (order == null)
-                throw new KeyNotFoundException("Order not found");
+                throw new NotFoundException();
 
             order.FullName = updateOrderDto.FullName ?? order.FullName;
             order.PhoneNumber = updateOrderDto.PhoneNumber ?? order.PhoneNumber;
@@ -231,6 +242,7 @@ namespace AYYUAZ.APP.Application.Services
             await _orderRepository.UpdateOrderAsync(order);
             return MapToDto(order);
         }
+
         private OrderDto MapToDto(Order order)
         {
             return new OrderDto
@@ -260,6 +272,7 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList() ?? new List<OrderItemDto>()
             };
         }
+
         private OrderDto MapToDtoWithItems(Order order)
         {
             return new OrderDto
@@ -288,6 +301,5 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList() ?? new List<OrderItemDto>()
             };
         }
-       
     }
 }
