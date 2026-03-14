@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using AYYUAZ.APP.Application.Exceptions.AppException;
+using AYYUAZ.APP.Constants;
 namespace AYYUAZ.APP.Infrastructure.Services
 {
     public class FileStorageService : IFileStorageService
@@ -28,13 +30,13 @@ namespace AYYUAZ.APP.Infrastructure.Services
         public async Task<string> UploadImageAsync(IFormFile file, string folder = "products")
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("File is required");
+                throw new ConflictException(ErrorMessages.ConflictException);
 
             if (!IsImageFile(file))
-                throw new ArgumentException("Invalid file type. Only image files are allowed.");
+                throw new ConflictException(ErrorMessages.ConflictException);
 
             if (file.Length > MaxFileSize)
-                throw new ArgumentException($"File size exceeds the maximum limit of {MaxFileSize / (1024 * 1024)}MB");
+                throw new ArgumentException(ErrorMessages.ConflictException);
            
 
 

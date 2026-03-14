@@ -21,7 +21,7 @@ namespace AYYUAZ.APP.Controllers
          
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
+        public async  Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
         {
             var aboutList = await _aboutService.GetAllAbout();
             return Ok(aboutList);
