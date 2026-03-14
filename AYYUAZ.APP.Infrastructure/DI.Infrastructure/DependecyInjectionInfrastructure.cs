@@ -16,20 +16,22 @@ namespace AYYUAZ.APP.Infrastructure.DI.Infrastructure
 {
     public static class DependecyInjectionInfrastructure
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services,IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-                services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-              services.AddScoped<IProductRepository, ProductRepository>();
-              services.AddScoped<IOrderRepository, OrderRepository>();
-              services.AddScoped<ISettingsRepository, SettingsRepository>();
-              services.AddScoped<ICategoryRepository, CategoryRepository>();
-              services.AddScoped<IAboutRepository, AboutRepository>();
-              services.AddScoped<IUserRepository, UserRepository>();
-              services.AddScoped<IHeroRepository, HeroRepository>();
-            services.AddScoped<IFileStorageService ,FileStorageService>();
+            // Register Simple Repositories (No Generic Repository)
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<ISettingsRepository, SettingsRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IAboutRepository, AboutRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IHeroRepository, HeroRepository>();
 
+            // Register Services
+            services.AddScoped<IFileStorageService, FileStorageService>();
 
             return services;
         }

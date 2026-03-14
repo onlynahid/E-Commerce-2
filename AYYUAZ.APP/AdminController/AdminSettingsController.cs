@@ -18,19 +18,14 @@ namespace AYYUAZ.APP.AdminController
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> CreateSettings([FromBody] CreateSettingsDto createSettingsDto)
-        {
-          
+        {  
             var settings = await _settingsService.CreateSettingsAsync(createSettingsDto);
             return CreatedAtAction(nameof(GetSettingsById), new { id = settings.Id }, settings);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<SettingsDto>> GetSettingsById(int id)
         {
-            var settings = await _settingsService.GetSettingsByIdAsync(id);
-            if (settings == null)
-            {
-                return NotFound($"Settings with ID {id} not found.");
-            }
+            var settings = await _settingsService.GetSettingsById(id);
             return Ok(settings);
         }
         [HttpPut("{id}")]
@@ -41,12 +36,7 @@ namespace AYYUAZ.APP.AdminController
             {
                 return BadRequest("Settings ID mismatch.");
             }
-
             var settings = await _settingsService.UpdateSettingsAsync(updateSettingsDto);
-            if (settings == null)
-            {
-                return NotFound($"Settings with ID {id} not found.");
-            }
             return Ok(settings);
         }
         [HttpDelete("{id}")]
@@ -54,20 +44,12 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult> DeleteSettings(int id)
         {
             var result = await _settingsService.DeleteSettingsAsync(id);
-            if (!result)
-            {
-                return NotFound($"Settings with ID {id} not found.");
-            }
             return NoContent();
         }
         [HttpPut("social-media")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> UpdateSocialMediaLinks([FromBody] Dictionary<string, string> socialLinks)
         {
-            if (socialLinks == null)
-            {
-                return BadRequest("Social media links cannot be null.");
-            }
 
             var result = await _settingsService.UpdateSocialMediaLinksAsync(socialLinks);
             return Ok(result);
@@ -75,10 +57,6 @@ namespace AYYUAZ.APP.AdminController
         [HttpPost("validate")]
         public async Task<ActionResult<bool>> ValidateSettings([FromBody] SettingsDto settings)
         {
-            if (settings == null)
-            {
-                return BadRequest("Settings cannot be null.");
-            }
 
             var isValid = await _settingsService.ValidateSettingsAsync(settings);
             return Ok(new { isValid });
@@ -86,14 +64,14 @@ namespace AYYUAZ.APP.AdminController
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SettingsDto>>> GetAllSettings()
         {
-            var settings = await _settingsService.GetAllSettingsAsync();
+            var settings = await _settingsService.GetAllSettings();
             return Ok(settings);
         }
         [HttpGet("social-media")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Dictionary<string, string>>> GetSocialMediaLinks()
         {
-            var socialLinks = await _settingsService.GetSocialMediaLinksAsync();
+            var socialLinks = await _settingsService.GetSocialMediaLinks();
             return Ok(socialLinks);
         }
     } 

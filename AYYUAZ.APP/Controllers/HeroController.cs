@@ -24,10 +24,6 @@ namespace AYYUAZ.APP.Controllers
         public async Task<ActionResult<HeroDto>> GetHeroById(int id)
         {    
             var hero = await _heroService.GetHeroByIdAsync(id);
-            if (hero == null)
-            {
-                return NotFound($"Hero with ID {id} not found.");
-            }
             return Ok(hero);
         }
      

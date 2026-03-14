@@ -10,6 +10,7 @@ using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Application.Service;
 using AYYUAZ.APP.Infrastructure.Services;
 using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Application.Mappings;
 
 namespace AYYUAZ.APP.Application.DI.Application
 {
@@ -17,6 +18,10 @@ namespace AYYUAZ.APP.Application.DI.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            // AutoMapper registration
+            services.AddAutoMapper(typeof(MappingProfile));
+
+            // Service registrations
             services.AddScoped<IAboutService, AboutService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IAuthService, AuthService>();

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AYYUAZ.APP.Constants;
 
 namespace AYYUAZ.APP.Application.Services
 {
@@ -16,29 +17,27 @@ namespace AYYUAZ.APP.Application.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
-
         public OrderService(IOrderRepository orderRepository, IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
         }
-
         public async Task<OrderAcceptedDto> AcceptedOrderAsync(int orderId)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetById(orderId);
             if (order == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.OrderNotFound);
 
             if (order.OrderStatus == OrderStatus.Accepted)
-                throw new BadRequestException();
+                throw new ConflictException(ErrorMessages.OrderAlreadyAccepted);
 
             if (order.OrderStatus == OrderStatus.Rejected)
-                throw new BadRequestException();
+                throw new ConflictException(ErrorMessages.OrderAlreadyRejected);
 
             order.OrderStatus = OrderStatus.Accepted;
             order.AcceptedAt = DateTime.UtcNow;
 
-            await _orderRepository.UpdateOrderAsync(order);
+            await _orderRepository.UpdateAsync(order);
 
             return new OrderAcceptedDto
             {
@@ -56,18 +55,17 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList()
             };
         }
-
         public async Task<OrderDto> RejectedOrderAsync(int orderId, string? rejectedReason = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetById(orderId);
             if (order == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.OrderNotFound);
 
             if (order.OrderStatus == OrderStatus.Rejected)
-                throw new BadRequestException();
+                throw new ConflictException(ErrorMessages.OrderAlreadyRejected);
 
             if (order.OrderStatus == OrderStatus.Accepted)
-                throw new BadRequestException();
+                throw new ConflictException(ErrorMessages.OrderAlreadyAccepted);
 
             order.OrderStatus = OrderStatus.Rejected;
             order.RejectedAt = DateTime.UtcNow;
@@ -75,16 +73,14 @@ namespace AYYUAZ.APP.Application.Services
                 ? "Order rejected"
                 : rejectedReason.Trim();
 
-            await _orderRepository.UpdateOrderAsync(order);
+            await _orderRepository.UpdateAsync(order);
 
             return MapToDto(order);
         }
-
         public async Task<OrderDto> RejectedOrderDto(int orderId)
         {
             return await RejectedOrderAsync(orderId, "Order rejected by administrator");
         }
-
         public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
             var order = new Order
@@ -107,7 +103,7 @@ namespace AYYUAZ.APP.Application.Services
             
             foreach (var itemDto in createOrderDto.OrderItems)
             {
-                var product = await _productRepository.GetProductByIdAsync(itemDto.ProductId);
+                var product = await _productRepository.GetById(itemDto.ProductId);
                 if (product == null)
                 {
                     throw new NotFoundException();
@@ -127,98 +123,92 @@ namespace AYYUAZ.APP.Application.Services
 
             order.TotalAmount = calculatedTotal;
 
-            await _orderRepository.AddOrderAsync(order);
-            return await GetOrderByIdAsync(order.Id);
+            await _orderRepository.AddAsync(order);
+            return await GetOrderById(order.Id);
         }
-
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetById(orderId);
             if (order == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.OrderNotFound);
 
-            await _orderRepository.DeleteOrderAsync(orderId);
+            await _orderRepository.DeleteAsync(orderId);
             return true;
         }
-
-        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
+        public Task<IEnumerable<OrderDto>> GetAllOrders()
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
-            return orders.Select(MapToDto);
+            return _orderRepository.GetAll().ContinueWith(task =>
+            {
+                var orders = task.Result;
+                return orders.Select(MapToDto);
+            });
         }
-
-        public async Task<decimal> GetAverageOrderValueAsync()
+        public async Task<decimal> GetAverageOrderValue()
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
-            if (!orders.Any())
+            var orders = await _orderRepository.GetAll();
+            if (!orders.Any()) 
                 return 0;
 
             return orders.Average(o => o.TotalAmount);
         }
-
-        public async Task<OrderDto> GetOrderByIdAsync(int orderId)
+        public Task<OrderDto> GetOrderById(int orderId)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            return order == null ? throw new NotFoundException() : MapToDto(order);
+            return _orderRepository.GetById(orderId).ContinueWith(task =>
+            {
+                var order = task.Result;
+                return order == null ? throw new NotFoundException(ErrorMessages.OrderNotFound) : MapToDto(order);
+            });
         }
-
-        public async Task<int> GetOrderCountAsync()
+        public async Task<int> GetOrderCount()
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders.Count();
         }
-
-        public async Task<IEnumerable<OrderDto>> GetOrdersByCustomerAsync(string customerName)
+        public async Task<IEnumerable<OrderDto>> GetOrdersByCustomer(string customerName)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders
                 .Where(o => o.FullName.Contains(customerName, StringComparison.OrdinalIgnoreCase))
                 .Select(MapToDto);
         }
-
-        public async Task<IEnumerable<OrderDto>> GetOrdersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<OrderDto>> GetOrdersByDateRange(DateTime startDate, DateTime endDate)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders
                 .Where(o => o.CreatedAt >= startDate && o.CreatedAt <= endDate)
                 .Select(MapToDto);
         }
-
-        public async Task<IEnumerable<OrderDto>> GetOrdersWithItemsAsync()
+        public async Task<IEnumerable<OrderDto>> GetOrdersWithItems()
         {
-            var orders = await _orderRepository.GetAllOrdersWithItemsAsync();
+            var orders = await _orderRepository.GetAllWithItems();
             return orders
                 .Where(o => o.OrderItems != null && o.OrderItems.Any())
                 .Select(MapToDtoWithItems);
         }
-
-        public async Task<IEnumerable<OrderDto>> GetOrdersWithPaginationAsync(int page, int pageSize)
+        public async Task<IEnumerable<OrderDto>> GetOrdersWithPagination(int page, int pageSize)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(MapToDto);
         }
-
-        public async Task<OrderDto> GetOrderWithItemsAsync(int orderId)
+        public async Task<OrderDto> GetOrderWithItems(int orderId)
         {
-            var order = await _orderRepository.GetOrderWithItemsAsync(orderId);
-            return order == null ? throw new NotFoundException() : MapToDtoWithItems(order);
+            var order = await _orderRepository.GetByIdWithItems(orderId);
+            return order == null ? throw new NotFoundException(ErrorMessages.OrderNotFound) : MapToDtoWithItems(order);
         }
-
-        public async Task<IEnumerable<OrderDto>> GetRecentOrdersAsync(int count = 10)
+        public async Task<IEnumerable<OrderDto>> GetRecentOrders(int count = 10)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders
                 .OrderByDescending(o => o.CreatedAt)
                 .Take(count)
                 .Select(MapToDto);
         }
-
-        public async Task<IEnumerable<OrderDto>> SearchOrdersAsync(string searchTerm)
+        public async Task<IEnumerable<OrderDto>> SearchOrders(string searchTerm)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAll();
             return orders
                 .Where(o => o.FullName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                            o.PhoneNumber.Contains(searchTerm) ||
@@ -226,12 +216,11 @@ namespace AYYUAZ.APP.Application.Services
                            o.Address.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .Select(MapToDto);
         }
-
         public async Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(updateOrderDto.Id);
+            var order = await _orderRepository.GetById(updateOrderDto.Id);
             if (order == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.OrderNotFound);
 
             order.FullName = updateOrderDto.FullName ?? order.FullName;
             order.PhoneNumber = updateOrderDto.PhoneNumber ?? order.PhoneNumber;
@@ -239,10 +228,9 @@ namespace AYYUAZ.APP.Application.Services
             order.Address = updateOrderDto.Address ?? order.Address;
             order.Notes = updateOrderDto.Notes ?? order.Notes;
 
-            await _orderRepository.UpdateOrderAsync(order);
+            await _orderRepository.UpdateAsync(order);
             return MapToDto(order);
         }
-
         private OrderDto MapToDto(Order order)
         {
             return new OrderDto
@@ -272,7 +260,6 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList() ?? new List<OrderItemDto>()
             };
         }
-
         private OrderDto MapToDtoWithItems(Order order)
         {
             return new OrderDto

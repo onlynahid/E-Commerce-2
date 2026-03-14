@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace AYYUAZ.APP.AdminController;
+
 [ApiController]
 [Route("api/[controller]")]
 public class AdminAuthController : ControllerBase
@@ -18,6 +19,7 @@ public class AdminAuthController : ControllerBase
     private readonly ILogger<AdminAuthController> _logger;
     private readonly UserManager<User> _userManager;
     private readonly IJwtService _jwtService;
+
     public AdminAuthController(
         IAuthService authService,
         ILogger<AdminAuthController> logger,
@@ -29,157 +31,41 @@ public class AdminAuthController : ControllerBase
         _userManager = userManager;
         _jwtService = jwtService;
     }
+
     [HttpPost("login")]
     [AllowAnonymous]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
     {
-        _logger.LogInformation("Login attempt started for email: {Email}", loginDto?.Email ?? "null");
-
-        if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-        {
-            _logger.LogWarning("Login failed - invalid input data");
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Email and password are required"
-            });
-        }
-        var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        if (user == null)
-        {
-            _logger.LogWarning("Login failed - user not found for email: {Email}", loginDto.Email);
-            return Unauthorized(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Invalid email or password"
-            });
-        }
-
-        _logger.LogDebug("User found for email: {Email}, UserId: {UserId}", loginDto.Email, user.Id);
-
-        var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-        if (!isPasswordValid)
-        {
-            _logger.LogWarning("Login failed - invalid password for email: {Email}", loginDto.Email);
-            return Unauthorized(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Invalid email or password"
-            });
-        }
-
-        _logger.LogDebug("Password verification successful for user: {UserId}", user.Id);
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-        var isAdmin = userRoles.Contains("Admin");
-
-        var tokenInfo = await _jwtService.GenerateTokenAsync(user.Id);
-
-        _logger.LogInformation("Login successful for user: {UserId}, roles: [{Roles}]",
-            user.Id, string.Join(", ", userRoles));
-
-        return Ok(new AuthResponseDto
-        {
-            Success = true,
-            Message = "Login successful",
-            Token = tokenInfo.AccessToken,
-            TokenInfo = tokenInfo,
-            User = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                Username = user.UserName!,
-                IsAdmin = isAdmin,
-                FullName = user.UserName ?? string.Empty,
-                CreatedAt = DateTime.UtcNow
-            }
-        });
+        _logger.LogInformation("Login request received");
+        
+        var result = await _authService.LoginAsync(loginDto);
+        return Ok(result);
     }
+
     [HttpPost("register")]
     [AllowAnonymous]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")] 
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
     {
-        _logger.LogInformation("Registration attempt started for email: {Email}, username: {Username}",
-            registerDto?.Email ?? "null", registerDto?.Username ?? "null");
-
-        if (registerDto == null)
-        {
-            _logger.LogWarning("Registration failed - null registerDto received");
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Registration data cannot be null"
-            });
-        }
-
-
-        if (string.IsNullOrWhiteSpace(registerDto.Username))
-        {
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Username cannot be empty"
-            });
-        }
-
-        if (string.IsNullOrWhiteSpace(registerDto.Email))
-        {
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Email cannot be empty"
-            });
-        }
-
-        if (string.IsNullOrWhiteSpace(registerDto.Password))
-        {
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Password cannot be empty"
-            });
-        }
-
-        if (registerDto.Password != registerDto.ConfirmPassword)
-        {
-            return BadRequest(new AuthResponseDto
-            {
-                Success = false,
-                Message = "Passwords do not match"
-            });
-        }
+        _logger.LogInformation("Registration request received");
 
         var result = await _authService.RegisterAsync(registerDto);
-
-        if (result.Success)
-        {
-            _logger.LogInformation("Registration successful for email: {Email}, User ID: {UserId}",
-                registerDto.Email, result.User?.Id);
-            return Ok(result);
-        }
-        else
-        {
-            _logger.LogWarning("Registration failed for email: {Email}, Reason: {Message}",
-                registerDto.Email, result.Message);
-            return BadRequest(result);
-        }
+        return Ok(result);
     }
+
     [HttpPost("validate-token")]
     [AllowAnonymous]
     public async Task<ActionResult<object>> ValidateToken([FromBody] TokenValidationRequest request)
     {
         _logger.LogInformation("Token validation requested");
 
-        if (string.IsNullOrEmpty(request.Token))
-        {
-            return BadRequest(new { success = false, message = "Token is required" });
-        }
-
         var isValid = await _authService.ValidateTokenAsync(request.Token);
-        return Ok(new { success = isValid, message = isValid ? "Token is valid" : "Token is invalid" });
+        return Ok(new { 
+            success = isValid, 
+            message = isValid ? "Token is valid" : "Token is invalid" 
+        });
     }
+
     [HttpGet("me")]
     [Authorize(Roles = "Admin")]
     public ActionResult<object> GetCurrentUser()
@@ -203,6 +89,7 @@ public class AdminAuthController : ControllerBase
             claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList()
         });
     }
+
     [HttpPost("debug/decode-token")]
     [AllowAnonymous]
     public ActionResult<object> DecodeToken([FromBody] TokenValidationRequest request)
@@ -239,6 +126,7 @@ public class AdminAuthController : ControllerBase
             timeUntilExpiry = jsonToken.ValidTo - DateTime.UtcNow
         });
     }
+
     [HttpGet("debug")]
     [AllowAnonymous]
     public ActionResult Debug()
@@ -252,6 +140,7 @@ public class AdminAuthController : ControllerBase
             message = "AuthController debug info"
         });
     }
+
     [HttpPost("change-password")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
@@ -261,27 +150,19 @@ public class AdminAuthController : ControllerBase
         {
             return Unauthorized("User ID not found in token");
         }
-        var result = await _authService.ChangePasswordAsync(userId, changePasswordDto);
 
-        if (!result)
-        {
-            return BadRequest(new
-            {
-                success = false,
-                message = "Password change failed. Please check your current password.",
-                timestamp = DateTime.UtcNow
-            });
-        }
+        var result = await _authService.ChangePasswordAsync(userId, changePasswordDto);
 
         return Ok(new
         {
-            success = true,
-            message = "Password changed successfully",
+            success = result,
+            message = result ? "Password changed successfully" : "Password change failed",
             timestamp = DateTime.UtcNow
         });
     }
+
     [HttpPost("change-email")]
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ChangeEmail([FromBody] ChangeEmailDto changeEmailDto)
     {
         _logger.LogInformation("Email change request received");
@@ -300,28 +181,18 @@ public class AdminAuthController : ControllerBase
 
         var result = await _authService.ChangeEmailAsync(userId, changeEmailDto);
 
-        if (!result)
-        {
-            _logger.LogWarning("Email change failed for user: {UserId}", userId);
-            return BadRequest(new
-            {
-                success = false,
-                message = "Email change failed. Please check your current password and ensure the new email is not already in use.",
-                timestamp = DateTime.UtcNow
-            });
-        }
-
-        _logger.LogInformation("Email changed successfully for user: {UserId}", userId);
+        _logger.LogInformation("Email change result: {Result}", result);
 
         return Ok(new
         {
-            success = true,
-            message = "Email changed successfully",
-            newEmail = changeEmailDto.NewEmail,
+            success = result,
+            message = result ? "Email changed successfully" : "Email change failed",
+            newEmail = result ? changeEmailDto.NewEmail : null,
             timestamp = DateTime.UtcNow
         });
     }
 }
+
 public class TokenValidationRequest
 {
     [Required]

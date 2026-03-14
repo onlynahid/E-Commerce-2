@@ -2,51 +2,62 @@
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AYYUAZ.APP.Infrastructure.Repositories
 {
-    public class HeroRepository : IHeroRepository
+    public class HeroRepository : GenericRepository<Hero>, IHeroRepository
     {
-        private readonly AppDbContext _context;
-        public HeroRepository(AppDbContext context)
+        public HeroRepository(AppDbContext context) : base(context)
         {
-            _context = context;
-        }
-        public async Task AddHeroAsync(Hero hero)
-        {
-            await _context.Heroes.AddAsync(hero);
-            await _context.SaveChangesAsync();
-        }
-        public async Task DeleteHeroAsync(int id)
-        {
-           var hero = await _context.Heroes.FindAsync(id);
-              if (hero != null)
-              {
-                _context.Heroes.Remove(hero);
-                await _context.SaveChangesAsync();
-            }
-        }
-        public async Task<List<Hero>> GetAllHeroesAsync()
-        {
-           return await _context.Heroes.ToListAsync();
         }
 
-        public async Task<Hero> GetHeroByIdAsync(int id)
+        #region Hero-Specific Methods
+
+        public async Task AddHeroAsync(Hero hero)
         {
-            return await _context.Heroes.FirstOrDefaultAsync(h => h.Id == id);
+            await AddAsync(hero);
+        }
+
+        public async Task DeleteHeroAsync(int heroId)
+        {
+            await DeleteAsync(heroId);
+        }
+
+        public Task<List<Hero>> GetAllHeroes()
+        {
+            return _dbSet.ToListAsync();
+        }
+
+        public Task<Hero> GetHeroById(int heroId)
+        {
+            return _dbSet.FindAsync(heroId).AsTask();
         }
 
         public async Task UpdateHeroAsync(Hero hero)
         {
-            await _context.Heroes.FindAsync(hero.Id);
-            _context.Heroes.Update(hero);
-            await _context.SaveChangesAsync();
-
+            await UpdateAsync(hero);
         }
+
+        public async Task<IEnumerable<Hero>> SearchByTitle(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return await GetAll();
+
+            return await _dbSet
+                .Where(h => h.Title.Contains(searchTerm))
+                .ToListAsync();
+        }
+
+        public Task<Hero> GetActiveHero()
+        {
+            return _dbSet.FirstOrDefaultAsync();
+        }
+
+        public Task<bool> ExistsByTitle(string title)
+        {
+            return _dbSet.AnyAsync(h => h.Title == title);
+        }
+
+        #endregion
     }
 }

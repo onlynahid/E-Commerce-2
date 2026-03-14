@@ -4,32 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace AYYUAZ.APP.Domain.Interfaces
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
-        // Basic CRUD operations
-        Task AddAsync(Category category);
-        Task UpdateAsync(Category category);
-        Task DeleteAsync(int categoryId);
-        Task<Category> GetByIdAsync(int categoryId);
-        Task<IEnumerable<Category>> GetAllAsync();
-        
-        // Extended operations with navigation properties
-        Task<IEnumerable<Category>> GetAllWithProductsAsync();
-        Task<Category> GetByIdWithProductsAsync(int categoryId);
-        
-        // Search and filtering
-        Task<IEnumerable<Category>> SearchByNameAsync(string searchTerm);
-        Task<IEnumerable<Category>> GetWithPaginationAsync(int page, int pageSize);
-        Task<int> GetCountAsync();
-        
-        // Validation
-        Task<bool> ExistsByNameAsync(string categoryName);
-        Task<bool> ExistsByNameExcludingIdAsync(string categoryName, int excludeId);
-        
-        // Popular categories (ordered by product count)
-        Task<IEnumerable<Category>> GetPopularAsync(int count);
+        Task<IEnumerable<Category>> GetAllWithProducts();
+        Task<Category> GetByIdWithProducts(int categoryId);
+        Task<IEnumerable<Category>> SearchByName(string searchTerm);
+        Task<IEnumerable<Category>> GetWithPagination(int page, int pageSize);
+        Task<int> GetCount();
+        Task<bool> ExistsByName(string categoryName);
+        Task<bool> ExistsByNameExcludingId(string categoryName, int excludeId);
+        Task<IEnumerable<Category>> GetPopular(int count);
     }
 }

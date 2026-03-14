@@ -14,119 +14,67 @@ namespace AYYUAZ.APP.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        //private readonly IBasketService _basketService;
-        private readonly AppDbContext _context;
-        public OrderController(IOrderService orderService,/* IBasketService basketService*/ AppDbContext context)
+        private readonly ILogger<OrderController> _logger;
+
+        public OrderController(IOrderService orderService, ILogger<OrderController> logger)
         {
             _orderService = orderService;
-            _context = context;
-
+            _logger = logger;
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
-            if (order == null)
-            {
-                return NotFound($"Order with ID {id} not found.");
-            }
+            _logger.LogInformation("Getting order by ID: {OrderId}", id);
+            
+            var order = await _orderService.GetOrderById(id);
             return Ok(order);
         }
         
         [HttpPost]
-  
         public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
         {
-           
-            try
-            {
-                var order = await _orderService.CreateOrderAsync(createOrderDto);
-                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            _logger.LogInformation("Creating new order");
+            
+            var order = await _orderService.CreateOrderAsync(createOrderDto);
+            return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
         }
         
         [HttpPut("{id}")]
         public async Task<ActionResult<OrderDto>> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
+            _logger.LogInformation("Updating order ID: {OrderId}", id);
+            
             if (id != updateOrderDto.Id)
             {
                 return BadRequest("Order ID mismatch.");
             }
-                var order = await _orderService.UpdateOrderAsync(updateOrderDto);
-                if (order == null)
-                {
-                    return NotFound($"Order with ID {id} not found.");
-                }
-                return Ok(order);
+
+            var order = await _orderService.UpdateOrderAsync(updateOrderDto);
+            return Ok(order);
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteOrder(int id)
         {
-            var result = await _orderService.DeleteOrderAsync(id);
-            if (!result)
-            {
-                return NotFound($"Order with ID {id} not found.");
-            }
+            _logger.LogInformation("Deleting order ID: {OrderId}", id);
+            
+            await _orderService.DeleteOrderAsync(id);
             return NoContent();
         }
         
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout(CreateOrderDto dto)
         {
-           if(dto.OrderItems==null || !dto.OrderItems.Any())
-                return BadRequest("No items in the order.");
-
-            decimal total = 0;
-            var orderItems = new List<OrderItem>();
-
-            foreach (var item in dto.OrderItems)
-            {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product == null)
-                {
-                    return BadRequest($"Product with ID {item.ProductId} not found.");
-                }
-                
-                if (item.Quantity <= 0)
-                {
-                    return BadRequest("Quantity must be greater than zero.");
-                }
-                
-                total += product.Price * item.Quantity;
-                
-                // OrderItem yarat
-                orderItems.Add(new OrderItem
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    UnitPrice = product.Price
-                });
-            }
-            
-            var order = new Order
-            {
-                FullName = dto.FullName,
-                Email = dto.Email,
-                Address = dto.Address,
-                PhoneNumber = dto.PhoneNumber,
-                Notes = dto.Notes,
-                CreatedAt = DateTime.UtcNow,
-                TotalAmount = total,
-                OrderStatus = Domain.Enum.OrderStatus.Processed,
-                OrderItems = orderItems  
-            };
-            
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            _logger.LogInformation("Processing checkout");
+           
+            var order = await _orderService.CreateOrderAsync(dto);
             
             return Ok(new { 
                 OrderId = order.Id,
-                TotalAmount = total,
-                ItemCount = orderItems.Count
+                TotalAmount = order.TotalAmount,
+                ItemCount = order.OrderItems?.Count ?? 0,
+                Message = "Order created successfully"
             });
         }
     }

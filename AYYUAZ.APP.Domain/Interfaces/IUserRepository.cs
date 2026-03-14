@@ -4,15 +4,15 @@ namespace AYYUAZ.APP.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> GetByEmailAsync(string email);
-        Task<User?> GetByUsernameAsync(string username);
-        Task<User?> GetByIdAsync(string id); // Changed to string to match Identity
+        Task<User?> GetByEmail(string email);
+        Task<User?> GetByUsername(string username);
+        Task<User?> GetById(string id); 
         Task<bool> IsEmailUniqueAsync(string email);
         Task<bool> IsUsernameUniqueAsync(string username);
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
-        Task<bool> DeleteAsync(string id); // Changed to string to match Identity
-        Task<IEnumerable<User>> GetAllAsync();
-        Task<int> GetUserCountAsync();
+        Task<bool> DeleteAsync(string id); 
+        Task<IEnumerable<User>> GetAll();
+        Task<int> GetUserCount();
     }
 }

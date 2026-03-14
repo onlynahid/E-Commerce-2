@@ -2,118 +2,97 @@
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
-using AYYUAZ.APP.Application.Exceptions.AppException;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Mvc;
+using AYYUAZ.APP.Application.Exceptions.AppException;
+using AYYUAZ.APP.Constants;
+using Microsoft.AspNetCore.Http;
+using KeyNotFoundException = AYYUAZ.APP.Application.Exceptions.AppException.KeyNotFoundException;
 namespace AYYUAZ.APP.Application.Services
 {
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IFileStorageService _fileStorageService;
-
+        private readonly IMapper _mapper;
         public CategoryService(
-            ICategoryRepository categoryRepository, 
-            IFileStorageService fileStorageService)
+            ICategoryRepository categoryRepository,
+            IFileStorageService fileStorageService,
+            IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _fileStorageService = fileStorageService;
+            _mapper = mapper;
         }
-
-        public async Task<CategoryDto> GetCategoryByIdAsync(int categoryId)
+        public Task<CategoryDto> GetCategoryById(int categoryId)
         {
-            var category = await _categoryRepository.GetByIdAsync(categoryId);
-            return category != null ? MapToDto(category) : throw new NotFoundException();
+            var category = _categoryRepository.GetById(categoryId);
+            return Task.FromResult(category != null ? _mapper.Map<CategoryDto>(category) : throw new KeyNotFoundException(ErrorMessages.CategoryNotFound));
         }
-
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
         {
             var isUnique = await IsCategoryNameUniqueAsync(createCategoryDto.Name);
             if (!isUnique)
             {
-                throw new BadRequestException();
+                throw new NotFoundException(ErrorMessages.CategoryAlreadyExists);
             }
 
             string imageUrl = "default-category.jpg";
-            
+
             if (createCategoryDto.Image != null && createCategoryDto.Image.Length > 0)
             {
-                try
-                {
-                    imageUrl = await _fileStorageService.UploadImageAsync(createCategoryDto.Image, "categories");
-                }
-                catch (ArgumentException)
-                {
-                    throw new BadRequestException();
-                }
+                imageUrl = await _fileStorageService.UploadImageAsync(createCategoryDto.Image, "categories");
             }
 
-            var category = new Category
-            {
-                Name = createCategoryDto.Name,
-                Description = createCategoryDto.Description,
-                ImageUrl = imageUrl,
-                CreatedAt = DateTime.UtcNow
-            };
+            var category = _mapper.Map<Category>(createCategoryDto);
+            category.ImageUrl = imageUrl;
+            category.CreatedAt = DateTime.UtcNow;
 
             await _categoryRepository.AddAsync(category);
-            return MapToDto(category);
+
+            return _mapper.Map<CategoryDto>(category);
         }
-
-        public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto, int categoryid)
+        public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto, int categoryId)
         {
-            var category = await _categoryRepository.GetByIdAsync(categoryid);
+            var category = await _categoryRepository.GetById(categoryId);
             if (category == null)
-            {
-                throw new NotFoundException();
-            }
+                throw new NotFoundException(ErrorMessages.CategoryNotFound);
 
-            var isUnique = await IsCategoryNameUniqueAsync(updateCategoryDto.Name, categoryid);
+            var isUnique = await IsCategoryNameUniqueAsync(updateCategoryDto.Name, categoryId);
             if (!isUnique)
-            {
-                throw new BadRequestException();
-            }
-           
+                throw new NotFoundException(ErrorMessages.CategoryAlreadyExists);
+
             if (updateCategoryDto.Image != null && updateCategoryDto.Image.Length > 0)
             {
-                try
+                if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != "default-category.jpg")
                 {
-                    if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != "default-category.jpg")
-                    {
-                        await _fileStorageService.DeleteImageAsync(category.ImageUrl);
-                    }
+                    await _fileStorageService.DeleteImageAsync(category.ImageUrl);
+                }
 
-                    category.ImageUrl = await _fileStorageService.UploadImageAsync(updateCategoryDto.Image, "categories");
-                }
-                catch (ArgumentException)
-                {
-                    throw new BadRequestException();
-                }
+                category.ImageUrl = await _fileStorageService.UploadImageAsync(updateCategoryDto.Image, "categories");
             }
 
-            category.Name = updateCategoryDto.Name;
-            category.Description = updateCategoryDto.Description;
+            _mapper.Map(updateCategoryDto, category);
 
             await _categoryRepository.UpdateAsync(category);
-            return MapToDto(category);
-        }
 
+            return _mapper.Map<CategoryDto>(category);
+        }
         public async Task<bool> DeleteCategoryAsync(int categoryId)
         {
-            var category = await _categoryRepository.GetByIdWithProductsAsync(categoryId);
+            var category = await _categoryRepository.GetByIdWithProducts(categoryId);
 
             if (category == null)
-                throw new NotFoundException();
+                return false;
 
             if (category.Products.Any())
             {
-                throw new BadRequestException();
+                throw new ConflictException(ErrorMessages.ConflictException);
             }
-
             if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != "default-category.jpg")
             {
                 await _fileStorageService.DeleteImageAsync(category.ImageUrl);
@@ -122,70 +101,49 @@ namespace AYYUAZ.APP.Application.Services
             await _categoryRepository.DeleteAsync(categoryId);
             return true;
         }
-
-        public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+        public Task<IEnumerable<CategoryDto>> GetAllCategories()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return categories.Select(MapToDto);
+            var categories = _categoryRepository.GetAll();
+            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
         }
-
-        public async Task<IEnumerable<CategoryDto>> GetCategoriesWithProductsAsync()
+        public Task<IEnumerable<CategoryDto>> GetCategoriesWithProducts()
         {
-            var categories = await _categoryRepository.GetAllWithProductsAsync();
-            return categories.Select(MapToDto);
+            var categories = _categoryRepository.GetAllWithProducts();
+            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
         }
-
-        public async Task<CategoryDto> GetCategoryWithProductsAsync(int categoryId)
+        public Task<CategoryDto> GetCategoryWithProducts(int categoryId)
         {
-            var category = await _categoryRepository.GetByIdWithProductsAsync(categoryId);
-            return category != null ? MapToDto(category) : throw new NotFoundException();
+            var category = _categoryRepository.GetByIdWithProducts(categoryId);
+            return Task.FromResult(category != null ? _mapper.Map<CategoryDto>(category) : throw new NotFoundException(ErrorMessages.CategoryNotFound));
         }
-
         public async Task<bool> IsCategoryNameUniqueAsync(string categoryName)
         {
-            var exists = await _categoryRepository.ExistsByNameAsync(categoryName);
+            var exists = await _categoryRepository.ExistsByName(categoryName);
             return !exists;
         }
-
         public async Task<bool> IsCategoryNameUniqueAsync(string categoryName, int excludeId)
         {
-            var exists = await _categoryRepository.ExistsByNameExcludingIdAsync(categoryName, excludeId);
+            var exists = await _categoryRepository.ExistsByNameExcludingId(categoryName, excludeId);
             return !exists;
         }
-
-        public async Task<IEnumerable<CategoryDto>> SearchCategoriesByNameAsync(string searchTerm)
+        public Task<IEnumerable<CategoryDto>> SearchCategoriesByName(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return await GetAllCategoriesAsync();
+                return GetAllCategories();
             }
 
-            var categories = await _categoryRepository.SearchByNameAsync(searchTerm);
-            return categories.Select(MapToDto);
+            var categories = _categoryRepository.SearchByName(searchTerm);
+            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
         }
-
-        public async Task<IEnumerable<CategoryDto>> GetCategoriesWithPaginationAsync(int page, int pageSize)
+        public Task<IEnumerable<CategoryDto>> GetCategoriesWithPagination(int page, int pageSize)
         {
-            var categories = await _categoryRepository.GetWithPaginationAsync(page, pageSize);
-            return categories.Select(MapToDto);
+            var categories = _categoryRepository.GetWithPagination(page, pageSize);
+            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
         }
-
-        public async Task<int> GetCategoryCountAsync()
+        public Task<int> GetCategoryCount()
         {
-            return await _categoryRepository.GetCountAsync();
-        }
-
-        private static CategoryDto MapToDto(Category category)
-        {
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                ImageUrl = category.ImageUrl,
-                CreatedAt = category.CreatedAt,
-                ProductCount = category.Products?.Count ?? 0
-            };
+            return _categoryRepository.GetCount();
         }
     }
 }

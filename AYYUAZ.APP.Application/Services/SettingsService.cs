@@ -1,38 +1,36 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Exceptions.AppException;
 using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Constants;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace AYYUAZ.APP.Application.Service 
 {
     public class SettingsService : ISettingsService
     {
         private readonly ISettingsRepository _settingsRepository;
-
         public SettingsService(ISettingsRepository settingsRepository)
         {
             _settingsRepository = settingsRepository;
         }
-
-        public async Task<IEnumerable<SettingsDto>> GetAllSettingsAsync()
+        public  Task<IEnumerable<SettingsDto>> GetAllSettings()
         {
-            var settings = await _settingsRepository.GetAllSettingsAsync();
-            return settings.Select(MapToDto);
+            return _settingsRepository.GetAllSettings()
+          .ContinueWith(task => task.Result.Select(MapToDto));
         }
-
-        public async Task<SettingsDto> GetSettingsByIdAsync(int settingsId)
+        public  Task<SettingsDto> GetSettingsById(int settingsId)
         {
-            var settings = await _settingsRepository.GetSettingsByIdAsync(settingsId);
-            return settings == null ? throw new NotFoundException() : MapToDto(settings);
-        }
+            return _settingsRepository.GetSettingsById(settingsId)
+        .ContinueWith(task =>
+        {
+            var settings = task.Result;
+            if (settings == null)
+                throw new NotFoundException(ErrorMessages.SettingsNotFound);
 
+            return MapToDto(settings);
+        });
+        }
         public async Task<SettingsDto> CreateSettingsAsync(CreateSettingsDto createSettingsDto)
         {
             var settings = new Settings
@@ -49,12 +47,11 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.AddSettingsAsync(settings);
             return MapToDto(settings);
         }
-
         public async Task<SettingsDto> UpdateSettingsAsync(UpdateSettingsDto updateSettingsDto)
         {
-            var settings = await _settingsRepository.GetSettingsByIdAsync(updateSettingsDto.Id);
+            var settings = await _settingsRepository.GetSettingsById(updateSettingsDto.Id);
             if (settings == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.SettingsNotFound);
 
             settings.Name = updateSettingsDto.Name;
             settings.PhoneNumber = updateSettingsDto.PhoneNumber;
@@ -67,21 +64,18 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.UpdateSettingsAsync(settings);
             return MapToDto(settings);
         }
-
         public async Task<bool> DeleteSettingsAsync(int settingsId)
         {
-            var settings = await _settingsRepository.GetSettingsByIdAsync(settingsId);
+            var settings = await _settingsRepository.GetSettingsById(settingsId);
             if (settings == null)
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.SettingsNotFound);
 
             await _settingsRepository.DeleteSettingsAsync(settingsId);
             return true;
         }
-
         public async Task<bool> UpdateCurrentSettingsAsync(UpdateSettingsDto updateSettingsDto)
         {
-            var allSettings = await _settingsRepository.GetAllSettingsAsync();
-            var currentSettings = allSettings.FirstOrDefault();
+            var currentSettings = await _settingsRepository.GetCurrentSettings();
 
             if (currentSettings == null)
             {
@@ -110,49 +104,15 @@ namespace AYYUAZ.APP.Application.Service
             await _settingsRepository.UpdateSettingsAsync(currentSettings);
             return true;
         }
-
-        public async Task<Dictionary<string, string>> GetSocialMediaLinksAsync()
+        public async Task<Dictionary<string, string>> GetSocialMediaLinks()
         {
-            var allSettings = await _settingsRepository.GetAllSettingsAsync();
-            var currentSettings = allSettings.FirstOrDefault();
-
-            if (currentSettings == null)
-            {
-                return new Dictionary<string, string>
-                {
-                    { "facebook", "" },
-                    { "instagram", "" },
-                    { "twitter", "" }
-                };
-            }
-
-            return new Dictionary<string, string>
-            {
-                { "facebook", currentSettings.FacebookUrl ?? "" },
-                { "instagram", currentSettings.InstagramUrl ?? "" },
-                { "twitter", currentSettings.TwitterUrl ?? "" }
-            };
+            return await _settingsRepository.GetSocialMediaLinksAsync();
         }
-
         public async Task<bool> UpdateSocialMediaLinksAsync(Dictionary<string, string> socialLinks)
         {
-            var allSettings = await _settingsRepository.GetAllSettingsAsync();
-            var currentSettings = allSettings.FirstOrDefault();
-
-            if (currentSettings == null)
-                throw new NotFoundException();
-
-            if (socialLinks.ContainsKey("facebook"))
-                currentSettings.FacebookUrl = socialLinks["facebook"];
-            if (socialLinks.ContainsKey("instagram"))
-                currentSettings.InstagramUrl = socialLinks["instagram"];
-            if (socialLinks.ContainsKey("twitter"))
-                currentSettings.TwitterUrl = socialLinks["twitter"];
-
-            await _settingsRepository.UpdateSettingsAsync(currentSettings);
+            await _settingsRepository.UpdateSocialMediaLinksAsync(socialLinks);
             return true;
         }
-
         public async Task<bool> ValidateSettingsAsync(SettingsDto settings)
         {
             if (settings == null)
@@ -177,7 +137,6 @@ namespace AYYUAZ.APP.Application.Service
 
             return true;
         }
-
         private SettingsDto MapToDto(Settings settings)
         {
             return new SettingsDto
@@ -191,8 +150,7 @@ namespace AYYUAZ.APP.Application.Service
                 InstagramUrl = settings.InstagramUrl,
                 TwitterUrl = settings.TwitterUrl
             };
-        }
-
+        }     
         private bool IsValidUrl(string url)
         {
             return Uri.TryCreate(url, UriKind.Absolute, out var result) &&

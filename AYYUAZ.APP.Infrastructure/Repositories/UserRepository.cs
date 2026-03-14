@@ -8,69 +8,71 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
+        private readonly DbSet<User> _dbSet;
 
         public UserRepository(AppDbContext context)
         {
             _context = context;
+            _dbSet = context.Set<User>();
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public Task<User?> GetByEmail(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public Task<User?> GetByUsername(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            return _dbSet.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
-        public async Task<User?> GetByIdAsync(string id)
+        public Task<User?> GetById(string id)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            return _dbSet.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<bool> IsEmailUniqueAsync(string email)
         {
-            return !await _context.Users.AnyAsync(u => u.Email == email);
+            return !await _dbSet.AnyAsync(u => u.Email == email);
         }
 
         public async Task<bool> IsUsernameUniqueAsync(string username)
         {
-            return !await _context.Users.AnyAsync(u => u.UserName == username);
+            return !await _dbSet.AnyAsync(u => u.UserName == username);
         }
 
         public async Task<User> AddAsync(User user)
         {
-            _context.Users.Add(user);
+            await _dbSet.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
         }
 
         public async Task<User> UpdateAsync(User user)
         {
-            _context.Users.Update(user);
+            _dbSet.Update(user);
             await _context.SaveChangesAsync();
             return user;
         }
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var user = await GetByIdAsync(id);
+            var user = await GetById(id);
             if (user == null) return false;
 
-            _context.Users.Remove(user);
+            _dbSet.Remove(user);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAll()
         {
-            return await _context.Users.ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
-        public async Task<int> GetUserCountAsync()
+        public Task<int> GetUserCount()
         {
-            return await _context.Users.CountAsync();
+            return _dbSet.CountAsync();
         }
     }
 }

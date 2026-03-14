@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace AYYUAZ.APP.Domain.Interfaces
 {
-    public interface IHeroRepository
+    public interface IHeroRepository : IGenericRepository<Hero>
     {
+        Task<Hero> GetHeroById(int heroId);
+        Task<List<Hero>> GetAllHeroes();
         Task AddHeroAsync(Hero hero);
-        Task<List<Hero>> GetAllHeroesAsync();
-        Task<Hero> GetHeroByIdAsync(int id);
         Task UpdateHeroAsync(Hero hero);
-        Task DeleteHeroAsync(int id);
-
+        Task DeleteHeroAsync(int heroId);
+        Task<IEnumerable<Hero>> SearchByTitle(string searchTerm);
+        Task<Hero> GetActiveHero();
+        Task<bool> ExistsByTitle(string title);
     }
 }

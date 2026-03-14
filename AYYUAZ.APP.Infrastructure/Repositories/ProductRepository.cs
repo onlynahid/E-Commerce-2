@@ -2,120 +2,175 @@
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
+
 namespace AYYUAZ.APP.Infrastructure.Repositories
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
-        private readonly AppDbContext _context;
-        public ProductRepository(AppDbContext context)
+        public ProductRepository(AppDbContext context) : base(context)
         {
-            _context = context;
         }
-        public async Task AddProductAsync(Product product)
+
+        #region Product-Specific Methods
+
+        public Task DeleteProductAsync(int productId)
         {
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            return DeleteAsync(productId);
         }
-        public async Task DeleteProductAsync(int productId)
-        {
-          var product= await _context.Products.FindAsync(productId);
-            if(product != null)
-            {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-            }
-        }
+
         public Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, decimal? maxPrice)
         {
-            var query = _context.Products
+            var query = _dbSet
                 .Include(p => p.Category)
-                .Include(a=>a.Discount)
+                .Include(p => p.Discount)
                 .AsQueryable();
-            
-          
+
             if (ageGroups != null && ageGroups.Any() && !ageGroups.Contains("string"))
             {
-                query = query.Where(p => !string.IsNullOrEmpty(p.AgeGroup) && 
+                query = query.Where(p => !string.IsNullOrEmpty(p.AgeGroup) &&
                     ageGroups.Any(ag => ("," + p.AgeGroup + ",").ToLower().Contains("," + ag.ToLower() + ",")));
-            }       
-         
+            }
+
             if (sizes != null && sizes.Any() && !sizes.Contains("string"))
             {
-                query = query.Where(p => !string.IsNullOrEmpty(p.Size) && 
+                query = query.Where(p => !string.IsNullOrEmpty(p.Size) &&
                     sizes.Any(s => ("," + p.Size + ",").ToLower().Contains("," + s.ToLower() + ",")));
             }
-           
+
             if (materials != null && materials.Any() && !materials.Contains("string"))
             {
-                query = query.Where(p => !string.IsNullOrEmpty(p.Material) && 
+                query = query.Where(p => !string.IsNullOrEmpty(p.Material) &&
                     materials.Any(m => ("," + p.Material + ",").ToLower().Contains("," + m.ToLower() + ",")));
             }
+
             if (colors != null && colors.Any() && !colors.Contains("string"))
             {
-                query = query.Where(p => !string.IsNullOrEmpty(p.Colors) && 
+                query = query.Where(p => !string.IsNullOrEmpty(p.Colors) &&
                     colors.Any(c => ("," + p.Colors + ",").ToLower().Contains("," + c.ToLower() + ",")));
             }
+
             if (minPrice.HasValue && minPrice.Value > 0)
             {
                 query = query.Where(p => p.Price >= minPrice.Value);
             }
-            
+
             if (maxPrice.HasValue && maxPrice.Value > 0)
             {
                 query = query.Where(p => p.Price <= maxPrice.Value);
             }
-            
+
             return query.ToListAsync();
         }
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+
+        public async Task<IEnumerable<Product>> GetByPriceRange(decimal minPrice, decimal maxPrice)
         {
-         return await _context.Products
-                .Include(c=>c.Category)
-                .Include(c=>c.Discount)
-                .ToListAsync();  
-        }
-        public async Task<IEnumerable<Product>> GetByPriceRangeAsync(decimal minPrice, decimal maxPrice)
-        {
-            return await _context.Products
-                .Include(c => c.Category)
-                .Include(c => c.Discount)
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
                 .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Product>> GetPagedAsync(int page, int pageSize)
+
+        public async Task<IEnumerable<Product>> SearchByName(string searchTerm)
         {
-              return await _context.Products
-               .Include(c => c.Category)
-                .Include(c => c.Discount)
-             .OrderBy(p => p.Id)       
-             .Skip((page - 1) * pageSize)
-              .Take(pageSize)
-              .ToListAsync();
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return await GetAllWithDetails();
+
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .Where(p => p.Name.Contains(searchTerm))
+                .ToListAsync();
         }
-        public async Task<Product> GetProductByIdAsync(int productId)
+
+        public async Task<IEnumerable<Product>> GetByCategoryId(int categoryId)
         {
-            return await _context.Products
-                .Include(a=>a.Discount)
-                .Include(c => c.Category)
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .Where(p => p.CategoryId == categoryId)
+                .ToListAsync();
+        }
+
+        public Task<Product?> GetByIdWithDetails(int productId)
+        {
+            return _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
                 .FirstOrDefaultAsync(p => p.Id == productId);
-            
         }
-        public async Task UpdateProductAsync(Product product)
+
+        public async Task<IEnumerable<Product>> GetAllWithDetails()
         {
-             _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .ToListAsync();
         }
+
+        public async Task<IEnumerable<Product>> GetAvailableProducts()
+        {
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .Where(p => p.StockQuantity > 0)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetOutOfStockProducts()
+        {
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .Where(p => p.StockQuantity == 0)
+                .ToListAsync();
+        }
+
+        public async Task<bool> IsProductAvailableAsync(int productId)
+        {
+            var product = await GetById(productId);
+            return product?.StockQuantity > 0;
+        }
+
+        public async Task<IEnumerable<Product>> GetSortedByPrice(bool ascending = true)
+        {
+            var query = _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount);
+
+            return await (ascending
+                ? query.OrderBy(p => p.Price).ToListAsync()
+                : query.OrderByDescending(p => p.Price).ToListAsync());
+        }
+
+        public async Task<IEnumerable<Product>> GetSortedByDate(bool ascending = false)
+        {
+            var query = _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount);
+
+            return await (ascending
+                ? query.OrderBy(p => p.CreatedAt).ToListAsync()
+                : query.OrderByDescending(p => p.CreatedAt).ToListAsync());
+        }
+
+        public async Task<IEnumerable<Product>> GetLatestProducts(int count = 10)
+        {
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .ToListAsync();
+        }
+
         public async Task<bool> AddDiscountToProductAsync(int productId, decimal discountPercentage)
         {
             if (discountPercentage < 0 || discountPercentage > 100)
                 return false;
 
-            var product = await GetProductByIdAsync(productId);
+            var product = await GetByIdWithDetails(productId);
             if (product == null)
                 return false;
 
@@ -127,15 +182,15 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
             await _context.Discounts.AddAsync(discount);
             await _context.SaveChangesAsync();
 
-
             product.DiscountId = discount.Id;
-            await UpdateProductAsync(product);
+            await UpdateAsync(product);
 
             return true;
         }
+
         public async Task<bool> RemoveDiscountFromProductAsync(int productId)
         {
-            var product = await GetProductByIdAsync(productId);
+            var product = await GetByIdWithDetails(productId);
             if (product == null)
                 return false;
 
@@ -148,18 +203,19 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 }
 
                 product.DiscountId = null;
-                await UpdateProductAsync(product);
+                await UpdateAsync(product);
                 await _context.SaveChangesAsync();
             }
 
             return true;
         }
+
         public async Task<bool> UpdateProductDiscountAsync(int productId, decimal newDiscountPercentage)
         {
             if (newDiscountPercentage < 0 || newDiscountPercentage > 100)
                 return false;
 
-            var product = await GetProductByIdAsync(productId);
+            var product = await GetByIdWithDetails(productId);
             if (product == null)
                 return false;
 
@@ -176,5 +232,31 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
 
             return true;
         }
+
+        public async Task<IEnumerable<Product>> GetProductsWithDiscountsAsync()
+        {
+            return await _dbSet
+                .Include(p => p.Category)
+                .Include(p => p.Discount)
+                .Where(p => p.Discount != null && p.Discount.Percentage > 0)
+                .ToListAsync();
+        }
+
+        public Task<int> GetProductCountByCategory(int categoryId)
+        {
+            return _dbSet.CountAsync(p => p.CategoryId == categoryId);
+        }
+
+        public Task<decimal> GetAveragePrice()
+        {
+            return _dbSet.AverageAsync(p => p.Price);
+        }
+
+        public Task<decimal> GetAveragePriceByCategory(int categoryId)
+        {
+            return _dbSet.Where(p => p.CategoryId == categoryId).AverageAsync(p => p.Price);
+        }
+
+        #endregion
     }
 }

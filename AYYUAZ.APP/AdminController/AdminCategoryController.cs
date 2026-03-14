@@ -16,21 +16,17 @@ namespace AYYUAZ.APP.AdminController
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<CategoryDto>> CreateCategory([FromForm] CreateCategoryDto createCategoryDto)
+        public async Task<ActionResult<CategoryDto>> CreateCategory([FromForm] CreateCategoryDto createCategoryDto,int id)
         {
 
             var category = await _categoryService.CreateCategoryAsync(createCategoryDto);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+            return CreatedAtAction(nameof(GetCategoryById), new { id = id }, category);
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<CategoryDto>> UpdateCategory(int id,[FromForm] UpdateCategoryDto updateCategoryDto)
+        public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, [FromForm] UpdateCategoryDto updateCategoryDto)
         {
-            var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto,id);
-            if (category == null)
-            {
-                return NotFound($"Category with ID {id} not found.");
-            }
+            var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto, id);
             return Ok(category);
         }
         [HttpDelete("{id}")]
@@ -38,65 +34,48 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
-            if (!result)
-            {
-                return NotFound($"Category with ID {id} not found.");
-            }
             return NoContent();
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetAllCategories();
             return Ok(categories);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound($"Category with ID {id} not found.");
-            }
+            var category = await _categoryService.GetCategoryById(id);
             return Ok(category);
         }
         [HttpGet("with-products")]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategoriesWithProducts()
         {
-            var categories = await _categoryService.GetCategoriesWithProductsAsync();
+            var categories = await _categoryService.GetCategoriesWithProducts();
             return Ok(categories);
         }
         [HttpGet("{id}/with-products")]
         public async Task<ActionResult<CategoryDto>> GetCategoryWithProducts(int id)
         {
-            var category = await _categoryService.GetCategoryWithProductsAsync(id);
-            if (category == null)
-            {
-                return NotFound($"Category with ID {id} not found.");
-            }
+            var category = await _categoryService.GetCategoryWithProducts(id);
             return Ok(category);
         }
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> SearchCategories([FromQuery] string searchTerm)
-        {
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                return BadRequest("Search term cannot be empty.");
-            }
-
-            var categories = await _categoryService.SearchCategoriesByNameAsync(searchTerm);
+        { 
+            var categories = await _categoryService.SearchCategoriesByName(searchTerm);
             return Ok(categories);
         }
         [HttpGet("paged")]
         public async Task<ActionResult<object>> GetCategoriesWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest("Page and page size must be greater than 0.");
             }
-
-            var categories = await _categoryService.GetCategoriesWithPaginationAsync(page, pageSize);
-            var totalCount = await _categoryService.GetCategoryCountAsync();
+            var categories = await _categoryService.GetCategoriesWithPagination(page, pageSize);
+            var totalCount = await _categoryService.GetCategoryCount();
 
             return Ok(new
             {
@@ -111,7 +90,7 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<int>> GetCategoryCount()
         {
-            var count = await _categoryService.GetCategoryCountAsync();
+            var count = await _categoryService.GetCategoryCount();
             return Ok(count);
         }
         [HttpGet("check-name")]

@@ -23,17 +23,13 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
         {
-            var aboutList = await _aboutService.GetAllAboutAsync();
+            var aboutList = await _aboutService.GetAllAbout();
             return Ok(aboutList);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<AboutDto>> GetAboutById(int id)
         {
-            var about = await _aboutService.GetAboutByIdAsync(id);
-            if (about == null)
-            {
-                return NotFound($"About with ID {id} not found.");
-            }
+            var about = await _aboutService.GetAboutById(id);
             return Ok(about);
         }
         [HttpGet("debug/auth")]

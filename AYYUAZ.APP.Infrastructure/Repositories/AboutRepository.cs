@@ -2,54 +2,62 @@
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AYYUAZ.APP.Infrastructure.Repositories
 {
-    public class AboutRepository : IAboutRepository
+    public class AboutRepository : GenericRepository<About>, IAboutRepository
     {
-        private readonly AppDbContext _context;
-        public AboutRepository(AppDbContext context)
+        public AboutRepository(AppDbContext context) : base(context)
         {
-            _context = context;
         }
+
+        #region About-Specific Methods
+
         public async Task AddAboutAsync(About about)
         {
-            await _context.About.AddAsync(about);
-            await _context.SaveChangesAsync();
+            await AddAsync(about);
         }
-        public async Task DeleteAboutAsync(int id)
-        {
-            var about = await _context.About.FindAsync(id);
-            if (about != null)
-            {
-                _context.About.Remove(about);
-                await _context.SaveChangesAsync();
-            }
-        }
-        public async Task<About> GetAboutByIdAsync(int id)
-        {
-            var about =  await  _context.About.FirstOrDefaultAsync(a => a.Id == id);
-            return about;
-        }
-        public async Task<List<About>> GetAllAboutAsync()
-        {
-          return await _context.About.ToListAsync(); 
-        }
-        public async Task<About?> GetByTitleAsync(string title)
-        {
-            return await _context.About
-          .FirstOrDefaultAsync(a => a.Title.ToLower() == title.ToLower());
 
+        public async Task DeleteAboutAsync(int aboutId)
+        {
+            await DeleteAsync(aboutId);
         }
+
         public async Task UpdateAboutAsync(About about)
         {
-            _context.About.Update(about);
-            await _context.SaveChangesAsync();
+            await UpdateAsync(about);
         }
+
+        public Task<bool> ExistsByTitle(string title)
+        {
+            return _dbSet.AnyAsync(a => a.Title == title);
+        }
+
+        public Task<bool> ExistsByTitleExcludingId(string title, int excludeId)
+        {
+            return _dbSet.AnyAsync(a => a.Title == title && a.Id != excludeId);
+        }
+
+        public async Task<IEnumerable<About>> SearchByTitle(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return await GetAllAbout();
+
+            return await _dbSet
+                .Where(a => a.Title.Contains(searchTerm))
+                .ToListAsync();
+        }
+
+        public Task<About> GetAboutById(int aboutId)
+        {
+            return _dbSet.FindAsync(aboutId).AsTask();
+        }
+
+        public async Task<IEnumerable<About>> GetAllAbout()
+        {
+            return await _dbSet.ToListAsync();
+        }
+
+        #endregion
     }
 }

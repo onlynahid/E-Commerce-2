@@ -25,10 +25,6 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult<HeroDto>> GetHeroById(int id)
         {
             var hero = await _heroService.GetHeroByIdAsync(id);
-            if (hero == null)
-            {
-                return NotFound($"Hero with ID {id} not found.");
-            }
             return Ok(hero);
         }
         [HttpPost]
@@ -42,12 +38,7 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> UpdateHero(int id, [FromForm] UpdateHeroDto updateHeroDto)
         {
-
             var hero = await _heroService.UpdateHeroAsync(id, updateHeroDto);
-            if (hero == null)
-            {
-                return NotFound($"Hero with ID {id} not found.");
-            }
             return Ok(hero);
         }
         [HttpDelete("{id}")]
@@ -55,10 +46,6 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult> DeleteHero(int id)
         {
             var result = await _heroService.DeleteHeroAsync(id);
-            if (!result)
-            {
-                return NotFound($"Hero with ID {id} not found.");
-            }
             return NoContent();
         }
     }

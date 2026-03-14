@@ -168,44 +168,23 @@ namespace AYYUAZ.APP.Controllers
     /// Request model for single file upload
     /// </summary>
     public class FileUploadRequest
-    {
-        /// <summary>
-        /// The file to upload
-        /// </summary>
+    {     
         [Required]
         public IFormFile File { get; set; } = null!;
 
-        /// <summary>
-        /// Folder to store the file (optional, defaults to 'products')
-        /// </summary>
         public string? Folder { get; set; }
     }
 
-    /// <summary>
-    /// Request model for multiple files upload
-    /// </summary>
+  
     public class MultipleFileUploadRequest
     {
-        /// <summary>
-        /// The files to upload
-        /// </summary>
         [Required]
         public List<IFormFile> Files { get; set; } = new();
-
-        /// <summary>
-        /// Folder to store the files (optional, defaults to 'products')
-        /// </summary>
         public string? Folder { get; set; }
     }
 
-    /// <summary>
-    /// Request model for file validation
-    /// </summary>
     public class FileValidationRequest
     {
-        /// <summary>
-        /// The file to validate
-        /// </summary>
         [Required]
         public IFormFile File { get; set; } = null!;
     }

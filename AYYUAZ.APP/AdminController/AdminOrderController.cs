@@ -18,17 +18,13 @@ namespace AYYUAZ.APP.AdminController
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
         {
-            var orders = await _orderService.GetAllOrdersAsync();
+            var orders = await _orderService.GetAllOrders();
             return Ok(orders);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
-            if (order == null)
-            {
-                return NotFound($"Order with ID {id} not found.");
-            }
+            var order = await _orderService.GetOrderById(id);
             return Ok(order);
         }
         [HttpPost("{id}/reject")]
@@ -36,10 +32,6 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult<OrderDto>> RejectOrder(int id, [FromBody] string rejectedReason = null)
         {
             var order = await _orderService.RejectedOrderAsync(id, rejectedReason);
-            if (order == null)
-            {
-                return NotFound($"Order with ID {id} not found.");
-            }
             return Ok(order);
         }
         [HttpPost("{id}/accept")]
@@ -47,17 +39,13 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult<OrderDto>> AcceptOrder(int id)
         {
             var order = await _orderService.AcceptedOrderAsync(id);
-            if (order == null)
-            {
-                return NotFound($"Order with ID {id} not found.");
-            }
             return Ok(order);
         }
         [HttpPost("Get-All-WithItems")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrderWithItems()
         {
-            var orders = await _orderService.GetOrdersWithItemsAsync();
+            var orders = await _orderService.GetOrdersWithItems();
             return Ok(orders);
         }
     }

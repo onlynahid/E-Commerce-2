@@ -18,23 +18,19 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SettingsDto>>> GetAllSettings()
         {
-            var settings = await _settingsService .GetAllSettingsAsync();
+            var settings = await _settingsService.GetAllSettings();
             return Ok(settings);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<SettingsDto>> GetSettingsById(int id)
         {
-            var settings = await _settingsService .GetSettingsByIdAsync(id);
-            if (settings == null)
-            {
-                return NotFound($"Settings with ID {id} not found.");
-            }
+            var settings = await _settingsService.GetSettingsById(id);
             return Ok(settings);
         }
         [HttpGet("social-media")]
         public async Task<ActionResult<Dictionary<string, string>>> GetSocialMediaLinks()
         {
-            var socialLinks = await _settingsService .GetSocialMediaLinksAsync();
+            var socialLinks = await _settingsService.GetSocialMediaLinks();
             return Ok(socialLinks);
         }
     }

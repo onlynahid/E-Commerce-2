@@ -1,5 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,10 +32,6 @@ namespace AYYUAZ.APP.AdminController
         {
 
             var about = await _aboutService.UpdateAboutAsync(updateAboutDto,id);
-            if (about == null)
-            {
-                return NotFound($"About with ID {id} not found.");
-            }
             return Ok(about);
         }
         [HttpDelete("{id}")]
@@ -42,26 +39,18 @@ namespace AYYUAZ.APP.AdminController
         public async Task<ActionResult> DeleteAbout(int id)
         {  
             var result = await _aboutService.DeleteAboutAsync(id);
-            if (!result)
-            {
-                return NotFound($"About with ID {id} not found.");
-            }
             return NoContent();
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<AboutDto>> GetAboutById(int id)
         {
-            var about = await _aboutService.GetAboutByIdAsync(id);
-            if (about == null)
-            {
-                return NotFound($"About with ID {id} not found.");
-            }
+            var about = await _aboutService.GetAboutById(id);
             return Ok(about);
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
         {
-            var aboutList = await _aboutService.GetAllAboutAsync();
+            var aboutList = await _aboutService.GetAllAbout();
             return Ok(aboutList);
         }
     }

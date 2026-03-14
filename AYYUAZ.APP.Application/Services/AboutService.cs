@@ -1,83 +1,60 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
+using AYYUAZ.APP.Application.Exceptions.AppException;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Domain.Interfaces;
-using AYYUAZ.APP.Application.Exceptions.AppException;
-using Microsoft.EntityFrameworkCore;
-using System;
+using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using AYYUAZ.APP.Constants;
 
 namespace AYYUAZ.APP.Application.Services
 {
     public class AboutService : IAboutService
     {
         private readonly IAboutRepository _aboutRepository;
-
-        public AboutService(IAboutRepository aboutRepository)
+        private readonly IMapper _mapper;
+        public AboutService(IAboutRepository aboutRepository, IMapper mapper)
         {
             _aboutRepository = aboutRepository;
+            _mapper = mapper;
         }
-
         public async Task<AboutDto> CreateAboutAsync(CreateAboutDto createAboutDto)
         {
-            var about = new About
-            {
-                Title = createAboutDto.Title,
-                Description = createAboutDto.Description
-            };
-
+            var about = _mapper.Map<About>(createAboutDto);
             await _aboutRepository.AddAboutAsync(about);
-            return MapToDto(about);
+            return _mapper.Map<AboutDto>(about);
         }
-
         public async Task<bool> DeleteAboutAsync(int aboutId)
         {
-            var about = await _aboutRepository.GetAboutByIdAsync(aboutId);
+            var about = await _aboutRepository.GetAboutById(aboutId);
             if (about == null)
-                throw new NotFoundException();
+                return false;
 
             await _aboutRepository.DeleteAboutAsync(aboutId);
             return true;
         }
-
-        public async Task<AboutDto> GetAboutByIdAsync(int aboutId)
+        public  Task<AboutDto> GetAboutById(int aboutId)
         {
-            var about = await _aboutRepository.GetAboutByIdAsync(aboutId);
-            return about == null ? throw new NotFoundException() : MapToDto(about);
-        }
-
-        public async Task<IEnumerable<AboutDto>> GetAllAboutAsync()
-        {
-            var abouts = await _aboutRepository.GetAllAboutAsync();
-            return abouts.Select(MapToDto);
-        }        
-
-        public async Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto, int id)
-        {
-            var about = await _aboutRepository.GetAboutByIdAsync(id);
+            var about =  _aboutRepository.GetAboutById(aboutId);
             if (about == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException(ErrorMessages.AboutNotFound);
             }
-
-            about.Title = updateAboutDto.Title;
-            about.Description = updateAboutDto.Description;
-
-            await _aboutRepository.UpdateAboutAsync(about);
-            return MapToDto(about);
+            return Task.FromResult(_mapper.Map<AboutDto>(about));
         }
-
-        private static AboutDto MapToDto(About about)
+        public  Task<IEnumerable<AboutDto>> GetAllAbout()
         {
-            return new AboutDto
-            {
-                Id = about.Id,
-                Title = about.Title,
-                Description = about.Description
-            };
+            var abouts =  _aboutRepository.GetAllAbout(); 
+            return Task.FromResult(_mapper.Map<IEnumerable<AboutDto>>(abouts));
+        }
+        public async Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto, int id)
+        {
+            var about = await _aboutRepository.GetAboutById(id);
+            _mapper.Map(updateAboutDto, about);
+            await _aboutRepository.UpdateAboutAsync(about);
+            return _mapper.Map<AboutDto>(about);
         }
     }
 }

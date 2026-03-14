@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using KeyNotFoundException = AYYUAZ.APP.Application.Exceptions.AppException.KeyNotFoundException;
+// using KeyNotFoundException = AYYUAZ.APP.Application.Exceptions.AppException.KeyNotFoundException;
 
 namespace AYYUAZ.APP.Middleware
 {
@@ -26,7 +28,8 @@ namespace AYYUAZ.APP.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                _logger.LogError(ex, "Unhandled exception occurred: {ExceptionType} - {Message}", 
+                    ex.GetType().Name, ex.Message);
 
                 var (statusCode, errorCode) = Resolve(ex);
 
@@ -37,10 +40,14 @@ namespace AYYUAZ.APP.Middleware
                 {
                     errorCode,
                     message = MessageProvider(errorCode),
-                    traceId = context.TraceIdentifier
+                    traceId = context.TraceIdentifier,
+                    timestamp = DateTime.UtcNow
                 };
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                }));
             }
         }
 
@@ -52,15 +59,21 @@ namespace AYYUAZ.APP.Middleware
             return ex switch
             {
                 UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "unauthorized"),
+                ArgumentNullException => (StatusCodes.Status400BadRequest, "bad_request"),
+                ArgumentException => (StatusCodes.Status400BadRequest, "bad_request"),
+                InvalidOperationException => (StatusCodes.Status400BadRequest, "bad_request"),
+              KeyNotFoundException => (StatusCodes.Status404NotFound, "not_found"),
+                NotSupportedException => (StatusCodes.Status400BadRequest, "bad_request"),
+                FormatException => (StatusCodes.Status400BadRequest, "bad_request"),
                 _ => (StatusCodes.Status500InternalServerError, "server_error")
             };
         }
-
         private static string MessageProvider(string errorCode) => errorCode switch
         {
             "not_found" => "Tapılmadı.",
             "unauthorized" => "İcazəniz yoxdur.",
             "validation_error" => "Göndərilən məlumatlarda xəta var.",
+            "bad_request" => "Yanlış sorğu göndərildi.",
             "server_error" => "Server xətası baş verdi.",
             "forbidden" => "Bu əməliyyatı yerinə yetirmək üçün icazəniz yoxdur.",
             _ => "Xəta baş verdi."

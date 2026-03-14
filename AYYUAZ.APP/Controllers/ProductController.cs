@@ -17,47 +17,56 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProducts();
             return Ok(products);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var product = await _productService.GetProductById(id);
             return Ok(product);
         }
         [HttpGet("category/{categoryId}")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
         {
-            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            var products = await _productService.GetProductsByCategory(categoryId);
             return Ok(products);
         }
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts([FromQuery] string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
-                throw new ArgumentException("Search term cannot be empty.");
+            {
+                ModelState.AddModelError("searchTerm", "Search term cannot be empty.");
+                return BadRequest(ModelState);
+            }
 
-            var products = await _productService.GetProductsByNameAsync(searchTerm);
+            var products = await _productService.GetProductsByName(searchTerm);
             return Ok(products);
         }
         [HttpGet("price-range")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByPriceRange([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
         {
             if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
-                throw new ArgumentException("Invalid price range.");
+            {
+                ModelState.AddModelError("priceRange", "Invalid price range.");
+                return BadRequest(ModelState);
+            }
 
-            var products = await _productService.GetProductsByPriceRangeAsync(minPrice, maxPrice);
+            var products = await _productService.GetProductsByPriceRange(minPrice, maxPrice);
             return Ok(products);
         }
         [HttpGet("paged")]
         public async Task<ActionResult<object>> GetProductsWithPagination([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page < 1 || pageSize < 1)
-                throw new ArgumentException("Page and page size must be greater than 0.");
+            {
+                ModelState.AddModelError("pagination", "Page and page size must be greater than 0.");
+                return BadRequest(ModelState);
+            }
 
-            var products = await _productService.GetProductsWithPaginationAsync(page, pageSize);
-            var totalcount = await _productService.GetProductCountAsync();
+            var products = await _productService.GetProductsWithPagination(page, pageSize);
+            var totalcount = await _productService.GetProductCount();
 
             return Ok(new
             {
@@ -71,19 +80,19 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet("available")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAvailableProducts()
         {
-            var products = await _productService.GetAvailableProductsAsync();
+            var products = await _productService.GetAvailableProducts();
             return Ok(products);
         }
         [HttpGet("latest")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetLatestProducts([FromQuery] int count = 10)
         {
-            var products = await _productService.GetLatestProductsAsync(count);
+            var products = await _productService.GetLatestProducts(count);
             return Ok(products);
         }
         [HttpGet("sorted-by-price")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsSortedByPrice([FromQuery] bool ascending = true)
         {
-            var products = await _productService.GetProductsSortedByPriceAsync(ascending);
+            var products = await _productService.GetProductsSortedByPrice(ascending);
             return Ok(products);
         }
         [HttpGet("{id}/availability")]
@@ -96,13 +105,22 @@ namespace AYYUAZ.APP.Controllers
         public async Task<ActionResult<IEnumerable<ProductDto>>> FilterProducts([FromBody] ProductFilterDto filter)
         {
             if (filter == null)
-                throw new ArgumentException("Filter criteria cannot be null.");
+            {
+                ModelState.AddModelError("filter", "Filter criteria cannot be null.");
+                return BadRequest(ModelState);
+            }
 
             if (filter.MinPrice.HasValue && filter.MaxPrice.HasValue && filter.MinPrice > filter.MaxPrice)
-                throw new ArgumentException("Minimum price cannot be greater than maximum price.");
+            {
+                ModelState.AddModelError("price", "Minimum price cannot be greater than maximum price.");
+                return BadRequest(ModelState);
+            }
 
             if ((filter.MinPrice ?? 0) < 0 || (filter.MaxPrice ?? 0) < 0)
-                throw new ArgumentException("Price values cannot be negative.");
+            {
+                ModelState.AddModelError("price", "Price values cannot be negative.");
+                return BadRequest(ModelState);
+            }
 
             var filteredProducts = await _productService.FilterProductsAsync(filter);
             var productDtos = filteredProducts.Select(p => new ProductDto
@@ -170,7 +188,7 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet("debug/all-sizes")]
         public async Task<ActionResult> GetAllSizesForDebug()
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProducts();
             var sizes = products
                 .Where(p => !string.IsNullOrEmpty(p.Size?.FirstOrDefault()))
                 .SelectMany(p => p.Size ?? new List<string>())
@@ -189,7 +207,7 @@ namespace AYYUAZ.APP.Controllers
         [HttpGet("debug/all-data")]
         public async Task<ActionResult> GetAllDataForDebug()
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProducts();
             var productDetails = products.Take(5).Select(p => new
             {
                 id = p.Id,
@@ -264,121 +282,103 @@ namespace AYYUAZ.APP.Controllers
                 }).ToList()
             });
         }
-
         [HttpGet("{id}/discount-info")]
         public async Task<ActionResult<object>> GetProductDiscountInfo(int id)
         {
-            try
+            var product = await _productService.GetProductById(id);
+
+            return Ok(new
             {
-                var product = await _productService.GetProductByIdAsync(id);
-                
-                return Ok(new
-                {
-                    productId = id,
-                    productName = product.Name,
-                    originalPrice = product.Price,
-                    discountPercentage = product.DiscountPercantage,
-                    finalPrice = product.FinalPrice,
-                    hasDiscount = product.DiscountPercantage > 0,
-                    savings = product.Price - product.FinalPrice,
-                    savingsPercentage = product.Price > 0 ? Math.Round((product.Price - product.FinalPrice) / product.Price * 100, 2) : 0
-                });
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { message = $"Product with ID {id} not found." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error" });
-            }
+                productId = id,
+                productName = product.Name,
+                originalPrice = product.Price,
+                discountPercentage = product.DiscountPercantage,
+                finalPrice = product.FinalPrice,
+                hasDiscount = product.DiscountPercantage > 0,
+                savings = product.Price - product.FinalPrice,
+                savingsPercentage = product.Price > 0
+                    ? Math.Round((product.Price - product.FinalPrice) / product.Price * 100, 2)
+                    : 0
+            });
         }
         [HttpGet("with-discounts")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsWithDiscounts()
         {
-            try
-            {
-                var products = await _productService.GetAllProductsAsync();
-                var productsWithDiscounts = products
-                    .Where(p => p.DiscountPercantage > 0)
-                    .OrderByDescending(p => p.DiscountPercantage)
-                    .ToList();
+            var products = await _productService.GetAllProducts();
 
-                return Ok(new
-                {
-                    products = productsWithDiscounts,
-                    count = productsWithDiscounts.Count,
-                    message = "Products with active discounts"
-                });
-            }
-            catch (Exception ex)
+            var productsWithDiscounts = products
+                .Where(p => p.DiscountPercantage > 0)
+                .OrderByDescending(p => p.DiscountPercantage)
+                .ToList();
+
+            return Ok(new
             {
-                return StatusCode(500, new { message = "Internal server error" });
-            }
+                products = productsWithDiscounts,
+                count = productsWithDiscounts.Count,
+                message = "Products with active discounts"
+            });
         }
         [HttpGet("discounts-above")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsWithDiscountsAbove([FromQuery] decimal minDiscountPercentage = 10)
         {
-            try
+            if (minDiscountPercentage < 0 || minDiscountPercentage > 100)
             {
-                if (minDiscountPercentage < 0 || minDiscountPercentage > 100)
-                {
-                    return BadRequest(new { message = "Discount percentage must be between 0 and 100." });
-                }
-
-                var products = await _productService.GetAllProductsAsync();
-                var filteredProducts = products
-                    .Where(p => p.DiscountPercantage >= minDiscountPercentage)
-                    .OrderByDescending(p => p.DiscountPercantage)
-                    .ToList();
-
-                return Ok(new
-                {
-                    products = filteredProducts,
-                    count = filteredProducts.Count,
-                    minDiscountPercentage,
-                    message = $"Products with discounts of {minDiscountPercentage}% or more"
-                });
+                return BadRequest(new { message = "Discount percentage must be between 0 and 100." });
             }
-            catch (Exception ex)
+
+            var products = await _productService.GetAllProducts();
+
+            var filteredProducts = products
+                .Where(p => p.DiscountPercantage >= minDiscountPercentage)
+                .OrderByDescending(p => p.DiscountPercantage)
+                .ToList();
+
+            return Ok(new
             {
-                return StatusCode(500, new { message = "Internal server error" });
-            }
+                products = filteredProducts,
+                count = filteredProducts.Count,
+                minDiscountPercentage,
+                message = $"Products with discounts of {minDiscountPercentage}% or more"
+            });
         }
         [HttpGet("discount-statistics")]
         public async Task<ActionResult<object>> GetDiscountStatistics()
         {
-            try
+            var products = await _productService.GetAllProducts();
+            var productsList = products.ToList();
+
+            var productsWithDiscounts = productsList
+                .Where(p => p.DiscountPercantage > 0)
+                .ToList();
+
+            var totalSavings = productsWithDiscounts.Sum(p => p.Price - p.FinalPrice);
+
+            return Ok(new
             {
-                var products = await _productService.GetAllProductsAsync();
-                var productsList = products.ToList();
-
-                var productsWithDiscounts = productsList.Where(p => p.DiscountPercantage > 0).ToList();
-                var totalSavings = productsWithDiscounts.Sum(p => p.Price - p.FinalPrice);
-
-                return Ok(new
+                totalProducts = productsList.Count,
+                productsWithDiscounts = productsWithDiscounts.Count,
+                productsWithoutDiscounts = productsList.Count - productsWithDiscounts.Count,
+                discountCoverage = productsList.Count > 0
+                    ? Math.Round((double)productsWithDiscounts.Count / productsList.Count * 100, 2)
+                    : 0,
+                averageDiscountPercentage = productsWithDiscounts.Any()
+                    ? Math.Round(productsWithDiscounts.Average(p => p.DiscountPercantage), 2)
+                    : 0,
+                highestDiscount = productsWithDiscounts.Any()
+                    ? productsWithDiscounts.Max(p => p.DiscountPercantage)
+                    : 0,
+                lowestDiscount = productsWithDiscounts.Any()
+                    ? productsWithDiscounts.Min(p => p.DiscountPercantage)
+                    : 0,
+                totalPotentialSavings = Math.Round(totalSavings, 2),
+                discountRanges = new
                 {
-                    totalProducts = productsList.Count,
-                    productsWithDiscounts = productsWithDiscounts.Count,
-                    productsWithoutDiscounts = productsList.Count - productsWithDiscounts.Count,
-                    discountCoverage = productsList.Count > 0 ? Math.Round((double)productsWithDiscounts.Count / productsList.Count * 100, 2) : 0,
-                    averageDiscountPercentage = productsWithDiscounts.Any() ? Math.Round(productsWithDiscounts.Average(p => p.DiscountPercantage), 2) : 0,
-                    highestDiscount = productsWithDiscounts.Any() ? productsWithDiscounts.Max(p => p.DiscountPercantage) : 0,
-                    lowestDiscount = productsWithDiscounts.Any() ? productsWithDiscounts.Min(p => p.DiscountPercantage) : 0,
-                    totalPotentialSavings = Math.Round(totalSavings, 2),
-                    discountRanges = new
-                    {
-                        under10Percent = productsWithDiscounts.Count(p => p.DiscountPercantage < 10),
-                        between10And25Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 10 && p.DiscountPercantage < 25),
-                        between25And50Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 25 && p.DiscountPercantage < 50),
-                        above50Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 50)
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error" });
-            }
+                    under10Percent = productsWithDiscounts.Count(p => p.DiscountPercantage < 10),
+                    between10And25Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 10 && p.DiscountPercantage < 25),
+                    between25And50Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 25 && p.DiscountPercantage < 50),
+                    above50Percent = productsWithDiscounts.Count(p => p.DiscountPercantage >= 50)
+                }
+            });
         }
     }
 }

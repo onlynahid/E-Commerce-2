@@ -10,22 +10,22 @@ namespace AYYUAZ.APP.Application.Interfaces
 {
     public interface IProductService 
     {
-        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<ProductDto> GetProductByIdAsync(int productId);
+        Task<IEnumerable<ProductDto>> GetAllProducts();
+        Task<ProductDto> GetProductById(int productId);
         Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto);
         Task<ProductDto> UpdateProductAsync(int id,UpdateProductDto updateProductDto);
         Task<bool> DeleteProductAsync(int productId);
-        Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string searchTerm);
-        Task<IEnumerable<ProductDto>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice);
-        Task<IEnumerable<ProductDto>> GetProductsWithPaginationAsync(int page, int pageSize);
-        Task<int> GetProductCountByCategoryAsync(int categoryId);
-        Task<IEnumerable<ProductDto>> GetProductsSortedByPriceAsync(bool ascending = true);
-        Task<IEnumerable<ProductDto>> GetProductsSortedByDateAsync(bool ascending = false);
+        Task<IEnumerable<ProductDto>> GetProductsByName(string searchTerm);
+        Task<IEnumerable<ProductDto>> GetProductsByPriceRange(decimal minPrice, decimal maxPrice);
+        Task<IEnumerable<ProductDto>> GetProductsWithPagination(int page, int pageSize);
+        Task<int> GetProductCountByCategory(int categoryId);
+        Task<IEnumerable<ProductDto>> GetProductsSortedByPrice(bool ascending = true);
+        Task<IEnumerable<ProductDto>> GetProductsSortedByDate(bool ascending = false);
         Task<bool> IsProductAvailableAsync(int productId);
-        Task<IEnumerable<ProductDto>> GetAvailableProductsAsync();
-        Task<IEnumerable<ProductDto>> GetLatestProductsAsync(int count = 10);
-        Task<int> GetProductCountAsync();
-        Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<ProductDto>> GetAvailableProducts();
+        Task<IEnumerable<ProductDto>> GetLatestProducts(int count = 10);
+        Task<int> GetProductCount();
+        Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId);
         Task<List<Product>> FilterProductsAsync(ProductFilterDto filter);
         Task<bool> AddDiscountToProductAsync(int productId, decimal discountPercentage);
         Task<bool> RemoveDiscountFromProductAsync(int productId);
