@@ -14,22 +14,17 @@ namespace AYYUAZ.APP.Application.Service
         {
             _settingsRepository = settingsRepository;
         }
-        public  Task<IEnumerable<SettingsDto>> GetAllSettings()
+        public async Task<IEnumerable<SettingsDto>> GetAllSettings()
         {
-            return _settingsRepository.GetAllSettings()
-          .ContinueWith(task => task.Result.Select(MapToDto));
+            var settings = await _settingsRepository.GetAllSettings();
+            return settings.Select(MapToDto);
         }
-        public  Task<SettingsDto> GetSettingsById(int settingsId)
+        public async Task<SettingsDto> GetSettingsById(int settingsId)
         {
-            return _settingsRepository.GetSettingsById(settingsId)
-        .ContinueWith(task =>
-        {
-            var settings = task.Result;
+            var settings = await _settingsRepository.GetSettingsById(settingsId);
             if (settings == null)
                 throw new NotFoundException(ErrorMessages.SettingsNotFound);
-
             return MapToDto(settings);
-        });
         }
         public async Task<SettingsDto> CreateSettingsAsync(CreateSettingsDto createSettingsDto)
         {

@@ -1,5 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace AYYUAZ.APP.AdminController
             _settingsService = settingsService;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> CreateSettings([FromBody] CreateSettingsDto createSettingsDto)
         {  
             var settings = await _settingsService.CreateSettingsAsync(createSettingsDto);
@@ -29,7 +30,7 @@ namespace AYYUAZ.APP.AdminController
             return Ok(settings);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> UpdateSettings(int id, [FromBody] UpdateSettingsDto updateSettingsDto)
         {
             if (id != updateSettingsDto.Id)
@@ -40,14 +41,14 @@ namespace AYYUAZ.APP.AdminController
             return Ok(settings);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteSettings(int id)
         {
             var result = await _settingsService.DeleteSettingsAsync(id);
             return NoContent();
         }
         [HttpPut("social-media")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<bool>> UpdateSocialMediaLinks([FromBody] Dictionary<string, string> socialLinks)
         {
 

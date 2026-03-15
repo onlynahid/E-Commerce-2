@@ -19,7 +19,7 @@ namespace AYYUAZ.APP.Application.DI.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             // AutoMapper registration
-            services.AddAutoMapper(typeof(MappingProfile));
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
             // Service registrations
             services.AddScoped<IAboutService, AboutService>();

@@ -93,7 +93,8 @@ namespace AYYUAZ.APP.Application.Service
         }
         public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
-            var products = await _productRepository.GetAll();
+            // Ensure Discount and Category are included for all products
+            var products = await _productRepository.GetAllWithDetails();
             return products.Select(p => MapToDto(p));
         }
         public async Task<IEnumerable<ProductDto>> GetAvailableProducts()

@@ -53,7 +53,7 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
             return _dbSet.FindAsync(aboutId).AsTask();
         }
 
-        public async Task<IEnumerable<About>> GetAllAbout()
+        public async  Task<IEnumerable<About>> GetAllAbout()
         {
             return await _dbSet.ToListAsync();
         }

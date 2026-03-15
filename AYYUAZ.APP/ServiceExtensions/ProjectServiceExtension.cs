@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -11,7 +12,7 @@ namespace AYYUAZ.APP.ServiceExtensions
 {
     public static class ProjectServiceExtension
     {
-        public static IServiceCollection AddProjectServices(this IServiceCollection services,IConfiguration configuration)
+        public static IServiceCollection AddProjectServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSwaggerGen(c =>
             {
@@ -32,17 +33,17 @@ namespace AYYUAZ.APP.ServiceExtensions
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference
+                            new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -74,6 +75,8 @@ namespace AYYUAZ.APP.ServiceExtensions
             var jwtAudience = configuration["Jwt:Audience"];
             services.AddAuthentication(options =>
             {
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
@@ -88,7 +91,9 @@ namespace AYYUAZ.APP.ServiceExtensions
                   ValidateAudience = true,
                   ValidAudience = jwtAudience,
                   ValidateLifetime = true,
-                  ClockSkew = TimeSpan.Zero
+                  ClockSkew = TimeSpan.Zero,
+                  RoleClaimType = ClaimTypes.Role, // Ensure role mapping for [Authorize(Roles = ...)]
+                  NameClaimType = ClaimTypes.Name
               };
 
               options.Events = new JwtBearerEvents
@@ -147,8 +152,23 @@ namespace AYYUAZ.APP.ServiceExtensions
                   }
               };
           });
-            return services;
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                };
 
-        } 
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                };
+            });
+
+
+            return services; // Ensure the method returns the IServiceCollection instance
+        }
     }
 }

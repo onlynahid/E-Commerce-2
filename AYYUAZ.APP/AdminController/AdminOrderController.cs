@@ -1,5 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace AYYUAZ.APP.AdminController
             _orderService = orderService;
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
         {
             var orders = await _orderService.GetAllOrders();
@@ -28,21 +29,21 @@ namespace AYYUAZ.APP.AdminController
             return Ok(order);
         }
         [HttpPost("{id}/reject")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<OrderDto>> RejectOrder(int id, [FromBody] string rejectedReason = null)
         {
             var order = await _orderService.RejectedOrderAsync(id, rejectedReason);
             return Ok(order);
         }
         [HttpPost("{id}/accept")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<OrderDto>> AcceptOrder(int id)
         {
             var order = await _orderService.AcceptedOrderAsync(id);
             return Ok(order);
         }
         [HttpPost("Get-All-WithItems")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrderWithItems()
         {
             var orders = await _orderService.GetOrdersWithItems();

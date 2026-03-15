@@ -1,5 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,21 +29,21 @@ namespace AYYUAZ.APP.AdminController
             return Ok(hero);
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> CreateHero([FromForm] CreateHeroDto createHeroDto)
         {
             var hero = await _heroService.AddHeroAsync(createHeroDto);
             return CreatedAtAction(nameof(GetHeroById), new { id = hero.Id }, hero);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> UpdateHero(int id, [FromForm] UpdateHeroDto updateHeroDto)
         {
             var hero = await _heroService.UpdateHeroAsync(id, updateHeroDto);
             return Ok(hero);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteHero(int id)
         {
             var result = await _heroService.DeleteHeroAsync(id);

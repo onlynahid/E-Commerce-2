@@ -46,8 +46,7 @@ namespace AYYUAZ.APP.Infrastructure.Services
 
             foreach (var role in userRoles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-                claims.Add(new Claim("role", role));
+                claims.Add(new Claim(ClaimTypes.Role, role)); // Only this is needed for ASP.NET Identity role mapping
                 _logger.LogDebug("Added role claim: {Role} for user: {UserId}", role, user.Id);
             }
 
@@ -118,8 +117,7 @@ namespace AYYUAZ.APP.Infrastructure.Services
 
             foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-                claims.Add(new Claim("role", role));
+                claims.Add(new Claim(ClaimTypes.Role, role)); // Only this is needed for ASP.NET Identity role mapping
             }
 
             var isAdmin = roles.Contains("Admin");

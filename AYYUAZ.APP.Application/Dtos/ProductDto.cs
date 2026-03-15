@@ -27,21 +27,7 @@ namespace AYYUAZ.APP.Application.Dtos
         public decimal FinalPrice { get; set; }
         public decimal DiscountPercantage { get; set; }
 
-        //public decimal? DiscountPercentage { get; set; }
-        //public decimal FinalPrice => DiscountPercentage.HasValue ? Price - (Price * DiscountPercentage.Value / 100m) : Price;
-        //public Discount Discount { get; set; }
-        //public decimal FinalPrice
-        //{
-        //    get
-        //    {
-        //        if (Discount != null && Discount.Percentage.HasValue)
-        //        {
-        //            var discountamount = (Price * Discount.Percentage.Value) / 100;
-        //            return Price - discountamount;
-        //        }
-        //        return Price;
-        //    }
-        //}
+     
     }
     public class CreateProductDto
     {

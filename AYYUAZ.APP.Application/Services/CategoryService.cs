@@ -101,20 +101,20 @@ namespace AYYUAZ.APP.Application.Services
             await _categoryRepository.DeleteAsync(categoryId);
             return true;
         }
-        public Task<IEnumerable<CategoryDto>> GetAllCategories()
+        public async Task<IEnumerable<CategoryDto>> GetAllCategories()
         {
-            var categories = _categoryRepository.GetAll();
-            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
+            var categories = await _categoryRepository.GetAll();
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
-        public Task<IEnumerable<CategoryDto>> GetCategoriesWithProducts()
+        public async Task<IEnumerable<CategoryDto>> GetCategoriesWithProducts()
         {
-            var categories = _categoryRepository.GetAllWithProducts();
-            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
+            var categories = await _categoryRepository.GetAllWithProducts();
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
-        public Task<CategoryDto> GetCategoryWithProducts(int categoryId)
+        public async Task<CategoryDto> GetCategoryWithProducts(int categoryId)
         {
-            var category = _categoryRepository.GetByIdWithProducts(categoryId);
-            return Task.FromResult(category != null ? _mapper.Map<CategoryDto>(category) : throw new NotFoundException(ErrorMessages.CategoryNotFound));
+            var category = await _categoryRepository.GetByIdWithProducts(categoryId);
+            return category != null ? _mapper.Map<CategoryDto>(category) : throw new NotFoundException(ErrorMessages.CategoryNotFound);
         }
         public async Task<bool> IsCategoryNameUniqueAsync(string categoryName)
         {
@@ -126,20 +126,19 @@ namespace AYYUAZ.APP.Application.Services
             var exists = await _categoryRepository.ExistsByNameExcludingId(categoryName, excludeId);
             return !exists;
         }
-        public Task<IEnumerable<CategoryDto>> SearchCategoriesByName(string searchTerm)
+        public async Task<IEnumerable<CategoryDto>> SearchCategoriesByName(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return GetAllCategories();
+                return await GetAllCategories();
             }
-
-            var categories = _categoryRepository.SearchByName(searchTerm);
-            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
+            var categories = await _categoryRepository.SearchByName(searchTerm);
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
-        public Task<IEnumerable<CategoryDto>> GetCategoriesWithPagination(int page, int pageSize)
+        public async Task<IEnumerable<CategoryDto>> GetCategoriesWithPagination(int page, int pageSize)
         {
-            var categories = _categoryRepository.GetWithPagination(page, pageSize);
-            return Task.FromResult(_mapper.Map<IEnumerable<CategoryDto>>(categories));
+            var categories = await _categoryRepository.GetWithPagination(page, pageSize);
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
         public Task<int> GetCategoryCount()
         {

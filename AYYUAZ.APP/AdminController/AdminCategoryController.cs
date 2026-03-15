@@ -1,5 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace AYYUAZ.APP.AdminController
             _categoryService = categoryService;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromForm] CreateCategoryDto createCategoryDto,int id)
         {
 
@@ -23,14 +24,14 @@ namespace AYYUAZ.APP.AdminController
             return CreatedAtAction(nameof(GetCategoryById), new { id = id }, category);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, [FromForm] UpdateCategoryDto updateCategoryDto)
         {
             var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto, id);
             return Ok(category);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
@@ -94,7 +95,7 @@ namespace AYYUAZ.APP.AdminController
             return Ok(count);
         }
         [HttpGet("check-name")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<bool>> CheckCategoryNameUnique([FromQuery] string name, [FromQuery] int? excludeId = null)
         {
             if (string.IsNullOrEmpty(name))

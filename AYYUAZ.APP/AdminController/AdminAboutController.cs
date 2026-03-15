@@ -1,6 +1,7 @@
 ﻿using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace AYYUAZ.APP.AdminController
             _logger = logger;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<AboutDto>> CreateAbout([FromBody] CreateAboutDto createAboutDto)
         {
 
@@ -27,7 +28,7 @@ namespace AYYUAZ.APP.AdminController
             return CreatedAtAction(nameof(GetAboutById), new { id = about.Id }, about);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<AboutDto>> UpdateAbout(int id, [FromBody] UpdateAboutDto updateAboutDto)
         {
 
@@ -35,7 +36,7 @@ namespace AYYUAZ.APP.AdminController
             return Ok(about);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteAbout(int id)
         {  
             var result = await _aboutService.DeleteAboutAsync(id);

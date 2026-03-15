@@ -1,5 +1,6 @@
 using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +8,6 @@ namespace AYYUAZ.APP.AdminController
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class AdminProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -18,6 +18,7 @@ namespace AYYUAZ.APP.AdminController
             _logger = logger;
         }
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] CreateProductDto createProductDto)
         {
             _logger.LogInformation("Creating new product");     
@@ -25,6 +26,7 @@ namespace AYYUAZ.APP.AdminController
             return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromForm] UpdateProductDto updateProductDto)
         {
             _logger.LogInformation("Updating product ID: {ProductId}", id);   
@@ -32,6 +34,7 @@ namespace AYYUAZ.APP.AdminController
             return Ok(product);
         }
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             _logger.LogInformation("Deleting product ID: {ProductId}", id);
@@ -264,6 +267,7 @@ namespace AYYUAZ.APP.AdminController
         }
 
         [HttpPost("{productId}/discount")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> AddDiscountToProduct(int productId, [FromBody] AddDiscountRequest request)
         {
             _logger.LogInformation("Adding discount to product: {ProductId}", productId);
@@ -286,6 +290,7 @@ namespace AYYUAZ.APP.AdminController
         }
 
         [HttpPut("{productId}/discount")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> UpdateProductDiscount(int productId, [FromBody] UpdateDiscountRequest request)
         {
             _logger.LogInformation("Updating discount for product: {ProductId}", productId);
@@ -308,6 +313,7 @@ namespace AYYUAZ.APP.AdminController
         }
 
         [HttpDelete("{productId}/discount")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> RemoveDiscountFromProduct(int productId)
         {
             _logger.LogInformation("Removing discount from product: {ProductId}", productId);
@@ -323,6 +329,7 @@ namespace AYYUAZ.APP.AdminController
             });
         }
         [HttpGet("{productId}/discount")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> GetProductDiscount(int productId)
         {
             _logger.LogInformation("Getting discount info for product: {ProductId}", productId);

@@ -44,10 +44,10 @@ namespace AYYUAZ.APP.Application.Services
             }
             return Task.FromResult(_mapper.Map<AboutDto>(about));
         }
-        public  Task<IEnumerable<AboutDto>> GetAllAbout()
+        public async Task<IEnumerable<AboutDto>> GetAllAbout()
         {
-            var abouts =  _aboutRepository.GetAllAbout(); 
-            return Task.FromResult(_mapper.Map<IEnumerable<AboutDto>>(abouts));
+            var abouts = await _aboutRepository.GetAllAbout();
+            return _mapper.Map<IEnumerable<AboutDto>>(abouts);
         }
         public async Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto, int id)
         {
