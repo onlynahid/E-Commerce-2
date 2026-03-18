@@ -3,6 +3,7 @@ using AYYUAZ.APP.Infrastructure.Data;
 using AYYUAZ.APP.Filters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 
 namespace AYYUAZ.APP.API.DependencyInjection
 {

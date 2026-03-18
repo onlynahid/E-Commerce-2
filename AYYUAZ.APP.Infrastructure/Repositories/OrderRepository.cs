@@ -16,40 +16,38 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
         }
 
         #region Override Generic Methods with Order-Specific Logic
+        //public async Task<Order?> GetById(int id)
+        //{
+        //    return await GetByIdWithItems(id);
+        //}
 
-        public async Task<Order?> GetById(int id)
-        {
-            return await GetByIdWithItems(id);
-        }
+        //public async Task<IEnumerable<Order>> GetAll()
+        //{
+        //    return await GetAllWithItems();
+        //}
+        //public override async Task<Order> AddAsync(Order entity)
+        //{
+        //    entity.CreatedAt = DateTime.UtcNow;
+        //    entity.OrderStatus = OrderStatus.Processed;
+        //    if (entity.OrderItems?.Any() == true)
+        //    {
+        //        entity.TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
+        //    }
 
-        public async Task<IEnumerable<Order>> GetAll()
-        {
-            return await GetAllWithItems();
-        }
+        //    await _dbSet.AddAsync(entity);
+        //    await SaveChangesAsync();
+        //    return entity;
+        //}
 
-        public override async Task<Order> AddAsync(Order entity)
-        {
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.OrderStatus = OrderStatus.Processed;
-            if (entity.OrderItems?.Any() == true)
-            {
-                entity.TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
-            }
-
-            await _dbSet.AddAsync(entity);
-            await SaveChangesAsync();
-            return entity;
-        }
-
-        public override async Task DeleteAsync(int id)
-        {
-            var order = await GetByIdWithItems(id);
-            if (order != null)
-            {
-                _dbSet.Remove(order);
-                await SaveChangesAsync();
-            }
-        }
+        //public override async Task DeleteAsync(int id)
+        //{
+        //    var order = await GetByIdWithItems(id);
+        //    if (order != null)
+        //    {
+        //        _dbSet.Remove(order);
+        //        await SaveChangesAsync();
+        //    }
+        //}
 
         #endregion
 

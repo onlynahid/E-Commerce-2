@@ -8,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Application.Service;
-using AYYUAZ.APP.Infrastructure.Services;
 using AYYUAZ.APP.Domain.Entities;
-using AYYUAZ.APP.Application.Mappings;
 
 namespace AYYUAZ.APP.Application.DI.Application
 {
@@ -19,18 +17,17 @@ namespace AYYUAZ.APP.Application.DI.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             // AutoMapper registration
-            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+          
 
             // Service registrations
             services.AddScoped<IAboutService, AboutService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IAuthService, AuthService>();
+            //services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IHeroService, HeroService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ISettingsService, SettingsService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IJwtService, JwtService>();
+            //services.AddScoped<IJwtService, JwtService>();
 
             return services;
         }

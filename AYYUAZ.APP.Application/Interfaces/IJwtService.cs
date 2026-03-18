@@ -1,14 +1,13 @@
 using AYYUAZ.APP.Application.Dtos;
-using AYYUAZ.APP.Domain.Entities;
 using System.Security.Claims;
 
 namespace AYYUAZ.APP.Application.Interfaces
 {
     public interface IJwtService 
     {
-        string GenerateToken(User user);
-        ClaimsPrincipal? ValidateToken(string token);
         Task<TokenDto> GenerateTokenAsync(string userId);
+        ClaimsPrincipal? ValidateToken(string token);
+        Task<ClaimsPrincipal?> ValidateTokenAsync(string token); // <-- Added async version
         Task<string> GenerateRefreshTokenAsync();
     }
 }

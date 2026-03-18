@@ -15,30 +15,30 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
 
         #region Settings-Specific Methods
 
-        public async Task AddSettingsAsync(Settings settings)
-        {
-            await AddAsync(settings);
-        }
+        //public async Task AddSettingsAsync(Settings settings)
+        //{
+        //    await AddAsync(settings);
+        //}
 
-        public async Task DeleteSettingsAsync(int id)
-        {
-            await DeleteAsync(id);
-        }
+        //public async Task DeleteSettingsAsync(int id)
+        //{
+        //    await DeleteAsync(id);
+        //}
 
-        public Task<List<Settings>> GetAllSettings()
-        {
-            return _dbSet.ToListAsync();
-        }
+        //public Task<List<Settings>> GetAllSettings()
+        //{
+        //    return _dbSet.ToListAsync();
+        //}
 
-        public Task<Settings> GetSettingsById(int id)
-        {
-            return _dbSet.FindAsync(id).AsTask();
-        }
+        //public Task<Settings> GetSettingsById(int id)
+        //{
+        //    return _dbSet.FindAsync(id).AsTask();
+        //}
 
-        public async Task UpdateSettingsAsync(Settings settings)
-        {
-            await UpdateAsync(settings);
-        }
+        //public async Task UpdateSettingsAsync(Settings settings)
+        //{
+        //    await UpdateAsync(settings);
+        //}
 
         public Task<Settings> GetCurrentSettings()
         {
@@ -81,7 +81,7 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
             if (socialLinks.ContainsKey("twitter"))
                 currentSettings.TwitterUrl = socialLinks["twitter"];
 
-            await UpdateSettingsAsync(currentSettings);
+            await UpdateAsync(currentSettings);
         }
 
         #endregion

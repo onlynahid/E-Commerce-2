@@ -1,14 +1,17 @@
 using Microsoft.Extensions.Configuration;
+using AYYUAZ.APP.Infrastructure.ApplicationUser; // Ensure this using directive is present
+
+// No other changes are needed as the 'User' class is defined in the 'AYYUAZ.APP.Infrastructure.ApplicationUser' namespace.
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Application.Dtos;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 namespace AYYUAZ.APP.Infrastructure.Services
 {
     public class JwtService : IJwtService
@@ -216,6 +219,11 @@ namespace AYYUAZ.APP.Infrastructure.Services
                     ex.GetType().Name, ex.Message);
                 return null;
             }
+        }
+
+        public async Task<ClaimsPrincipal?> ValidateTokenAsync(string token)
+        {
+            return await Task.Run(() => ValidateToken(token));
         }
 
         public Task<string> GenerateRefreshTokenAsync()

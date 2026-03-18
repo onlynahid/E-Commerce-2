@@ -14,11 +14,6 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
 
         #region Product-Specific Methods
 
-        public Task DeleteProductAsync(int productId)
-        {
-            return DeleteAsync(productId);
-        }
-
         public Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, decimal? maxPrice)
         {
             var query = _dbSet
@@ -187,7 +182,6 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
 
             return true;
         }
-
         public async Task<bool> RemoveDiscountFromProductAsync(int productId)
         {
             var product = await GetByIdWithDetails(productId);

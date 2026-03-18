@@ -13,44 +13,39 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
         public CategoryRepository(AppDbContext context) : base(context)
         {
         }
-
         #region Category-Specific Methods
+        //public override async Task<Category> AddAsync(Category category)
+        //{
+        //    category.CreatedAt = DateTime.UtcNow;
+        //    return await base.AddAsync(category);
+        //}
 
-        public override async Task<Category> AddAsync(Category category)
-        {
-            category.CreatedAt = DateTime.UtcNow;
-            return await base.AddAsync(category);
-        }
-
-        public override async Task DeleteAsync(int categoryId)
-        {
-            var category = await GetByIdWithProducts(categoryId);
-            if (category != null)
-            {
-                if (category.Products.Any())
-                {
-                    throw new ConflictException(ErrorMessages.ConflictException);
-                }
+        //public override async Task DeleteAsync(int categoryId)
+        //{
+        //    var category = await GetByIdWithProducts(categoryId);
+        //    if (category != null)
+        //    {
+        //        if (category.Products.Any())
+        //        {
+        //            throw new ConflictException(ErrorMessages.ConflictException);
+        //        }
                 
-                _dbSet.Remove(category);
-                await SaveChangesAsync();
-            }
-        }
-
+        //        _dbSet.Remove(category);
+        //        await SaveChangesAsync();
+        //    }
+        //}
         public async Task<IEnumerable<Category>> GetAllWithProducts()
         {
             return await _dbSet
                 .Include(c => c.Products)
                 .ToListAsync();
         }
-
         public Task<Category> GetByIdWithProducts(int categoryId)
         {
             return _dbSet
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
         }
-
         public async Task<IEnumerable<Category>> GetWithPagination(int page, int pageSize)
         {
             return await _dbSet
@@ -59,22 +54,18 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
-
         public Task<int> GetCount()
         {
             return _dbSet.CountAsync();
         }
-
         public Task<bool> ExistsByName(string categoryName)
         {
             return _dbSet.AnyAsync(c => c.Name == categoryName);
         }
-
         public Task<bool> ExistsByNameExcludingId(string categoryName, int excludeId)
         {
             return _dbSet.AnyAsync(c => c.Name == categoryName && c.Id != excludeId);
         }
-
         public async Task<IEnumerable<Category>> GetPopular(int count)
         {
             return await _dbSet
@@ -83,7 +74,6 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 .Take(count)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<Category>> SearchByName(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
@@ -93,7 +83,6 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 .Where(c => c.Name.Contains(searchTerm))
                 .ToListAsync();
         }
-
         #endregion
     }
 }

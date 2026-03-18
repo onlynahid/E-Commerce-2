@@ -1,4 +1,6 @@
 ﻿using AYYUAZ.APP.Application.Interfaces;
+using AYYUAZ.APP.Application.Mappings;
+using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
 using AYYUAZ.APP.Infrastructure.Repositories;
@@ -27,9 +29,10 @@ namespace AYYUAZ.APP.Infrastructure.DI.Infrastructure
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IAboutRepository, AboutRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+           services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IHeroRepository, HeroRepository>();
-
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
             // Register Services
             services.AddScoped<IFileStorageService, FileStorageService>();
 

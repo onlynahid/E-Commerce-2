@@ -1,6 +1,7 @@
 using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 using AYYUAZ.APP.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

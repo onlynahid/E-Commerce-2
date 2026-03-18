@@ -6,14 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using AYYUAZ.APP.Domain.Enum;
-
 namespace AYYUAZ.APP.Domain.Interfaces
 {
     public interface IOrderRepository : IGenericRepository<Order>
     {
         // Order-specific methods that are not in the generic repository
-        Task<Order?> GetById(int id);
-        Task<IEnumerable<Order>> GetAll();
+        //Task<Order?> GetById(int id);
+        //Task<IEnumerable<Order>> GetAll();
         Task<Order?> GetByIdWithItems(int orderId);
         Task<IEnumerable<Order>> GetAllWithItems();
         Task<Order> AcceptOrderAsync(int orderId);

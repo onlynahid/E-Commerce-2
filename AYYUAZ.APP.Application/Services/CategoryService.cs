@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using AYYUAZ.APP.Application.Exceptions.AppException;
 using AYYUAZ.APP.Constants;
 using Microsoft.AspNetCore.Http;
@@ -35,17 +34,18 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
         {
+            const string defaultImageUrl = "default-category.jpg";
+            const string categories="categories";
             var isUnique = await IsCategoryNameUniqueAsync(createCategoryDto.Name);
             if (!isUnique)
             {
                 throw new NotFoundException(ErrorMessages.CategoryAlreadyExists);
             }
-
-            string imageUrl = "default-category.jpg";
+            string imageUrl = defaultImageUrl;
 
             if (createCategoryDto.Image != null && createCategoryDto.Image.Length > 0)
             {
-                imageUrl = await _fileStorageService.UploadImageAsync(createCategoryDto.Image, "categories");
+                imageUrl = await _fileStorageService.UploadImageAsync(createCategoryDto.Image,categories);
             }
 
             var category = _mapper.Map<Category>(createCategoryDto);
@@ -58,6 +58,8 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto, int categoryId)
         {
+            const string defaultImageUrl = "default-category.jpg";
+            const string categories = "categories";
             var category = await _categoryRepository.GetById(categoryId);
             if (category == null)
                 throw new NotFoundException(ErrorMessages.CategoryNotFound);
@@ -68,12 +70,12 @@ namespace AYYUAZ.APP.Application.Services
 
             if (updateCategoryDto.Image != null && updateCategoryDto.Image.Length > 0)
             {
-                if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != "default-category.jpg")
+                if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != defaultImageUrl)
                 {
                     await _fileStorageService.DeleteImageAsync(category.ImageUrl);
                 }
 
-                category.ImageUrl = await _fileStorageService.UploadImageAsync(updateCategoryDto.Image, "categories");
+                category.ImageUrl = await _fileStorageService.UploadImageAsync(updateCategoryDto.Image,categories);
             }
 
             _mapper.Map(updateCategoryDto, category);
@@ -84,6 +86,7 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<bool> DeleteCategoryAsync(int categoryId)
         {
+            const string defaultImageUrl = "default-category.jpg";
             var category = await _categoryRepository.GetByIdWithProducts(categoryId);
 
             if (category == null)
@@ -93,7 +96,7 @@ namespace AYYUAZ.APP.Application.Services
             {
                 throw new ConflictException(ErrorMessages.ConflictException);
             }
-            if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != "default-category.jpg")
+            if (!string.IsNullOrEmpty(category.ImageUrl) && category.ImageUrl != defaultImageUrl)
             {
                 await _fileStorageService.DeleteImageAsync(category.ImageUrl);
             }

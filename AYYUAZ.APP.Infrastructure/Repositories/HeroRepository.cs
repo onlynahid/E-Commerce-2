@@ -10,34 +10,28 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
         public HeroRepository(AppDbContext context) : base(context)
         {
         }
-
         #region Hero-Specific Methods
+        //public async Task AddHeroAsync(Hero hero)
+        //{
+        //    await AddAsync(hero);
+        //}
+        //public async Task DeleteHeroAsync(int heroId)
+        //{
+        //    await DeleteAsync(heroId);
+        //}
+        //public Task<List<Hero>> GetAllHeroes()
+        //{
+        //    return _dbSet.ToListAsync();
+        //}
+        //public Task<Hero> GetHeroById(int heroId)
+        //{
+        //    return _dbSet.FindAsync(heroId).AsTask();
+        //}
 
-        public async Task AddHeroAsync(Hero hero)
-        {
-            await AddAsync(hero);
-        }
-
-        public async Task DeleteHeroAsync(int heroId)
-        {
-            await DeleteAsync(heroId);
-        }
-
-        public Task<List<Hero>> GetAllHeroes()
-        {
-            return _dbSet.ToListAsync();
-        }
-
-        public Task<Hero> GetHeroById(int heroId)
-        {
-            return _dbSet.FindAsync(heroId).AsTask();
-        }
-
-        public async Task UpdateHeroAsync(Hero hero)
-        {
-            await UpdateAsync(hero);
-        }
-
+        //public async Task UpdateHeroAsync(Hero hero)
+        //{
+        //    await UpdateAsync(hero);
+        //}
         public async Task<IEnumerable<Hero>> SearchByTitle(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
@@ -47,7 +41,6 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 .Where(h => h.Title.Contains(searchTerm))
                 .ToListAsync();
         }
-
         public Task<Hero> GetActiveHero()
         {
             return _dbSet.FirstOrDefaultAsync();

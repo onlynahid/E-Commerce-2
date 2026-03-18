@@ -1,4 +1,5 @@
 ﻿using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 using AYYUAZ.APP.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;

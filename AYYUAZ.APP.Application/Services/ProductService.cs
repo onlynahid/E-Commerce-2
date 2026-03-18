@@ -23,11 +23,13 @@ namespace AYYUAZ.APP.Application.Service
         }
         public async Task<ProductDto> CreateProductAsync(CreateProductDto createProductDto)
         {
-            string imageUrl = "default-product.jpg";
+            const string defaultImageUrl = "default-product.jpg";
+            string imageUrl = defaultImageUrl;
+            const string products = "products";
 
             if (createProductDto.Image?.Length > 0)
             {
-                imageUrl = await _fileStorageService.UploadImageAsync(createProductDto.Image, "products");
+                imageUrl = await _fileStorageService.UploadImageAsync(createProductDto.Image,products);
             }
 
             var product = new Product
@@ -51,7 +53,6 @@ namespace AYYUAZ.APP.Application.Service
             {
                 await _productRepository.AddDiscountToProductAsync(product.Id, createProductDto.DiscountPercentage.Value);
             }
-
             return await GetProductById(product.Id);
         }
         public Task<bool> AddDiscountToProductAsync(int productId, decimal discountPercentage)
@@ -68,16 +69,17 @@ namespace AYYUAZ.APP.Application.Service
         }    
         public async Task<bool> DeleteProductAsync(int productId)
         {
+            const string defaultImageUrl = "default-product.jpg";
             var product = await _productRepository.GetById(productId);
             if (product == null)
                 throw new NotFoundException(ErrorMessages.ProductNotFound);
 
-            if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "default-product.jpg")
+            if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl !=defaultImageUrl)
             {
                 await _fileStorageService.DeleteImageAsync(product.ImageUrl);
             }
 
-            await _productRepository.DeleteProductAsync(productId);
+            await _productRepository.DeleteAsync(productId);
             return true;
         }    
         public Task<List<Product>> FilterProductsAsync(ProductFilterDto filter)
@@ -93,7 +95,6 @@ namespace AYYUAZ.APP.Application.Service
         }
         public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
-            // Ensure Discount and Category are included for all products
             var products = await _productRepository.GetAllWithDetails();
             return products.Select(p => MapToDto(p));
         }
@@ -175,17 +176,19 @@ namespace AYYUAZ.APP.Application.Service
         }
         public async Task<ProductDto> UpdateProductAsync(int id, UpdateProductDto updateProductDto)
         {
+            const string defaultImageUrl = "default-product.jpg";
+            const string products = "products";
             var product = await _productRepository.GetById(id);
             if (product == null)
                 throw new NotFoundException(ErrorMessages.ProductNotFound);
 
             if (updateProductDto.Image != null && updateProductDto.Image.Length > 0)
             {
-                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "default-product.jpg")
+                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl !=defaultImageUrl)
                 {
                     await _fileStorageService.DeleteImageAsync(product.ImageUrl);
                 }
-                product.ImageUrl = await _fileStorageService.UploadImageAsync(updateProductDto.Image, "products");
+                product.ImageUrl = await _fileStorageService.UploadImageAsync(updateProductDto.Image,products);
             }
 
             product.Name = updateProductDto.Name;

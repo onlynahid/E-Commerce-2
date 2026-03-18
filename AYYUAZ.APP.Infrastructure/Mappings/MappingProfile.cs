@@ -1,6 +1,7 @@
 using AutoMapper;
 using AYYUAZ.APP.Application.Dtos;
 using AYYUAZ.APP.Domain.Entities;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 
 namespace AYYUAZ.APP.Application.Mappings
 {
@@ -86,7 +87,6 @@ namespace AYYUAZ.APP.Application.Mappings
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
                 .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product != null ? src.Product.ImageUrl : string.Empty));
             CreateMap<CreateOrderItemDto, OrderItem>();
-            CreateMap<UpdateOrderItemDto, OrderItem>();
 
             // Order
             CreateMap<Order, OrderDto>();

@@ -30,22 +30,6 @@ namespace AYYUAZ.APP.Domain.Entities
         public string? Colors { get; set; }
         public Discount? Discount { get; set; }
         public int? DiscountId { get; set; }
-        //public decimal? DiscountPercentage { get; set; }
-        //public decimal FinalPrice=>DiscountPercentage.HasValue?Price-(Price*DiscountPercentage.Value / 100m ):Price;
-        //public Discount? Discount { get; set; }
-        //public int? discountid { get; set; }
-        //public decimal FinalPrice
-        //{
-        //    get
-        //    {
-        //        if (Discount != null && Discount.Percentage.HasValue)
-        //        {
-        //            var discountamount = (Price * Discount.Percentage.Value) / 100;
-        //            return Price - discountamount;
-        //        }
-        //        return Price;
-        //    }
-        //}
         public Product()
         {
             CreatedAt = DateTime.UtcNow;

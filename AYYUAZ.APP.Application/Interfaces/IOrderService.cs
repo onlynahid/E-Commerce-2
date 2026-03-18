@@ -12,7 +12,7 @@ namespace AYYUAZ.APP.Application.Interfaces
         Task<IEnumerable<OrderDto>> GetAllOrders();
         Task<OrderDto> GetOrderById(int orderId);
         Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto);
-        Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto);
+        //Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto);
         Task<bool> DeleteOrderAsync(int orderId);
         Task<OrderAcceptedDto> AcceptedOrderAsync(int orderId);
         Task<OrderDto> RejectedOrderDto(int orderId);
@@ -25,5 +25,6 @@ namespace AYYUAZ.APP.Application.Interfaces
         Task<decimal> GetAverageOrderValue();
         Task<OrderDto> GetOrderWithItems(int orderId);
         Task<IEnumerable<OrderDto>> GetOrdersWithItems();
+        Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto, int id);
     }
 }

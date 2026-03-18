@@ -44,14 +44,13 @@ namespace AYYUAZ.APP.Controllers
         public async Task<ActionResult<OrderDto>> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
             _logger.LogInformation("Updating order ID: {OrderId}", id);
-            
-            if (id != updateOrderDto.Id)
+            if (id <= 0)
             {
-                return BadRequest("Order ID mismatch.");
+                return BadRequest("Invalid Order ID.");
             }
-
-            var order = await _orderService.UpdateOrderAsync(updateOrderDto);
-            return Ok(order);
+            await _orderService.UpdateOrderAsync(updateOrderDto,id); 
+            var updatedOrder = await _orderService.GetOrderById(id);
+            return Ok(updatedOrder);
         }
 
         [HttpDelete("{id}")]

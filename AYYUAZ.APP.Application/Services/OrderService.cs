@@ -216,9 +216,9 @@ namespace AYYUAZ.APP.Application.Services
                            o.Address.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .Select(MapToDto);
         }
-        public async Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto)
+        public async Task<OrderDto> UpdateOrderAsync(UpdateOrderDto updateOrderDto,int id)
         {
-            var order = await _orderRepository.GetById(updateOrderDto.Id);
+            var order = await _orderRepository.GetById(id);
             if (order == null)
                 throw new NotFoundException(ErrorMessages.OrderNotFound);
 
@@ -288,5 +288,6 @@ namespace AYYUAZ.APP.Application.Services
                 }).ToList() ?? new List<OrderItemDto>()
             };
         }
+
     }
 }

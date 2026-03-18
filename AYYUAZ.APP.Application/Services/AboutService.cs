@@ -23,21 +23,21 @@ namespace AYYUAZ.APP.Application.Services
         public async Task<AboutDto> CreateAboutAsync(CreateAboutDto createAboutDto)
         {
             var about = _mapper.Map<About>(createAboutDto);
-            await _aboutRepository.AddAboutAsync(about);
+            await _aboutRepository.AddAsync(about);
             return _mapper.Map<AboutDto>(about);
         }
         public async Task<bool> DeleteAboutAsync(int aboutId)
         {
-            var about = await _aboutRepository.GetAboutById(aboutId);
+            var about = await _aboutRepository.GetById(aboutId);
             if (about == null)
                 return false;
 
-            await _aboutRepository.DeleteAboutAsync(aboutId);
+            await _aboutRepository.DeleteAsync(aboutId);
             return true;
         }
         public  Task<AboutDto> GetAboutById(int aboutId)
         {
-            var about =  _aboutRepository.GetAboutById(aboutId);
+            var about =  _aboutRepository.GetById(aboutId);
             if (about == null)
             {
                 throw new NotFoundException(ErrorMessages.AboutNotFound);
@@ -46,14 +46,14 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<IEnumerable<AboutDto>> GetAllAbout()
         {
-            var abouts = await _aboutRepository.GetAllAbout();
+            var abouts = await _aboutRepository.GetAll();
             return _mapper.Map<IEnumerable<AboutDto>>(abouts);
         }
         public async Task<AboutDto> UpdateAboutAsync(UpdateAboutDto updateAboutDto, int id)
         {
-            var about = await _aboutRepository.GetAboutById(id);
+            var about = await _aboutRepository.GetById(id);
             _mapper.Map(updateAboutDto, about);
-            await _aboutRepository.UpdateAboutAsync(about);
+            await _aboutRepository.UpdateAsync(about);
             return _mapper.Map<AboutDto>(about);
         }
     }

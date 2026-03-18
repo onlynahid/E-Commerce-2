@@ -8,6 +8,7 @@ using AutoMapper;
 using System.Reflection;
 using System.Security.Claims;
 using AYYUAZ.APP.Constants;
+using AYYUAZ.APP.Infrastructure.ApplicationUser;
 namespace AYYUAZ.APP.Application.Services
 {
     public class AuthService : IAuthService
@@ -149,7 +150,7 @@ namespace AYYUAZ.APP.Application.Services
                 return false;
             }
 
-            var principal = _jwtService.ValidateToken(token);
+            var principal = await _jwtService.ValidateTokenAsync(token); // Updated to use ValidateTokenAsync
             var isValid = principal != null;
 
             _logger.LogDebug("Token validation result: {IsValid}", isValid);
@@ -158,20 +159,18 @@ namespace AYYUAZ.APP.Application.Services
         }
         public async Task<ClaimsPrincipal?> GetPrincipalFromTokenAsync(string token)
         {
-           
-                _logger.LogDebug("Getting principal from token");
+            _logger.LogDebug("Getting principal from token");
 
-                if (string.IsNullOrEmpty(token))
-                {
-                    _logger.LogWarning("Get principal failed - empty token");
-                    return null;
-                }
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Get principal failed - empty token");
+                return null;
+            }
 
-                var principal = _jwtService.ValidateToken(token);
+            var principal = await _jwtService.ValidateTokenAsync(token); // Updated to use ValidateTokenAsync
 
-                _logger.LogDebug("Principal extraction result: {HasPrincipal}", principal != null);
-                return await Task.FromResult(principal);
-           
+            _logger.LogDebug("Principal extraction result: {HasPrincipal}", principal != null);
+            return principal;
         }
         public async Task<TokenDto> GenerateTokenAsync(string userId)
         {
