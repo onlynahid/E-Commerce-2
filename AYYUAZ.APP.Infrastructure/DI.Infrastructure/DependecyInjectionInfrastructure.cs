@@ -3,6 +3,7 @@ using AYYUAZ.APP.Application.Mappings;
 using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
+using AYYUAZ.APP.Infrastructure.Mappings;
 using AYYUAZ.APP.Infrastructure.Repositories;
 using AYYUAZ.APP.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +30,13 @@ namespace AYYUAZ.APP.Infrastructure.DI.Infrastructure
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IAboutRepository, AboutRepository>();
-           services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IHeroRepository, HeroRepository>();
-            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+            // Fix for CS1503: Correctly configure AutoMapper with assembly scanning
+            services.AddAutoMapper(cfg => cfg.AddMaps(typeof(InfrastructureAssemblyMarker).Assembly));
+
             // Register Services
             services.AddScoped<IFileStorageService, FileStorageService>();
 

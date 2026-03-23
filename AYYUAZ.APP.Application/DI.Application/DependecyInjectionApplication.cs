@@ -28,7 +28,7 @@ namespace AYYUAZ.APP.Application.DI.Application
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ISettingsService, SettingsService>();
             //services.AddScoped<IJwtService, JwtService>();
-
+         
             return services;
         }
     }
