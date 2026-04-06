@@ -16,7 +16,7 @@ namespace AYYUAZ.APP.Application.DI.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            // AutoMapper registration
+            
           
 
             // Service registrations
@@ -27,7 +27,7 @@ namespace AYYUAZ.APP.Application.DI.Application
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ISettingsService, SettingsService>();
-            //services.AddScoped<IJwtService, JwtService>();
+         
          
             return services;
         }

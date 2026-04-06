@@ -26,7 +26,6 @@ namespace AYYUAZ.APP.Application.Dtos
         public List<string>? Colors { get; set; }
         public decimal FinalPrice { get; set; }
         public decimal DiscountPercantage { get; set; }
-
      
     }
     public class CreateProductDto
@@ -86,6 +85,7 @@ namespace AYYUAZ.APP.Application.Dtos
         public List<string>? Colors { get; set; }
         public decimal? MaxPrice { get; set; }
         public decimal? MinPrice { get; set; }
+        public List<string?> Categories { get; set; }
     }
 
 }

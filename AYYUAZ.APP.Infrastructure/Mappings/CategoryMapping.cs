@@ -19,6 +19,10 @@ namespace AYYUAZ.APP.Infrastructure.Mappings
                 .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
             CreateMap<UpdateCategoryDto, Category>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+            CreateMap<CategoryExDto, Category>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+
+
         }
     }
 }

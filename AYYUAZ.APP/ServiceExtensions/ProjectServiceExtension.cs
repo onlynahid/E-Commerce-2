@@ -62,7 +62,7 @@ namespace AYYUAZ.APP.ServiceExtensions
                 options.AddPolicy("AllowAll", policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:3000", "https://localhost:3000")
+                        .WithOrigins("http://localhost:5174", "https://localhost:5173")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
@@ -166,7 +166,7 @@ namespace AYYUAZ.APP.ServiceExtensions
                     return Task.CompletedTask;
                 };
             });
-
+            
 
             return services; // Ensure the method returns the IServiceCollection instance
         }

@@ -6,7 +6,6 @@ using AYYUAZ.APP.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-
 namespace AYYUAZ.APP.Controllers
 {
     [ApiController]

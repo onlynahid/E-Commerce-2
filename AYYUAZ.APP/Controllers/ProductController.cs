@@ -137,7 +137,9 @@ namespace AYYUAZ.APP.Controllers
                 AgeGroups = string.IsNullOrEmpty(p.AgeGroup) ? null : p.AgeGroup.Split(',').ToList(),
                 Materials = string.IsNullOrEmpty(p.Material) ? null : p.Material.Split(',').ToList(),
                 Size = string.IsNullOrEmpty(p.Size) ? null : p.Size.Split(',').ToList(),
-                Colors = string.IsNullOrEmpty(p.Colors) ? null : p.Colors.Split(',').ToList()
+                Colors = string.IsNullOrEmpty(p.Colors) ? null : p.Colors.Split(',').ToList(),
+                DiscountPercantage = p.Discount != null && p.Discount.Percentage.HasValue && p.Discount.Percentage.Value > 0 ? p.Discount.Percentage.Value : 0,
+                FinalPrice = p.Discount != null && p.Discount.Percentage.HasValue && p.Discount.Percentage.Value > 0 ? Math.Round(p.Price * (1 - p.Discount.Percentage.Value / 100), 2) : p.Price
             }).ToList();
 
             return Ok(new
@@ -151,7 +153,7 @@ namespace AYYUAZ.APP.Controllers
                     sizes = filter.Size,
                     colors = filter.Colors,
                     minPrice = filter.MinPrice,
-                    maxPrice = filter.MaxPrice
+                    maxPrice = filter.MaxPrice, 
                 }
             });
         }

@@ -90,7 +90,8 @@ namespace AYYUAZ.APP.Application.Service
                 filter.Materials,
                 filter.Colors,
                 filter.MinPrice,
-                filter.MaxPrice
+                filter.MaxPrice,
+                filter.Categories
             );
         }
         public async Task<IEnumerable<ProductDto>> GetAllProducts()

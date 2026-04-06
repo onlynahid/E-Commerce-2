@@ -14,7 +14,8 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
 
         #region Product-Specific Methods
 
-        public Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, decimal? maxPrice)
+        public Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, 
+            decimal? maxPrice, List<string>? categories)
         {
             var query = _dbSet
                 .Include(p => p.Category)
@@ -44,6 +45,11 @@ namespace AYYUAZ.APP.Infrastructure.Repositories
                 query = query.Where(p => !string.IsNullOrEmpty(p.Colors) &&
                     colors.Any(c => ("," + p.Colors + ",").ToLower().Contains("," + c.ToLower() + ",")));
             }
+            if (categories != null && categories.Any() && !categories.Contains("string"))
+            {
+                query = query.Where(p => categories.Any(c => p.Category.Name.ToLower().Contains(c.ToLower())));
+            }
+
 
             if (minPrice.HasValue && minPrice.Value > 0)
             {

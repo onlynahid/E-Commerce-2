@@ -3,7 +3,6 @@ using AYYUAZ.APP.Application.Mappings;
 using AYYUAZ.APP.Application.Services;
 using AYYUAZ.APP.Domain.Interfaces;
 using AYYUAZ.APP.Infrastructure.Data;
-using AYYUAZ.APP.Infrastructure.Mappings;
 using AYYUAZ.APP.Infrastructure.Repositories;
 using AYYUAZ.APP.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +23,6 @@ namespace AYYUAZ.APP.Infrastructure.DI.Infrastructure
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            // Register Simple Repositories (No Generic Repository)
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
@@ -34,10 +32,9 @@ namespace AYYUAZ.APP.Infrastructure.DI.Infrastructure
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IHeroRepository, HeroRepository>();
 
-            // Fix for CS1503: Correctly configure AutoMapper with assembly scanning
+
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(InfrastructureAssemblyMarker).Assembly));
 
-            // Register Services
             services.AddScoped<IFileStorageService, FileStorageService>();
 
             return services;

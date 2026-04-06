@@ -37,19 +37,19 @@ namespace AYYUAZ.APP.AdminController
             var result = await _categoryService.DeleteCategoryAsync(id);
             return NoContent();
         }
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
-        {
-            var categories = await _categoryService.GetAllCategories();
-            return Ok(categories);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
+        //{
+        //    var categories = await _categoryService.GetAllCategories();
+        //    return Ok(categories);
+        //}
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
             var category = await _categoryService.GetCategoryById(id);
             return Ok(category);
         }
-        [HttpGet("with-products")]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategoriesWithProducts()
         {
             var categories = await _categoryService.GetCategoriesWithProducts();

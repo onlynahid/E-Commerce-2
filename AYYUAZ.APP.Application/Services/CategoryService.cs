@@ -104,11 +104,11 @@ namespace AYYUAZ.APP.Application.Services
             await _categoryRepository.DeleteAsync(categoryId);
             return true;
         }
-        public async Task<IEnumerable<CategoryDto>> GetAllCategories()
-        {
-            var categories = await _categoryRepository.GetAll();
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
-        }
+        //public async Task<IEnumerable<CategoryExDto>> GetAllCategories()
+        //{
+        //    var categories = await _categoryRepository.GetAll();
+        //    return _mapper.Map<IEnumerable<CategoryExDto>>(categories);
+        //}
         public async Task<IEnumerable<CategoryDto>> GetCategoriesWithProducts()
         {
             var categories = await _categoryRepository.GetAllWithProducts();
@@ -133,7 +133,7 @@ namespace AYYUAZ.APP.Application.Services
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return await GetAllCategories();
+                return Enumerable.Empty<CategoryDto>();
             }
             var categories = await _categoryRepository.SearchByName(searchTerm);
             return _mapper.Map<IEnumerable<CategoryDto>>(categories);

@@ -5,7 +5,8 @@ namespace AYYUAZ.APP.Domain.Interfaces
 {
     public interface IProductRepository : IGenericRepository<Product>
     {
-        Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, decimal? maxPrice);
+        Task<List<Product>> FilterProductsAsync(List<string>? ageGroups, List<string>? sizes, List<string>? materials, List<string>? colors, decimal? minPrice, 
+            decimal? maxPrice, List<string>? categories);
         Task<IEnumerable<Product>> GetByPriceRange(decimal minPrice, decimal maxPrice);
         Task<IEnumerable<Product>> SearchByName(string searchTerm);
         Task<IEnumerable<Product>> GetByCategoryId(int categoryId);

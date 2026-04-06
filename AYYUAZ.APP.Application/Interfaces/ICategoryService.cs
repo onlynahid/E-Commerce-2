@@ -9,7 +9,7 @@ namespace AYYUAZ.APP.Application.Interfaces
 {
     public interface ICategoryService 
     {
-        Task<IEnumerable<CategoryDto>> GetAllCategories();
+        //Task<IEnumerable<CategoryExDto>> GetAllCategories();
         Task<CategoryDto> GetCategoryById(int categoryId);
         Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
         Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto,int categoryid);

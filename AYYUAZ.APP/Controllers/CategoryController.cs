@@ -15,12 +15,12 @@ namespace AYYUAZ.APP.Controllers
         {
             _categoryService = categoryService;
         }
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
-        {
-            var categories = await _categoryService.GetAllCategories();
-            return Ok(categories);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
+        //{
+        //    var categories = await _categoryService.GetAllCategories();
+        //    return Ok(categories);
+        //}
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
