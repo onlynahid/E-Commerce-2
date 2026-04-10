@@ -3,6 +3,7 @@ using AYYUAZ.APP.Application.Interfaces;
 using AYYUAZ.APP.Domain.Entities;
 using AYYUAZ.APP.Infrastructure.ApplicationUser;
 using AYYUAZ.APP.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,6 @@ public class AdminAuthController : ControllerBase
     private readonly ILogger<AdminAuthController> _logger;
     private readonly UserManager<User> _userManager;
     private readonly IJwtService _jwtService;
-
     public AdminAuthController(
         IAuthService authService,
         ILogger<AdminAuthController> logger,
@@ -42,10 +42,8 @@ public class AdminAuthController : ControllerBase
         var result = await _authService.LoginAsync(loginDto);
         return Ok(result);
     }
-
     [HttpPost("register")]
     [AllowAnonymous]
-    [Authorize(Roles = "Admin")] 
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
     {
         _logger.LogInformation("Registration request received");
@@ -56,7 +54,7 @@ public class AdminAuthController : ControllerBase
 
     [HttpPost("validate-token")]
     [AllowAnonymous]
-    public async Task<ActionResult<object>> ValidateToken([FromBody] TokenValidationRequest request)
+    public async Task<ActionResult<TokenValidationResponseDto>> ValidateToken([FromBody] TokenValidationRequest request)
     {
         _logger.LogInformation("Token validation requested");
 
@@ -68,65 +66,63 @@ public class AdminAuthController : ControllerBase
     }
 
     [HttpGet("me")]
-    [Authorize(Roles = "Admin")]
-    public ActionResult<object> GetCurrentUser()
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    public ActionResult<CurrentUserDto> GetCurrentUser()
     {
         _logger.LogInformation("Get current user requested");
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var username = User.FindFirst(ClaimTypes.Name)?.Value;
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
-        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
-        var isAdminClaim = User.FindFirst("isAdmin")?.Value;
-
-        return Ok(new
+        var user = new CurrentUserDto
         {
-            userId,
-            username,
-            email,
-            roles,
-            isAdmin = isAdminClaim,
-            isAuthenticated = User.Identity?.IsAuthenticated ?? false,
-            claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList()
-        });
+            UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            Username = User.FindFirst(ClaimTypes.Name)?.Value,
+            Email = User.FindFirst(ClaimTypes.Email)?.Value,
+            Roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList(),
+            IsAdmin = User.FindFirst("isAdmin")?.Value,
+            IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
+            Claims = User.Claims
+                .Select(c => new ClaimDto { Type = c.Type, Value = c.Value })
+                .ToList()
+        };
+
+        return Ok(user);
     }
 
-    [HttpPost("debug/decode-token")]
-    [AllowAnonymous]
-    public ActionResult<object> DecodeToken([FromBody] TokenValidationRequest request)
-    {
-        if (string.IsNullOrEmpty(request.Token))
-        {
-            return BadRequest(new { error = "Token is required" });
-        }
+    //[HttpPost("debug/decode-token")]
+    //[AllowAnonymous]
+    //public ActionResult<object> DecodeToken([FromBody] TokenValidationRequest request)
+    //{
+    //    if (string.IsNullOrEmpty(request.Token))
+    //    {
+    //        return BadRequest(new { error = "Token is required" });
+    //    }
 
-        var handler = new JwtSecurityTokenHandler();
+    //    var handler = new JwtSecurityTokenHandler();
 
-        if (!handler.CanReadToken(request.Token))
-        {
-            return BadRequest(new { error = "Invalid JWT token format" });
-        }
+    //    if (!handler.CanReadToken(request.Token))
+    //    {
+    //        return BadRequest(new { error = "Invalid JWT token format" });
+    //    }
 
-        var jsonToken = handler.ReadJwtToken(request.Token);
+    //    var jsonToken = handler.ReadJwtToken(request.Token);
 
-        var claims = jsonToken.Claims.Select(c => new { c.Type, c.Value }).ToList();
+    //    var claims = jsonToken.Claims.Select(c => new { c.Type, c.Value }).ToList();
 
-        return Ok(new
-        {
-            header = jsonToken.Header,
-            payload = new
-            {
-                issuer = jsonToken.Issuer,
-                audience = jsonToken.Audiences,
-                expiry = jsonToken.ValidTo,
-                issuedAt = jsonToken.IssuedAt,
-                notBefore = jsonToken.ValidFrom
-            },
-            claims,
-            isExpired = jsonToken.ValidTo < DateTime.UtcNow,
-            timeUntilExpiry = jsonToken.ValidTo - DateTime.UtcNow
-        });
-    }
+    //    return Ok(new
+    //    {
+    //        header = jsonToken.Header,
+    //        payload = new
+    //        {
+    //            issuer = jsonToken.Issuer,
+    //            audience = jsonToken.Audiences,
+    //            expiry = jsonToken.ValidTo,
+    //            issuedAt = jsonToken.IssuedAt,
+    //            notBefore = jsonToken.ValidFrom
+    //        },
+    //        claims,
+    //        isExpired = jsonToken.ValidTo < DateTime.UtcNow,
+    //        timeUntilExpiry = jsonToken.ValidTo - DateTime.UtcNow
+    //    });
+    //}
 
     [HttpGet("debug")]
     [AllowAnonymous]

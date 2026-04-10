@@ -15,6 +15,5 @@ namespace AYYUAZ.APP.Constants
         public const string SettingsNotFound = "Settings was not found.";
         public const string Unauthorized = "Unauthorized.";
         public const string BadRequest = "BadRequest.";
-
     }
 }

@@ -62,7 +62,7 @@ namespace AYYUAZ.APP.ServiceExtensions
                 options.AddPolicy("AllowAll", policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:5174", "https://localhost:5173")
+                        .WithOrigins("http://localhost:3000", "https://localhost:3000")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

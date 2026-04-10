@@ -352,17 +352,14 @@ namespace AYYUAZ.APP.AdminController
     {
         public decimal DiscountPercentage { get; set; }
     }
-
     public class UpdateDiscountRequest
     {
         public decimal NewDiscountPercentage { get; set; }
     }
-
     public class BulkDiscountRequest
     {
         public List<ProductDiscountItem> ProductDiscounts { get; set; } = new();
     }
-
     public class ProductDiscountItem
     {
         public int ProductId { get; set; }

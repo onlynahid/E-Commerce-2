@@ -7,4 +7,9 @@ namespace AYYUAZ.APP.Application.Dtos
         public DateTime AccessTokenExpiration { get; set; }
         public DateTime RefreshTokenExpiration { get; set; }
     }
+    public class TokenValidationResponseDto
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
 }

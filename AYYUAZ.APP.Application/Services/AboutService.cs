@@ -56,5 +56,6 @@ namespace AYYUAZ.APP.Application.Services
             await _aboutRepository.UpdateAsync(about);
             return _mapper.Map<AboutDto>(about);
         }
+        
     }
 }

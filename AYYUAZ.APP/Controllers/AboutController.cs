@@ -32,29 +32,7 @@ namespace AYYUAZ.APP.Controllers
             var about = await _aboutService.GetAboutById(id);
             return Ok(about);
         }
-        [HttpGet("debug/auth")]
-        public ActionResult<object> DebugAuth()
-        {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
-            var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
-
-            var roleClaim = User.FindFirst(ClaimTypes.Role);
-            var isAdminClaim = User.FindFirst("IsAdmin");
-
-            return Ok(new
-            {
-                timestamp = DateTime.UtcNow,
-                authHeader = string.IsNullOrEmpty(authHeader) ? "MISSING" : authHeader.Substring(0, Math.Min(authHeader.Length, 50)) + "...",
-                isAuthenticated,
-                claimsCount = claims.Count,
-                claims,
-                roleClaim = roleClaim?.Value,
-                isAdminClaim = isAdminClaim?.Value,
-                isAdminByRole = roleClaim?.Value == "Admin",
-                isAdminByClaim = isAdminClaim?.Value?.ToLower() == "true"
-            });
-        }
+       
 
     }
 }

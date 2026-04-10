@@ -88,7 +88,7 @@ namespace AYYUAZ.APP.AdminController
             });
         }
         [HttpGet("count")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<int>> GetCategoryCount()
         {
             var count = await _categoryService.GetCategoryCount();
