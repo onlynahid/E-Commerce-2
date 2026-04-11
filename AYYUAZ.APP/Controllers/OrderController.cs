@@ -14,23 +14,20 @@ namespace AYYUAZ.APP.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly ILogger<OrderController> _logger;
-
         public OrderController(IOrderService orderService, ILogger<OrderController> logger)
         {
             _orderService = orderService;
             _logger = logger;
         }
-
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
             _logger.LogInformation("Getting order by ID: {OrderId}", id);
             
             var order = await _orderService.GetOrderById(id);
             return Ok(order);
-        }
-        
-        [HttpPost]
+        }  
+        [HttpPost("create-order")]
         public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
         {
             _logger.LogInformation("Creating new order");
@@ -38,8 +35,7 @@ namespace AYYUAZ.APP.Controllers
             var order = await _orderService.CreateOrderAsync(createOrderDto);
             return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
         }
-        
-        [HttpPut("{id}")]
+        [HttpPut("update-order{id}")]
         public async Task<ActionResult<OrderDto>> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
             _logger.LogInformation("Updating order ID: {OrderId}", id);
@@ -51,16 +47,14 @@ namespace AYYUAZ.APP.Controllers
             var updatedOrder = await _orderService.GetOrderById(id);
             return Ok(updatedOrder);
         }
-
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-order{id}")]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             _logger.LogInformation("Deleting order ID: {OrderId}", id);
             
             await _orderService.DeleteOrderAsync(id);
             return NoContent();
-        }
-        
+        }      
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout(CreateOrderDto dto)
         {

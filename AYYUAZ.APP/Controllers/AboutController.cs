@@ -20,13 +20,13 @@ namespace AYYUAZ.APP.Controllers
             _logger = logger;
          
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async  Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
         {
             var aboutList = await _aboutService.GetAllAbout();
             return Ok(aboutList);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<AboutDto>> GetAboutById(int id)
         {
             var about = await _aboutService.GetAboutById(id);

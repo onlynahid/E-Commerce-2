@@ -21,7 +21,7 @@ namespace AYYUAZ.APP.Controllers
         //    var categories = await _categoryService.GetAllCategories();
         //    return Ok(categories);
         //}
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
             var category = await _categoryService.GetCategoryById(id);
@@ -31,7 +31,7 @@ namespace AYYUAZ.APP.Controllers
             }
             return Ok(category);
         }
-        [HttpGet("with-products")]
+        [HttpGet("get-all-with-products")]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategoriesWithProducts()
         {
             var categories = await _categoryService.GetCategoriesWithProducts();

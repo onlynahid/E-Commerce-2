@@ -19,7 +19,7 @@ namespace AYYUAZ.APP.AdminController
             _aboutService = aboutService;
             _logger = logger;
         }
-        [HttpPost]
+        [HttpPost("create-about")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<AboutDto>> CreateAbout([FromBody] CreateAboutDto createAboutDto)
         {
@@ -27,7 +27,7 @@ namespace AYYUAZ.APP.AdminController
             var about = await _aboutService.CreateAboutAsync(createAboutDto);
             return CreatedAtAction(nameof(GetAboutById), new { id = about.Id }, about);
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-about{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<AboutDto>> UpdateAbout(int id, [FromBody] UpdateAboutDto updateAboutDto)
         {
@@ -35,20 +35,20 @@ namespace AYYUAZ.APP.AdminController
             var about = await _aboutService.UpdateAboutAsync(updateAboutDto,id);
             return Ok(about);
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-about{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteAbout(int id)
         {  
             var result = await _aboutService.DeleteAboutAsync(id);
             return NoContent();
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<AboutDto>> GetAboutById(int id)
         {
             var about = await _aboutService.GetAboutById(id);
             return Ok(about);
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<AboutDto>>> GetAllAbout()
         {
             var aboutList = await _aboutService.GetAllAbout();

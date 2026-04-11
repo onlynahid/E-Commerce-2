@@ -14,13 +14,13 @@ namespace AYYUAZ.APP.Controllers
         {
             _heroService = heroService;
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<HeroDto>>> GetAllHeroes()
         {
             var heroes = await _heroService.GetAllHeroesAsync();
             return Ok(heroes);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<HeroDto>> GetHeroById(int id)
         {    
             var hero = await _heroService.GetHeroByIdAsync(id);

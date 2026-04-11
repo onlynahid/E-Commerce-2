@@ -15,7 +15,7 @@ namespace AYYUAZ.APP.AdminController
         {
             _categoryService = categoryService;
         }
-        [HttpPost]
+        [HttpPost("create-category")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromForm] CreateCategoryDto createCategoryDto,int id)
         {
@@ -23,14 +23,14 @@ namespace AYYUAZ.APP.AdminController
             var category = await _categoryService.CreateCategoryAsync(createCategoryDto);
             return CreatedAtAction(nameof(GetCategoryById), new { id = id }, category);
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-category{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, [FromForm] UpdateCategoryDto updateCategoryDto)
         {
             var category = await _categoryService.UpdateCategoryAsync(updateCategoryDto, id);
             return Ok(category);
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-category{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
@@ -43,7 +43,7 @@ namespace AYYUAZ.APP.AdminController
         //    var categories = await _categoryService.GetAllCategories();
         //    return Ok(categories);
         //}
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
             var category = await _categoryService.GetCategoryById(id);

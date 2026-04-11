@@ -16,20 +16,20 @@ namespace AYYUAZ.APP.AdminController
         {
             _settingsService = settingsService;
         }
-        [HttpPost]
+        [HttpPost("create-settings")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> CreateSettings([FromBody] CreateSettingsDto createSettingsDto)
         {  
             var settings = await _settingsService.CreateSettingsAsync(createSettingsDto);
             return CreatedAtAction(nameof(GetSettingsById), new { id = settings.Id }, settings);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<SettingsDto>> GetSettingsById(int id)
         {
             var settings = await _settingsService.GetSettingsById(id);
             return Ok(settings);
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-settings{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<SettingsDto>> UpdateSettings(int id, [FromBody] UpdateSettingsDto updateSettingsDto)
         {
@@ -40,7 +40,7 @@ namespace AYYUAZ.APP.AdminController
             var settings = await _settingsService.UpdateSettingsAsync(updateSettingsDto);
             return Ok(settings);
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-settings{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteSettings(int id)
         {
@@ -69,7 +69,7 @@ namespace AYYUAZ.APP.AdminController
             return Ok(settings);
         }
         [HttpGet("social-media")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<Dictionary<string, string>>> GetSocialMediaLinks()
         {
             var socialLinks = await _settingsService.GetSocialMediaLinks();

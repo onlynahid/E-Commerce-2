@@ -14,11 +14,7 @@ namespace AYYUAZ.APP.Controllers
         {
             _fileStorageService = fileStorageService;
         }
-        /// <summary>
-        /// Upload a single image file
-        /// </summary>
-        /// <param name="request">File upload request</param>
-        /// <returns>Upload result with image URL</returns>
+        /// <param name="request">
         [HttpPost("upload")]
         [RequireAdmin]
         [Consumes("multipart/form-data")]
@@ -100,7 +96,6 @@ namespace AYYUAZ.APP.Controllers
                 totalErrors = errors.Count
             });
         }
-
         /// <summary>
         /// Delete an uploaded file
         /// </summary>
@@ -163,10 +158,6 @@ namespace AYYUAZ.APP.Controllers
             });
         }
     }
-
-    /// <summary>
-    /// Request model for single file upload
-    /// </summary>
     public class FileUploadRequest
     {     
         [Required]
@@ -174,15 +165,12 @@ namespace AYYUAZ.APP.Controllers
 
         public string? Folder { get; set; }
     }
-
-  
     public class MultipleFileUploadRequest
     {
         [Required]
         public List<IFormFile> Files { get; set; } = new();
         public string? Folder { get; set; }
     }
-
     public class FileValidationRequest
     {
         [Required]

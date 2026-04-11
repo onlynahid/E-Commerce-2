@@ -14,13 +14,13 @@ namespace AYYUAZ.APP.Controllers
         {
             _productService = productService;
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
         {
             var products = await _productService.GetAllProducts();
             return Ok(products);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             var product = await _productService.GetProductById(id);

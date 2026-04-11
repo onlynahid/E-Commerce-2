@@ -16,33 +16,33 @@ namespace AYYUAZ.APP.AdminController
         {
             _heroService = heroService;
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<HeroDto>>> GetAllHeroes()
         {
             var heroes = await _heroService.GetAllHeroesAsync();
             return Ok(heroes);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<HeroDto>> GetHeroById(int id)
         {
             var hero = await _heroService.GetHeroByIdAsync(id);
             return Ok(hero);
         }
-        [HttpPost]
+        [HttpPost("create-hero")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> CreateHero([FromForm] CreateHeroDto createHeroDto)
         {
             var hero = await _heroService.AddHeroAsync(createHeroDto);
             return CreatedAtAction(nameof(GetHeroById), new { id = hero.Id }, hero);
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-hero{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<HeroDto>> UpdateHero(int id, [FromForm] UpdateHeroDto updateHeroDto)
         {
             var hero = await _heroService.UpdateHeroAsync(id, updateHeroDto);
             return Ok(hero);
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-hero{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteHero(int id)
         {

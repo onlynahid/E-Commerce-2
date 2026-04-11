@@ -15,8 +15,6 @@ namespace AYYUAZ.APP
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);        
-
-
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddProjectServices(builder.Configuration);
@@ -39,7 +37,6 @@ namespace AYYUAZ.APP
             app.UseAuthorization();
             app.UseStaticFiles();
             app.MapControllers();
-
             app.Run();
         }
     }

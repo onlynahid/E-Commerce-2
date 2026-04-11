@@ -17,7 +17,7 @@ namespace AYYUAZ.APP.AdminController
             _productService = productService;
             _logger = logger;
         }
-        [HttpPost]
+        [HttpPost("create-product")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] CreateProductDto createProductDto)
         {
@@ -25,7 +25,7 @@ namespace AYYUAZ.APP.AdminController
             var product = await _productService.CreateProductAsync(createProductDto);
             return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-product{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromForm] UpdateProductDto updateProductDto)
         {
@@ -33,7 +33,7 @@ namespace AYYUAZ.APP.AdminController
             var product = await _productService.UpdateProductAsync(id, updateProductDto);
             return Ok(product);
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-product{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
@@ -42,14 +42,14 @@ namespace AYYUAZ.APP.AdminController
             await _productService.DeleteProductAsync(id);
             return NoContent();
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             _logger.LogInformation("Getting product by ID: {ProductId}", id);
             var product = await _productService.GetProductById(id);
             return Ok(product);
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
         {
             _logger.LogInformation("Getting all products");   
@@ -244,7 +244,6 @@ namespace AYYUAZ.APP.AdminController
                 lowestPrice = allProducts.Any() ? allProducts.Min(p => p.Price) : 0
             });
         }
-
         [HttpGet("price-range")]
         public async Task<ActionResult<object>> GetProductsByPriceRange(
             [FromQuery] decimal minPrice, 
@@ -265,7 +264,6 @@ namespace AYYUAZ.APP.AdminController
                 count = products.Count()
             });
         }
-
         [HttpPost("{productId}/discount")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> AddDiscountToProduct(int productId, [FromBody] AddDiscountRequest request)
@@ -288,7 +286,6 @@ namespace AYYUAZ.APP.AdminController
                 product = updatedProduct
             });
         }
-
         [HttpPut("{productId}/discount")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> UpdateProductDiscount(int productId, [FromBody] UpdateDiscountRequest request)
@@ -311,7 +308,6 @@ namespace AYYUAZ.APP.AdminController
                 product = updatedProduct
             });
         }
-
         [HttpDelete("{productId}/discount")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<object>> RemoveDiscountFromProduct(int productId)

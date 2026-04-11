@@ -12,7 +12,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace AYYUAZ.APP.AdminController;
-
 [ApiController]
 [Route("api/[controller]")]
 public class AdminAuthController : ControllerBase
@@ -51,7 +50,6 @@ public class AdminAuthController : ControllerBase
         var result = await _authService.RegisterAsync(registerDto);
         return Ok(result);
     }
-
     [HttpPost("validate-token")]
     [AllowAnonymous]
     public async Task<ActionResult<TokenValidationResponseDto>> ValidateToken([FromBody] TokenValidationRequest request)
@@ -64,7 +62,6 @@ public class AdminAuthController : ControllerBase
             message = isValid ? "Token is valid" : "Token is invalid" 
         });
     }
-
     [HttpGet("me")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public ActionResult<CurrentUserDto> GetCurrentUser()
@@ -83,10 +80,8 @@ public class AdminAuthController : ControllerBase
                 .Select(c => new ClaimDto { Type = c.Type, Value = c.Value })
                 .ToList()
         };
-
         return Ok(user);
     }
-
     //[HttpPost("debug/decode-token")]
     //[AllowAnonymous]
     //public ActionResult<object> DecodeToken([FromBody] TokenValidationRequest request)
@@ -123,7 +118,6 @@ public class AdminAuthController : ControllerBase
     //        timeUntilExpiry = jsonToken.ValidTo - DateTime.UtcNow
     //    });
     //}
-
     [HttpGet("debug")]
     [AllowAnonymous]
     public ActionResult Debug()
@@ -137,9 +131,8 @@ public class AdminAuthController : ControllerBase
             message = "AuthController debug info"
         });
     }
-
     [HttpPost("change-password")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -157,9 +150,8 @@ public class AdminAuthController : ControllerBase
             timestamp = DateTime.UtcNow
         });
     }
-
     [HttpPost("change-email")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> ChangeEmail([FromBody] ChangeEmailDto changeEmailDto)
     {
         _logger.LogInformation("Email change request received");
@@ -189,7 +181,6 @@ public class AdminAuthController : ControllerBase
         });
     }
 }
-
 public class TokenValidationRequest
 {
     [Required]

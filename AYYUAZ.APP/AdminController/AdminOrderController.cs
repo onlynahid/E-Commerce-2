@@ -15,14 +15,14 @@ namespace AYYUAZ.APP.AdminController
         {
             _orderService = orderService;
         }
-        [HttpGet]
+        [HttpGet("get-all")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
         {
             var orders = await _orderService.GetAllOrders();
             return Ok(orders);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
             var order = await _orderService.GetOrderById(id);
